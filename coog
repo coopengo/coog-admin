@@ -1,0 +1,188 @@
+#!/bin/bash
+# This script helps doing with Coog image.
+#
+# Options explanations:
+#     -d: as daemon
+#     --name: name of the container. in case of multi-containers => coog-n
+#     --link: to link to database (container-name:internal-reference)
+#     -v: we map a fs volume to hold data (i.e. attachments)
+#     -e: to set variables inside the container
+#
+#     More informations: https://docs.docker.com/engine/reference/run/
+#
+# Coog image variables:
+#     database:
+#         COOG_DB_SYS: defaults to postgresql
+#         COOG_DB_HOST: defaults to linked postgres container (POSTGRES) - mandatory
+#         COOG_DB_PORT: defaults to linked postgres container (POSTGRES) - mandatory
+#         COOG_DB_USER: mandatory
+#         COOG_DB_PASSWORD: mandatory
+#         COOG_DB_NAME: optional
+#         COOG_DB_LANG: optional (i.e. fr_FR)
+#     cache:
+#         COOG_CACHE_MODEL: tryton model cache size - optional
+#         COOG_CACHE_RECORD: tryton record cache size - optional
+#         COOG_CACHE_FIELD: tryton field cache size - optional
+#         COOG_CACHE_COOG: COOG specific cache size - optional
+#         COOG_CACHE_SYS: only redis is accepted - optional
+#         COOG_CACHE_HOST: defaults to linked redis container (REDIS) - depends on sys
+#         COOG_CACHE_PORT: defaults to linked redis container (REDIS) - depends on sys
+#         COOG_CACHE_DB: depends on sys
+#     async:
+#         COOG_ASYNC_SYS: could be rq or celery - optional
+#         COOG_ASYNC_HOST: defaults to linked redis container (REDIS) - depends on sys
+#         COOG_ASYNC_PORT: defaults to linked redis container (REDIS) - depends on sys
+#         COOG_ASYNC_DB: depends on sys
+#     session:
+#         COOG_SESSION_SUPERPWD: optional
+#     sentry:
+#         COOG_SENTRY_PROTOCOL: defaults to http
+#         COOG_SENTRY_HOST: optional
+#         COOG_SENTRY_PORT: depends on host
+#         COOG_SENTRY_PUB: public dsn key - depends on host
+#         COOG_SENTRY_SEC: secret dsn key - depends on host
+#         COOG_SENTRY_PROJECT: dsn project - depends on host
+
+image=`head -1 ./tags`
+container=coog
+data=`pwd`/data/coog
+postgres=postgres              # running container to link
+redis=redis                    # running container to link
+sentry=sentry                  # running container to link
+
+COOG_DB_SYS=                   # default is fine (postgresql)
+COOG_DB_HOST=                  # from linked postgres
+COOG_DB_PORT=                  # from linked postgres
+COOG_DB_USER=postgres
+COOG_DB_PASSWORD=postgres
+COOG_DB_NAME=coog
+COOG_DB_LANG=fr_FR
+
+COOG_CACHE_MODEL=              # default is fine (tryton default)
+COOG_CACHE_RECORD=             # default is fine (tryton default)
+COOG_CACHE_FIELD=              # default is fine (tryton default)
+COOG_CACHE_COOG=               # default is fine (tryton default)
+COOG_CACHE_SYS=redis
+COOG_CACHE_HOST=               # from linked redis
+COOG_CACHE_PORT=               # from linked redis
+COOG_CACHE_DB=0
+
+COOG_ASYNC_SYS=celery
+COOG_ASYNC_HOST=               # from linked redis
+COOG_ASYNC_PORT=               # from linked redis
+COOG_ASYNC_DB=1
+
+COOG_SESSION_SUPERPWD=secret
+
+COOG_SENTRY_PROTOCOL=          # default is fine (http)
+COOG_SENTRY_HOST=              # filled later from `ip sentry`
+COOG_SENTRY_PORT=9000
+COOG_SENTRY_PUB=pub            # should be retrieved from sentry app
+COOG_SENTRY_SEC=sec            # should be retrieved from sentry app
+COOG_SENTRY_PROJECT=project    # should be retrieved from sentry app
+
+link_postgres() {
+        [ ! -z $postgres ] && echo "--link $postgres:postgres"
+}
+
+link_redis() {
+        [ ! -z $redis ] && echo "--link $redis:redis"
+}
+
+set_db() {
+        local ret
+        [ ! -z $COOG_DB_SYS ] && ret="$ret -e COOG_DB_SYS=$COOG_DB_SYS"
+        [ ! -z $COOG_DB_HOST ] && ret="$ret -e COOG_DB_HOST=$COOG_DB_HOST"
+        [ ! -z $COOG_DB_PORT ] && ret="$ret -e COOG_DB_PORT=$COOG_DB_PORT"
+        [ ! -z $COOG_DB_USER ] && ret="$ret -e COOG_DB_USER=$COOG_DB_USER"
+        [ ! -z $COOG_DB_PASSWORD ] && ret="$ret -e COOG_DB_PASSWORD=$COOG_DB_PASSWORD"
+        [ ! -z $COOG_DB_NAME ] && ret="$ret -e COOG_DB_NAME=$COOG_DB_NAME"
+        [ ! -z $COOG_DB_LANG ] && ret="$ret -e COOG_DB_LANG=$COOG_DB_LANG"
+        echo "$ret"
+}
+
+set_cache() {
+        local ret
+        [ ! -z $COOG_CACHE_MODEL ] && ret="$ret -e COOG_CACHE_MODEL=$COOG_CACHE_MODEL"
+        [ ! -z $COOG_CACHE_RECORD ] && ret="$ret -e COOG_CACHE_RECORD=$COOG_CACHE_RECORD"
+        [ ! -z $COOG_CACHE_FIELD ] && ret="$ret -e COOG_CACHE_FIELD=$COOG_CACHE_FIELD"
+        [ ! -z $COOG_CACHE_COOG ] && ret="$ret -e COOG_CACHE_COOG=$COOG_CACHE_COOG"
+        [ ! -z $COOG_CACHE_SYS ] && ret="$ret -e COOG_CACHE_SYS=$COOG_CACHE_SYS"
+        [ ! -z $COOG_CACHE_HOST ] && ret="$ret -e COOG_CACHE_HOST=$COOG_CACHE_HOST"
+        [ ! -z $COOG_CACHE_PORT ] && ret="$ret -e COOG_CACHE_PORT=$COOG_CACHE_PORT"
+        [ ! -z $COOG_CACHE_DB ] && ret="$ret -e COOG_CACHE_DB=$COOG_CACHE_DB"
+        echo "$ret"
+}
+
+set_async() {
+        local ret
+        [ ! -z $COOG_ASYNC_SYS ] && ret="$ret -e COOG_ASYNC_SYS=$COOG_ASYNC_SYS"
+        [ ! -z $COOG_ASYNC_HOST ] && ret="$ret -e COOG_ASYNC_HOST=$COOG_ASYNC_HOST"
+        [ ! -z $COOG_ASYNC_PORT ] && ret="$ret -e COOG_ASYNC_PORT=$COOG_ASYNC_PORT"
+        [ ! -z $COOG_ASYNC_DB ] && ret="$ret -e COOG_ASYNC_DB=$COOG_ASYNC_DB"
+        echo "$ret"
+}
+
+set_session() {
+        [ ! -z $COOG_SESSION_SUPERPWD ] && echo "-e COOG_SESSION_SUPERPWD=$COOG_SESSION_SUPERPWD"
+}
+
+set_sentry() {
+        local ret
+        [ ! -z $sentry ] && COOG_SENTRY_HOST=`./ip $sentry`
+        [ ! -z $COOG_SENTRY_PROTOCOL ] && ret="$ret -e COOG_SENTRY_PROTOCOL=$COOG_SENTRY_PROTOCOL"
+        [ ! -z $COOG_SENTRY_HOST ] && ret="$ret -e COOG_SENTRY_HOST=$COOG_SENTRY_HOST"
+        [ ! -z $COOG_SENTRY_PORT ] && ret="$ret -e COOG_SENTRY_PORT=$COOG_SENTRY_PORT"
+        [ ! -z $COOG_SENTRY_PUB ] && ret="$ret -e COOG_SENTRY_PUB=$COOG_SENTRY_PUB"
+        [ ! -z $COOG_SENTRY_SEC ] && ret="$ret -e COOG_SENTRY_SEC=$COOG_SENTRY_SEC"
+        [ ! -z $COOG_SENTRY_PROJECT ] && ret="$ret -e COOG_SENTRY_PROJECT=$COOG_SENTRY_PROJECT"
+        echo "$ret"
+}
+
+run() {
+        local args
+        args="$args "`link_postgres`
+        args="$args "`set_db`
+        docker run \
+                -ti --rm \
+                -v $data:/opt/coog/data \
+                $args \
+                coog/$image $*
+}
+
+app() {
+        local args
+        args="$args "`link_postgres`
+        args="$args "`set_db`
+        args="$args "`link_redis`
+        args="$args "`set_cache`
+        args="$args "`set_session`
+        args="$args "`set_sentry`
+        docker run \
+                -d \
+                --name $container \
+                -v $data:/opt/coog/data \
+                -p 80:8000 \
+                $args \
+                coog/$image app $*
+}
+
+batch() {
+        local args
+        args="$args "`link_postgres`
+        args="$args "`set_db`
+        args="$args "`link_redis`
+        args="$args "`set_cache`
+        args="$args "`set_async`
+        docker run \
+                -ti --rm \
+                -v $data:/opt/coog/data \
+                $args \
+                coog/$image batch $*
+}
+
+[ -z $1 ] && echo Possible commands: run - app - batch && exit 1
+[ $1 = app ] && { shift; app $*; exit $?; }
+[ $1 = batch ] && { shift; batch $*; exit $?; }
+[ $1 = run ] && { shift; run $*; exit $?; }
+echo Unknown command && exit 1

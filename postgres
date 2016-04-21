@@ -1,0 +1,33 @@
+#!/bin/bash
+# This script helps doing with postgres docker image.
+# More informations: https://hub.docker.com/_/postgres/
+
+image=postgres:9.4
+container=postgres
+username=postgres
+password=postgres
+data=`pwd`/data/postgres
+
+daemon() {
+        docker run \
+                -d \
+                --name $container \
+                -e "POSTGRES_USER=$username" \
+                -e "POSTGRES_PASSWORD=$password" \
+                -e "PGDATA=/var/lib/postgresql/data/pgdata" \
+                -v $data:/var/lib/postgresql/data \
+                $image
+}
+
+client() {
+        docker run \
+                -ti --rm \
+                --link $container:postgres \
+                $image \
+                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$username"
+}
+
+[ -z $1 ] && echo Possible commands: daemon - client && exit 1
+[ $1 = daemon ] && { shift; daemon $*; exit $?; }
+[ $1 = client ] && { shift; client $*; exit $?; }
+echo Unknown command && exit 1

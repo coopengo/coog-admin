@@ -1,0 +1,68 @@
+#!/bin/bash
+# This script helps doing with sentry docker image.
+# More informations: https://hub.docker.com/_/sentry/
+
+image=sentry:8
+container=sentry
+postgres=postgres              # running container to link
+redis=redis                    # running container to link
+
+SENTRY_DB_USER=postgres
+SENTRY_DB_PASSWORD=postgres
+SENTRY_DB_NAME=sentry
+
+SENTRY_REDIS_DB=9
+
+key_file=./sentry-secret-key
+set_secret_key() {
+        [ ! -f $key_file ] && docker run --rm $image generate-secret-key > $key_file
+        SENTRY_SECRET_KEY=`cat $key_file`
+}
+
+run() {
+        set_secret_key || return $?
+        local mode; mode=$1; shift
+        local args; local name
+        if [ $mode = d ]
+        then
+                args="-d --name=$1"
+                shift
+                [ $# -eq 0 ] && args="$args -p 9000:9000"
+        elif [ $mode = i ]
+        then
+                args="-ti --rm"
+        else
+                return 1
+        fi
+        docker run \
+                $args \
+                --link $postgres:postgres \
+                -e "SENTRY_SECRET_KEY=$SENTRY_SECRET_KEY" \
+                -e "SENTRY_DB_USER=$SENTRY_DB_USER" \
+                -e "SENTRY_DB_PASSWORD=$SENTRY_DB_PASSWORD" \
+                -e "SENTRY_DB_NAME=$SENTRY_DB_NAME" \
+                --link $redis:redis \
+                -e "SENTRY_REDIS_DB=$SENTRY_REDIS_DB" \
+                $image $*
+}
+
+upgrade() {
+        run i sentry upgrade
+}
+
+daemon() {
+        run d $container-celery-worker sentry celery worker && \
+                run d $container-celery-beat sentry celery beat && \
+                run d $container
+
+}
+
+client() {
+        xdg-open "http://"`./ip $container`":9000"
+}
+
+[ -z $1 ] && echo Possible commands: upgrade - daemon - client && exit 1
+[ $1 = upgrade ] && { shift; upgrade $*; exit $?; }
+[ $1 = daemon ] && { shift; daemon $*; exit $?; }
+[ $1 = client ] && { shift; client $*; exit $?; }
+echo Unknown command && exit 1

@@ -1,0 +1,26 @@
+#!/bin/bash
+# This script helps doing with redis docker image.
+# More informations: https://hub.docker.com/_/redis/
+
+image=redis:3.0
+container=redis
+
+daemon() {
+        docker run \
+                -d \
+                --name $container \
+                $image
+}
+
+client() {
+        docker run \
+                -ti --rm \
+                --link $container:redis \
+                $image \
+                sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
+}
+
+[ -z $1 ] && echo Possible commands: daemon - client && exit 1
+[ $1 = daemon ] && { shift; daemon $*; exit $?; }
+[ $1 = client ] && { shift; client $*; exit $?; }
+echo Unknown command && exit 1
