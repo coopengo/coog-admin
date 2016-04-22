@@ -61,11 +61,7 @@ This document will assume we run everything under Docker.
 	`sudo docker pull nginx`
 
 
-To see a list of installed images you can use the following command:
-	
-	```
-	$ docker images
-	```
+To see a list of installed images you can use the following command: `$ docker images`
 
 
 ## Configuration
@@ -76,4 +72,92 @@ which will later be used when creating Docker containers.
 See more [__here__](./config.md)
 
 ## Installing
+
+It is now time to install and start our Docker services.
+
+- **PostgresSQL**
+   
+Using the helper script __./postgres__ allows us to easily start a container using our configuration.
+
+This helper script has two functions:
+
+	- **daemon** -- Launches Postgres database in a Docker container as a daemon.
+
+Once your PostgresSQL container is running, you can access it by using the following command: 
+
+	- **client** -- Allows us to access our container via the postgres client (psql).
+
+If you haven't already, you can create your database after accessing the client:
+
+```sql
+create database <dbname> owner postgres encoding 'utf8'
+```
+
+- **Redis**
+
+Similiar to above, executing the __./redis__ script allows you to launch the container as a `daemon`
+and access the `client`
+
+- **Sentry**
+
+Again, this script lets us launch a `daemon` and access it via the `client`.
+
+Make sure you have created the database.
+For example, if your using a postgres container:
+
+```
+./postgres client
+psql > create database <dbname> owner postgres encoding 'utf8'
+```
+
+	- **upgrade** -- Upgrades the Sentry database
+
+- **Nginx**
+
+Nginx can be used as proxy for multiple Coog containers.
+
+Using the supplied [configuration file](./nginx.conf) we can configure 
+multiple workers to run as containers. 
+
+**NOTE**: The variable in the configuration file **COOG_WORKERS** defines how many workers you wish to run, but you will also need to modify `nginx.conf` to setup the workers.
+
+To run the Nginx image with the custom conf file use the following command:
+
+```
+docker run --name nginx -p 8000:8000 -v /host/path/to/nginx.conf:/container/path/nginx.conf:ro -d nginx
+```
+
+- **Coog**
+
+Finally to run Coog, make sure you have created your database, set the relevant configurations and updated the database.
+
+
+If this is the first time using your database, run the following 5~command:
+
+```
+$ ./coog run app -v -u ir res
+```
+
+Otherwise, to update the database:
+
+```
+./coog run app -v 
+```
+
+To start the container(s)
+```
+./coog app
+```
+
+
+To test, try running the Coog client and connecting to the server (nginx or coog, depending on your setup).
+
+
+### Tips
+
+* `./ip` 
+  - This helper script lets you get the your containers ip address allowing you to connect to it.
+
+* `docker logs <containername>`
+  - Lets you check for any errors when launching your containers.
 
