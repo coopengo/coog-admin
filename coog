@@ -43,50 +43,37 @@
 #         COOG_SENTRY_SEC: secret dsn key - depends on host
 #         COOG_SENTRY_PROJECT: dsn project - depends on host
 
-image=`head -1 ./tags`
-container=coog
-data=`pwd`/data/coog
-postgres=postgres              # running container to link
-redis=redis                    # running container to link
-sentry=sentry                  # running container to link
+# COOG_CACHE_MODEL=              # default is fine (tryton default)
+# COOG_CACHE_RECORD=             # default is fine (tryton default)
+# COOG_CACHE_FIELD=              # default is fine (tryton default)
+# COOG_CACHE_COOG=               # default is fine (tryton default)
+# COOG_CACHE_SYS=redis
+# COOG_CACHE_HOST=               # from linked redis
+# COOG_CACHE_PORT=               # from linked redis
+# COOG_CACHE_DB=0
 
-COOG_DB_SYS=                   # default is fine (postgresql)
-COOG_DB_HOST=                  # from linked postgres
-COOG_DB_PORT=                  # from linked postgres
-COOG_DB_USER=postgres
-COOG_DB_PASSWORD=postgres
-COOG_DB_NAME=coog
-COOG_DB_LANG=fr_FR
+# COOG_ASYNC_SYS=celery
+# COOG_ASYNC_HOST=               # from linked redis
+# COOG_ASYNC_PORT=               # from linked redis
+# COOG_ASYNC_DB=1
 
-COOG_CACHE_MODEL=              # default is fine (tryton default)
-COOG_CACHE_RECORD=             # default is fine (tryton default)
-COOG_CACHE_FIELD=              # default is fine (tryton default)
-COOG_CACHE_COOG=               # default is fine (tryton default)
-COOG_CACHE_SYS=redis
-COOG_CACHE_HOST=               # from linked redis
-COOG_CACHE_PORT=               # from linked redis
-COOG_CACHE_DB=0
+# COOG_SESSION_SUPERPWD=secret
 
-COOG_ASYNC_SYS=celery
-COOG_ASYNC_HOST=               # from linked redis
-COOG_ASYNC_PORT=               # from linked redis
-COOG_ASYNC_DB=1
+# COOG_SENTRY_PROTOCOL=          # default is fine (http)
+# COOG_SENTRY_HOST=              # filled later from `ip sentry`
+# COOG_SENTRY_PORT=9000
+# COOG_SENTRY_PUB=pub            # should be retrieved from sentry app
+# COOG_SENTRY_SEC=sec            # should be retrieved from sentry app
+# COOG_SENTRY_PROJECT=project    # should be retrieved from sentry app
 
-COOG_SESSION_SUPERPWD=secret
-
-COOG_SENTRY_PROTOCOL=          # default is fine (http)
-COOG_SENTRY_HOST=              # filled later from `ip sentry`
-COOG_SENTRY_PORT=9000
-COOG_SENTRY_PUB=pub            # should be retrieved from sentry app
-COOG_SENTRY_SEC=sec            # should be retrieved from sentry app
-COOG_SENTRY_PROJECT=project    # should be retrieved from sentry app
+source ./config coog
 
 link_postgres() {
-        [ ! -z $postgres ] && echo "--link $postgres:postgres"
+        [ ! -z $COOG_POSTGRES ] && echo "--link $COOG_POSTGRES:postgres"
 }
 
 link_redis() {
-        [ ! -z $redis ] && echo "--link $redis:redis"
+        [ ! -z $COOG_REDIS ] && echo "--link $COOG_REDIS:redis"
 }
 
 set_db() {
@@ -129,7 +116,7 @@ set_session() {
 
 set_sentry() {
         local ret
-        [ ! -z $sentry ] && COOG_SENTRY_HOST=`./ip $sentry`
+        [ ! -z $COOG_SENTRY ] && COOG_SENTRY_HOST=`./ip $COOG_SENTRY`
         [ ! -z $COOG_SENTRY_PROTOCOL ] && ret="$ret -e COOG_SENTRY_PROTOCOL=$COOG_SENTRY_PROTOCOL"
         [ ! -z $COOG_SENTRY_HOST ] && ret="$ret -e COOG_SENTRY_HOST=$COOG_SENTRY_HOST"
         [ ! -z $COOG_SENTRY_PORT ] && ret="$ret -e COOG_SENTRY_PORT=$COOG_SENTRY_PORT"
@@ -145,9 +132,9 @@ run() {
         args="$args "`set_db`
         docker run \
                 -ti --rm \
-                -v $data:/opt/coog/data \
+                -v $COOG_DATA:/opt/coog/data \
                 $args \
-                coog/$image $*
+                coog/$COOG_IMAGE $*
 }
 
 app() {
@@ -158,13 +145,18 @@ app() {
         args="$args "`set_cache`
         args="$args "`set_session`
         args="$args "`set_sentry`
-        docker run \
-                -d \
-                --name $container \
-                -v $data:/opt/coog/data \
-                -p 80:8000 \
-                $args \
-                coog/$image app $*
+
+	[ -z $COOG_WORKERS ] && COOG_WORKERS=1
+
+	for n in `seq 1 $COOG_WORKERS`; do
+	    docker run \
+                   -d \
+                   --name $COOG_CONTAINER-$n \
+                   -v $COOG_DATA:/opt/coog/data \
+                   -p 800$n:8000 \
+                   $args \
+                   coog/$COOG_IMAGE app $*
+	done
 }
 
 batch() {
@@ -176,9 +168,9 @@ batch() {
         args="$args "`set_async`
         docker run \
                 -ti --rm \
-                -v $data:/opt/coog/data \
+                -v $COOG_DATA:/opt/coog/data \
                 $args \
-                coog/$image batch $*
+                coog/$COOG_IMAGE batch $*
 }
 
 [ -z $1 ] && echo Possible commands: run - app - batch && exit 1

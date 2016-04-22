@@ -2,21 +2,20 @@
 # This script helps doing with redis docker image.
 # More informations: https://hub.docker.com/_/redis/
 
-image=redis:3.0
-container=redis
+source ./config
 
 daemon() {
         docker run \
                 -d \
-                --name $container \
-                $image
+                --name $REDIS_CONTAINER \
+                $REDIS_IMAGE
 }
 
 client() {
         docker run \
                 -ti --rm \
-                --link $container:redis \
-                $image \
+                --link $REDIS_CONTAINER:redis \
+                $REDIS_IMAGE \
                 sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
 }
 
