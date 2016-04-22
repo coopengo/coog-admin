@@ -31,9 +31,9 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 
 	* Coog offers a command-line tool to generate the Docker images described above:
 
-	- **env**  - `coog docker env -- [optional docker arguments]`
+	- **env**  - `./build-env`
 
-	- **coog** - `coog docker build -- [optional docker arguments]`
+	- **coog** - `./build-coog`
 
 
 ### Getting Coog dependant Docker images
@@ -81,11 +81,11 @@ Using the helper script __./postgres__ allows us to easily start a container usi
 
 This helper script has two functions:
 
-	- **daemon** -- Launches Postgres database in a Docker container as a daemon.
+- **daemon** -- Launches Postgres database in a Docker container as a daemon.
 
 Once your PostgresSQL container is running, you can access it by using the following command: 
 
-	- **client** -- Allows us to access our container via the postgres client (psql).
+- **client** -- Allows us to access our container via the postgres client (psql).
 
 If you haven't already, you can create your database after accessing the client:
 
@@ -110,7 +110,7 @@ For example, if your using a postgres container:
 psql > create database <dbname> owner postgres encoding 'utf8'
 ```
 
-	- **upgrade** -- Upgrades the Sentry database
+- **upgrade** -- Upgrades the Sentry database
 
 - **Nginx**
 
