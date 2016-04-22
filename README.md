@@ -1,5 +1,5 @@
 
-# Deploy Coog environment through Docker
+# COOG DOCKER
 
 ## Requirements
 
@@ -13,39 +13,67 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 
 [Docker install guide]: https://docs.docker.com/engine/installation/
 
-* **Docker Dependencies**
 
-Before starting, we will need to setup the services that coog depends on eg. PostgresSQL.
-These dependencies can either run natively on the host or be "dockerised". This choice is up to the 
-administrateur. This document will assume we will run everything under Docker.
+## Building
 
-Pre-made packages can easily be pulled from the Docker Hub, the following commands will pull some images that coog depends on:
-
-	```sh
-	sudo docker pull postgres:9.4
-	sudo docker pull redis:3.0
-	sudo docker pull sentry
-	```
-	
-
-## Core Images for Coog
+### Building core Images for Coog
 
 * The core of Coog is seperated into two images:
 
-	1. **coog/env** - This image overrides the base Debian image and 
-		install the necessary libraries required for Coog.
+	1. **coog/env**
+		- This image overrides the base Debian image and 
+		  install the necessary libraries required for Coog.
   
-	2. **coog/[coog|project]** - Downloads the source and installs Python dependencies.
+	2. **coog/[coog|project]**
+	   - Downloads and installs Coog sources and pulls Python dependencies.
 
-* Image Generation
+* Core Image Generation
 
-	* Coog offers a command-line tool to generate the images described above:
+	* Coog offers a command-line tool to generate the Docker images described above:
+
 	- **env**  - `coog docker env -- [optional docker arguments]`
 
 	- **coog** - `coog docker build -- [optional docker arguments]`
 
-	* Generation of these images are based on:
-	  
-	- __<filename>.df__ - Internal docker configuration files and should **NOT** be modified. 
-	- __<script>.sh__ - A script used as an entrypoint to handle container startup. 
+
+### Getting Coog dependant Docker images
+
+Before launching the Coog image, it is necessary to setup some external dependencies for Coog.
+These dependencies can either run natively on the host machine or be "dockerised". The choice is up to the
+administrator, but it is recommanded to use docker.
+
+This document will assume we run everything under Docker.
+
+* PostgresSQL
+
+	`sudo docker pull postgres:9.4`
+	
+* Redis
+
+	`sudo docker pull redis:3.0`
+	
+* Sentry
+
+	`sudo docker pull sentry`
+	
+* Nginx
+
+	`sudo docker pull nginx`
+
+
+To see a list of installed images you can use the following command:
+	
+	```
+	$ docker images
+	```
+
+
+## Configuration
+
+All required configuration can be done using `config` file. It uses a shell script value to set variables
+which will later be used when creating Docker containers.
+
+See more [__here__](./config.md)
+
+## Installing
 
