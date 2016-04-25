@@ -14,7 +14,7 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 [Docker install guide]: https://docs.docker.com/engine/installation/
 
 
-## Building
+## Preparing Docker Images
 
 ### Building core Images for Coog
 
@@ -35,7 +35,7 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 
 	- **coog** - `./build-coog`
 
-### Saving an Image
+#### Saving an Image
 
 If you wish to use your image on a seperate host machine, save it with the following command:
 
@@ -46,15 +46,8 @@ docker save -o <saved-image>.tar.gz [ <image-names> ]
 **NOTE**: When selecting an image to save make sure to use the image __name__ otherwise when 
 you load your save the name will not be persistant.
 
-### Importing a saved image
 
-Importing an image from a different host can be done like so:
-
-```
-docker load <saved-image>.tar.gz
-```
-
-### Getting Coog dependant Docker images
+#### Getting Coog dependant Docker images
 
 Before launching the Coog image, it is necessary to setup some external dependencies for Coog.
 These dependencies can either run natively on the host machine or be "dockerised". The choice is up to the
@@ -79,12 +72,22 @@ This document will assume we run everything under Docker.
 	`sudo docker pull nginx`
 
 
+#### Importing a saved image
+
+Importing an image from a different host can be done like so:
+
+```
+docker load <saved-image>.tar.gz
+```
+
+
 To see a list of installed images you can use the following command: 
 
 ```
 $ docker images
 ```
 
+***
 
 ## Configuration
 
@@ -93,9 +96,9 @@ It uses a shell script value to set variables which will later be used when load
 
 See more [__here__](./config.md)
 
-## Starting docker services
+***
 
-It is now time to install and start our Docker services.
+## Starting docker services
 
 #### PostgresSQL
    
@@ -174,8 +177,9 @@ To start the container(s)
 
 To test, try running the Coog client and connecting to the server (nginx or coog, depending on your setup).
 
+***
 
-### Tips
+## Tips
 
 * `./ip` 
   - This helper script lets you get the your containers ip address allowing you to connect to it.
@@ -183,3 +187,4 @@ To test, try running the Coog client and connecting to the server (nginx or coog
 * `docker logs <containername>`
   - Lets you check for any errors when launching your containers.
 
+* Docker Command line [reference](https://docs.docker.com/engine/reference/commandline/)
