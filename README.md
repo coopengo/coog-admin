@@ -36,8 +36,6 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 	- **coog** - `./build-coog`
 
 
-## Installation
-
 #### Saving an Image
 
 If you wish to use your image on a seperate host machine, save it with the following command:
@@ -49,6 +47,8 @@ docker save -o <saved-image>.tar.gz [ <image-names> ]
 **NOTE**: When selecting an image to save make sure to use the image __name__ otherwise when 
 you load your save the name will not be persistant.
 
+
+## Installation
 
 #### Getting Coog dependant Docker images
 
