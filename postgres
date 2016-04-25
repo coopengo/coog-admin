@@ -7,20 +7,20 @@ source ./config
 daemon() {
         docker run \
                 -d \
-                --name $POSTGRES_CONTAINER \
-                -e "POSTGRES_USER=$POSTGRES_USERNAME" \
-                -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
+                --name $COOG_POSTGRES \
+                -e "POSTGRES_USER=$COOG_DB_USERNAME" \
+                -e "POSTGRES_PASSWORD=$COOG_DB_PASSWORD" \
                 -e "PGDATA=/var/lib/postgresql/data/pgdata" \
-                -v $POSTGRES_DATA:/var/lib/postgresql/data \
-                $POSTGRES_IMAGE
+                -v $COOG_DB_VOLUME:/var/lib/postgresql/data \
+                $COOG_DB_IMAGE
 }
 
 client() {
         docker run \
                 -ti --rm \
-                --link $POSTGRES_CONTAINER:postgres \
-                $POSTGRES_IMAGE \
-                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$POSTGRES_USERNAME"
+                --link $COOG_POSTGRES:postgres \
+                $COOG_DB_IMAGE \
+                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$COOG_DB_USERNAME"
 }
 
 [ -z $1 ] && echo Possible commands: daemon - client && exit 1

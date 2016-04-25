@@ -53,8 +53,8 @@ you load your save the name will not be persistant.
 #### Getting Coog dependant Docker images
 
 Before launching the Coog image, it is necessary to setup some external dependencies for Coog.
-These dependencies can either run natively on the host machine or be "dockerised". The choice is up to the
-administrator, but it is recommanded to use docker.
+These dependencies can either run natively on the host machine or be "dockerised". 
+The choice is up to the administrator.
 
 This document will assume we run everything under Docker.
 
@@ -129,37 +129,39 @@ and access the `client`
 
 Again, this script lets us launch a `daemon` and access it via the `client`.
 
-Make sure you have created the database.
-For example, if your using a postgres container:
+If this is your first time running Sentry:
 
 ```
 ./postgres client
 psql > create database <dbname> owner postgres encoding 'utf8'
+psql > quit
+
+./sentry upgrade  # prepares the database for Sentry
+./sentry client	  # open the client page
 ```
 
-- **upgrade** -- Upgrades the Sentry database
+In the sentry client view:
 
-#### Nginx
+Click `New Project` -> Enter project Name -> `Client Keys`
 
-Nginx can be used as proxy for multiple Coog containers.
+These keys must be set in the configuration [`config`](./config) under
 
-Using the supplied [configuration file](./nginx.conf) we can configure 
-multiple workers to run as containers. 
+- **COOG_SENTRY_PUB** (DSN Public)
 
-**NOTE**: The variable in the configuration file **COOG_WORKERS** defines how many workers you wish to run, but you will also need to modify `nginx.conf` to setup the workers.
+- **COOG_SENTRY_SEC** (DSN)
 
-To run the Nginx image with the custom conf file use the following command:
+- **COOG_SENTRY_PROJECT_ID** - The id of the project you are using in Sentry.
 
-```
-docker run --name nginx -p 8000:8000 -v /host/path/to/nginx.conf:/container/path/nginx.conf:ro -d nginx
-```
+**TIP** - The configuration will result in a URL similiar to:
+
+`http://46d166630ebd44a4b7c6025bb4b8ad9b:48da626bec07437d9fac93fd485a18b7@172.17.0.6:9000/2`
 
 #### Coog
 
 Finally to run Coog, make sure you have created your database, set the relevant configurations and updated the database.
 
 
-If this is the first time using your database, run the following 5~command:
+If this is the first time using your database, run the following command:
 
 ```
 $ ./coog run app -v -u ir res
@@ -178,6 +180,21 @@ To start the container(s)
 
 
 To test, try running the Coog client and connecting to the server (nginx or coog, depending on your setup).
+
+#### Nginx
+
+Nginx can be used as proxy for multiple Coog containers.
+
+Using the supplied [configuration file](./nginx.conf) we can configure 
+multiple workers to run as containers. 
+
+**NOTE**: The variable in the configuration file **COOG_WORKERS** defines how many workers you wish to run, but you will also need to modify `nginx.conf` to setup the workers.
+
+To run the Nginx image with the custom conf file use the following command:
+
+```
+docker run --name nginx -p 8000:8000 -v /host/path/to/nginx.conf:/container/path/nginx.conf:ro -d nginx
+```
 
 ***
 

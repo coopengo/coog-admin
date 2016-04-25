@@ -7,15 +7,15 @@ source ./config
 daemon() {
         docker run \
                 -d \
-                --name $REDIS_CONTAINER \
-                $REDIS_IMAGE
+                --name $COOG_REDIS \
+                $COOG_CACHE_IMAGE
 }
 
 client() {
         docker run \
                 -ti --rm \
-                --link $REDIS_CONTAINER:redis \
-                $REDIS_IMAGE \
+                --link $COOG_REDIS:redis \
+                $COOG_CACHE_IMAGE \
                 sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
 }
 

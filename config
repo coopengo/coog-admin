@@ -4,38 +4,59 @@
 # COOG CORE CONFIGURATIONS                                                      #
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=`head -1 ./tags`	# name of the Image to use - extracts the first argument from `tags`
+TAGS=("coog:master"
+      "trytond-modules:master"
+      "trytond:master"
+     )
+
+
+# change to array
+COOG_IMAGE=${TAGS[0]}		# name:tag of the Image to use
+				# extracts the first argument from `tags`
+
 COOG_CONTAINER=coog		# The name of the container
 COOG_DATA=/var/local/coog	# An absolute path to a docker volume
-COOG_POSTGRES=postgres		# Name of docker container running postgres
-COOG_REDIS=			# same but for redis
-COOG_SENTRY=			# same but for `sentry`
 COOG_WORKERS=4			# the number of daemons to run - WARNING: if you change this number don't forget to update nginx.conf 
+
+COOG_POSTGRES=postgres		# Name of docker container running postgres
+COOG_REDIS=redis		# same but for redis
+COOG_SENTRY=sentry			# same but for `sentry`
 
 #-------------------------------------------------------------------------------#
 # COOG DATABASE CONFIGURATIONS                                                  #
 #-------------------------------------------------------------------------------#
 
 COOG_DB_SYS=postgresql		# the database system to use - default: `postgresql`
+COOG_DB_IMAGE=postgres:9.4	# the image:tag to pull from Docker Hub
+
 COOG_DB_HOST=			# REQUIRED - default: linked postgres container (POSTGRES)
 COOG_DB_PORT=			# REQUIRED - default: linked postgres container (POSTGRES)
-COOG_DB_USER=postgres		# REQUIRED - the database user name
-COOG_DB_PASSWORD=postgres	# REQUIRED - the database user password
-COOG_DB_NAME=coog		# name of the database ?? defaults too
+COOG_DB_USERNAME=postgres
+COOG_DB_PASSWORD=postgres
+COOG_DB_NAME=coog
 COOG_DB_LANG=fr_FR		# database Locale - eg. fr_FR
+COOG_DB_VOLUME=/var/local/coog/postgres
 
 #-------------------------------------------------------------------------------#
 # COOG CACHE CONFIGURATIONS                                                     #
 #-------------------------------------------------------------------------------#
 
+COOG_CACHE_SYS=redis		# Cache application to use
+COOG_CACHE_IMAGE=redis:3.0
+
 COOG_CACHE_MODEL=		# Number of models stored in cache    - default: (tryton default)
 COOG_CACHE_RECORD=		# Number of instances stored in cache - default: (tryton default)
 COOG_CACHE_FIELD=		# Number of fields stored in cache    - default: (tryton default)
-COOG_CACHE_COOG=		# default: (tryton default)
-COOG_CAHCE_SYS=redis		# Cache application to use
-COOG_CACHE_HOST=		# Cache hostname - default: linked redis container
-COOG_CACHE_PORT=		# Cache port	 - default: linked redis container
-COOG_CACHE_DB=			# The database number  - depends: COOG_CACHE_SYS
+COOG_CACHE_COOG=		# Cache size for coog		      - default: (tryton default)
+COOG_CACHE_HOST=		# Cache hostname		      - default: linked redis container
+COOG_CACHE_PORT=		# Cache port			      - default: linked redis container
+COOG_CACHE_DB=9			# The database number		      - depends: COOG_CACHE_SYS
+
+#-------------------------------------------------------------------------------#
+# NGINX CONFIGURATIONS                                                          #
+#-------------------------------------------------------------------------------#
+
+NGINX_CONF=./nginx.conf
 
 #-------------------------------------------------------------------------------#
 # COOG ASYNC CONFIGURATIONS                                                     #
@@ -44,48 +65,23 @@ COOG_CACHE_DB=			# The database number  - depends: COOG_CACHE_SYS
 COOG_ASYNC_SYS=			# application to use for asynchronous jobs - eg. celery
 COOG_ASYNC_HOST=		# from linked celery
 COOG_ASYNC_PORT=		# from linked celery
-COOG_ASYNC_DB=			# database id to use
+COOG_ASYNC_DB=			# database index to use
 
 #-------------------------------------------------------------------------------#
-# COOG SENTRY CONFIGURATIONS                                                     #
+# COOG SENTRY CONFIGURATIONS                                                    #
 #-------------------------------------------------------------------------------#
 
-COOG_SENTRY_PROTOCOL=          # Protocol to use - default: http
-COOG_SENTRY_HOST=              # default: `./ip $COOG_SENTRY`
+# the following configuration is base on the Sentry DSN key, which can be retrieved
+# from Sentry.
+# http://46d166630ebd44a4b7c6025bb4b8ad9b:48da626bec07437d9fac93fd485a18b7@172.17.0.6:9000/2
+COOG_SENTRY_IMAGE=sentry:8     # pull name:tag from Docker Hub
+COOG_SENTRY_PROTOCOL=http          # Protocol to use - default: http
+COOG_SENTRY_HOST=172.17.0.6
 COOG_SENTRY_PORT=9000	       # 
-COOG_SENTRY_PUB=pub            # should be retrieved from sentry app
-COOG_SENTRY_SEC=sec            # should be retrieved from sentry app
-COOG_SENTRY_PROJECT=project    # should be retrieved from sentry app
-
-#-------------------------------------------------------------------------------#
-# POSTGRES CORE CONFIGURATIONS                                                  #
-#-------------------------------------------------------------------------------#
-
-POSTGRES_IMAGE=postgres:9.4
-POSTGRES_CONTAINER=postgres
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DATA=/var/local/coog/
-
-#-------------------------------------------------------------------------------#
-# REDIS CORE CONFIGURATIONS                                                     #
-#-------------------------------------------------------------------------------#
-
-REDIS_IMAGE=redis:3.0
-REDIS_CONTAINER=redis
-
-#-------------------------------------------------------------------------------#
-# SENTRY CORE CONFIGURATIONS                                                    #
-#-------------------------------------------------------------------------------#
-
-SENTRY_IMAGE=sentry:8
-SENTRY_CONTAINER=sentry
-SENTRY_POSTGRES=postgres              # name of running container to link
-SENTRY_REDIS=redis                    # name of running container to link
-
-SENTRY_DB_USER=postgres		      # database username
-SENTRY_DB_PASSWORD=postgres	      # database password
-SENTRY_DB_NAME=sentry		      # name of the database to use
-SENTRY_REDIS_DB=9		      # the redis database index to use
+COOG_SENTRY_PUB=46d166630ebd44a4b7c6025bb4b8ad9b            # should be retrieved from sentry app
+COOG_SENTRY_SEC=48da626bec07437d9fac93fd485a18b7 # should be retrieved from sentry app
+COOG_SENTRY_PROJECT_ID=2    # should be retrieved from sentry app
+COOG_SENTRY_DB_NAME=sentry
+COOG_SENTRY_REDIS_DB=9
 
 # EOF

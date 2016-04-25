@@ -6,7 +6,7 @@ source ./config
 
 key_file=./sentry-secret-key
 set_secret_key() {
-        [ ! -f $key_file ] && docker run --rm $SENTRY_IMAGE generate-secret-key > $key_file
+        [ ! -f $key_file ] && docker run --rm $COOG_SENTRY_IMAGE generate-secret-key > $key_file
         SENTRY_SECRET_KEY=`cat $key_file`
 }
 
@@ -27,14 +27,14 @@ run() {
         fi
         docker run \
                 $args \
-                --link $SENTRY_POSTGRES:postgres \
+                --link $COOG_POSTGRES:postgres \
                 -e "SENTRY_SECRET_KEY=$SENTRY_SECRET_KEY" \
-                -e "SENTRY_DB_USER=$SENTRY_DB_USER" \
-                -e "SENTRY_DB_PASSWORD=$SENTRY_DB_PASSWORD" \
-                -e "SENTRY_DB_NAME=$SENTRY_DB_NAME" \
-                --link $SENTRY_REDIS:redis \
-                -e "SENTRY_REDIS_DB=$SENTRY_REDIS_DB" \
-                $SENTRY_IMAGE $*
+                -e "SENTRY_DB_USER=$COOG_DB_USERNAME" \
+                -e "SENTRY_DB_PASSWORD=$COOG_DB_PASSWORD" \
+                -e "SENTRY_DB_NAME=$COOG_SENTRY_DB_NAME" \
+                --link $COOG_REDIS:redis \
+                -e "SENTRY_REDIS_DB=$COOG_SENTRY_REDIS_DB" \
+                $COOG_SENTRY_IMAGE $*
 }
 
 upgrade() {
@@ -42,14 +42,14 @@ upgrade() {
 }
 
 daemon() {
-        run d $SENTRY_CONTAINER-celery-worker sentry celery worker && \
-                run d $SENTRY_CONTAINER-celery-beat sentry celery beat && \
-                run d $SENTRY_CONTAINER
+        run d $COOG_SENTRY-celery-worker sentry celery worker && \
+                run d $COOG_SENTRY-celery-beat sentry celery beat && \
+                run d $COOG_SENTRY
 
 }
 
 client() {
-        xdg-open "http://"`./ip $SENTRY_CONTAINER`":9000"
+        xdg-open "http://"`./ip $COOG_SENTRY`":9000"
 }
 
 [ -z $1 ] && echo Possible commands: upgrade - daemon - client && exit 1

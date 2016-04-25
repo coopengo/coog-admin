@@ -81,7 +81,7 @@ set_db() {
         [ ! -z $COOG_DB_SYS ] && ret="$ret -e COOG_DB_SYS=$COOG_DB_SYS"
         [ ! -z $COOG_DB_HOST ] && ret="$ret -e COOG_DB_HOST=$COOG_DB_HOST"
         [ ! -z $COOG_DB_PORT ] && ret="$ret -e COOG_DB_PORT=$COOG_DB_PORT"
-        [ ! -z $COOG_DB_USER ] && ret="$ret -e COOG_DB_USER=$COOG_DB_USER"
+        [ ! -z $COOG_DB_USERNAME ] && ret="$ret -e COOG_DB_USER=$COOG_DB_USERNAME"
         [ ! -z $COOG_DB_PASSWORD ] && ret="$ret -e COOG_DB_PASSWORD=$COOG_DB_PASSWORD"
         [ ! -z $COOG_DB_NAME ] && ret="$ret -e COOG_DB_NAME=$COOG_DB_NAME"
         [ ! -z $COOG_DB_LANG ] && ret="$ret -e COOG_DB_LANG=$COOG_DB_LANG"
@@ -122,7 +122,7 @@ set_sentry() {
         [ ! -z $COOG_SENTRY_PORT ] && ret="$ret -e COOG_SENTRY_PORT=$COOG_SENTRY_PORT"
         [ ! -z $COOG_SENTRY_PUB ] && ret="$ret -e COOG_SENTRY_PUB=$COOG_SENTRY_PUB"
         [ ! -z $COOG_SENTRY_SEC ] && ret="$ret -e COOG_SENTRY_SEC=$COOG_SENTRY_SEC"
-        [ ! -z $COOG_SENTRY_PROJECT ] && ret="$ret -e COOG_SENTRY_PROJECT=$COOG_SENTRY_PROJECT"
+        [ ! -z $COOG_SENTRY_PROJECT_ID ] && ret="$ret -e COOG_SENTRY_PROJECT=$COOG_SENTRY_PROJECT_ID"
         echo "$ret"
 }
 
@@ -158,6 +158,7 @@ app() {
                    coog/$COOG_IMAGE app $*
 	done
 }
+
 
 batch() {
         local args
