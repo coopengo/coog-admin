@@ -71,11 +71,11 @@ which will later be used when creating Docker containers.
 
 See more [__here__](./config.md)
 
-## Installing
+## Starting docker services
 
 It is now time to install and start our Docker services.
 
-- **PostgresSQL**
+#### PostgresSQL
    
 Using the helper script __./postgres__ allows us to easily start a container using our configuration.
 
@@ -93,12 +93,12 @@ If you haven't already, you can create your database after accessing the client:
 create database <dbname> owner postgres encoding 'utf8'
 ```
 
-- **Redis**
+#### Redis
 
 Similiar to above, executing the __./redis__ script allows you to launch the container as a `daemon`
 and access the `client`
 
-- **Sentry**
+#### Sentry
 
 Again, this script lets us launch a `daemon` and access it via the `client`.
 
@@ -112,7 +112,7 @@ psql > create database <dbname> owner postgres encoding 'utf8'
 
 - **upgrade** -- Upgrades the Sentry database
 
-- **Nginx**
+#### Nginx
 
 Nginx can be used as proxy for multiple Coog containers.
 
@@ -127,7 +127,7 @@ To run the Nginx image with the custom conf file use the following command:
 docker run --name nginx -p 8000:8000 -v /host/path/to/nginx.conf:/container/path/nginx.conf:ro -d nginx
 ```
 
-- **Coog**
+#### Coog
 
 Finally to run Coog, make sure you have created your database, set the relevant configurations and updated the database.
 
