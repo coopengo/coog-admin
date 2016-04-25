@@ -35,6 +35,24 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 
 	- **coog** - `./build-coog`
 
+### Saving an Image
+
+If you wish to use your image on a seperate host machine, save it with the following command:
+
+```
+docker save -o <saved-image>.tar.gz [ <image-names> ]
+```
+
+**NOTE**: When selecting an image to save make sure to use the image __name__ otherwise when 
+you load your save the name will not be persistant.
+
+### Importing a saved image
+
+Importing an image from a different host can be done like so:
+
+```
+docker load <saved-image>.tar.gz
+```
 
 ### Getting Coog dependant Docker images
 
@@ -61,13 +79,17 @@ This document will assume we run everything under Docker.
 	`sudo docker pull nginx`
 
 
-To see a list of installed images you can use the following command: `$ docker images`
+To see a list of installed images you can use the following command: 
+
+```
+$ docker images
+```
 
 
 ## Configuration
 
-All required configuration can be done using `config` file. It uses a shell script value to set variables
-which will later be used when creating Docker containers.
+All required configuration can be done using [`config`](./config) file. 
+It uses a shell script value to set variables which will later be used when loading a Docker container.
 
 See more [__here__](./config.md)
 
