@@ -14,7 +14,7 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 [Docker install guide]: https://docs.docker.com/engine/installation/
 
 
-## Preparing Docker Images
+## Building
 
 ### Building core Images for Coog
 
@@ -34,6 +34,9 @@ You can read is available [here](https://docs.docker.com/engine/reference/glossa
 	- **env**  - `./build-env`
 
 	- **coog** - `./build-coog`
+
+
+## Installation
 
 #### Saving an Image
 
@@ -70,7 +73,6 @@ This document will assume we run everything under Docker.
 * Nginx
 
 	`sudo docker pull nginx`
-
 
 #### Importing a saved image
 
