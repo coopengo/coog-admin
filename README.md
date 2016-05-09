@@ -11,7 +11,7 @@ Coopengo). It is aimed to provide all useful commands to:
 Coog Admin should be installed (cloned) on Coog host server. All other resources
 are provides via Docker images.
 
-[Docker][https://www.docker.com/] is the recommended platform to deploy Coog:
+[Docker](https://www.docker.com/) is the recommended platform to deploy Coog:
 
 - Makes it easy to communicate with sys admins
 - Optimal to support all kind of Operating Systems
@@ -39,9 +39,9 @@ For the first versions, Coog Admin will be focused on deployment.
 It is very recommended to read the scripts to have a deep understanding of how
 it works:
 
-- [.env][https://github.com/coopengo/coog-admin/blob/master/.env]: configuration
+- [.env](https://github.com/coopengo/coog-admin/blob/master/.env): configuration
   items explained
-- [postgres][https://github.com/coopengo/coog-admin/blob/master/postgres]:
+- [postgres](https://github.com/coopengo/coog-admin/blob/master/postgres):
   typical launcher
 
 ### Content description
@@ -52,15 +52,14 @@ it works:
 - redis: launches redis (client and server) from a docker image
 - postgres: launches postgres (client and server) from a docker images
 - sentry: runs sentry (server and workers) from a docker images. This could link
-  to redis and postgres docker conntainer or points to other servers (depending
+  to redis and postgres docker container or points to other servers (depending
   on configuration). Default is link to Docker.
 - coog: runs coog (workers, batch). It links to redis and postgres based on
   configuration
 - nginx: launches nginx as a reverse proxy and load balancer for Coog
-    - a commented configuration example is provided [here][https://github.com/coopengo/coog-admin/blob/master/config/nginx.conf]
-    - this could be overriden is `/usr/local/coog/nginx.conf`
+    - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/config/nginx.conf)
+    - this could be overridden is `/usr/local/coog/nginx.conf`
 
-## Usecase
+## Use case
 
-Coog is based on Tryton and it has [its own fork ][https://github.com/coopengo/trytond]
-of the ERP to support horizontal scalability.
+Coming soon.
