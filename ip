@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# This command prints the ip address of a running container
-# The only argument is the container identifier
-
-docker inspect --format '{{ .NetworkSettings.IPAddress }}' $1

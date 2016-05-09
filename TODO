@@ -1,7 +1,0 @@
-- only one config script (with all names)
-- exchange volume should be set by env var (no more folders)
-- support a typical case with many workers:
-    - coog workers number in config
-    - nginx on docker to server
-    - the right ngx config should be set in this repo
-- manage redis persistency: map a volume and configure redis to save snapshots

@@ -1,0 +1,55 @@
+#!/bin/bash
+# This script helps doing with nginx docker image.
+# More informations: https://hub.docker.com/_/nginx/
+
+init() {
+        [ -e $NGINX_CONF ] && echo backup old config before && return 1
+        cp $script_dir/config/nginx.conf $NGINX_CONF
+}
+
+serve() {
+        [ ! -e $NGINX_CONF ] && echo no config && return 1
+        local conf_file; conf_file="/tmp/ngx_"`date +%s%N`".conf"
+        cp $NGINX_CONF $conf_file
+        local id; id=1
+        local name
+        local ip
+        while [ $id -le $WORKERS ]
+        do
+                name=$COOG_CONTAINER-$id
+                ip=`ip $name`
+                [ $? -ne 0 ] && return 1
+                sed -i "s/# server coog-backend-host-$id:/server $ip:/" $conf_file
+                id=`echo "$id+1" | bc`
+        done
+        docker run \
+                -d \
+                --name $NGINX_CONTAINER \
+                -p $NGINX_PORT:80 \
+                $NGINX_IMAGE $*
+        docker cp $conf_file $NGINX_CONTAINER:/etc/nginx/nginx.conf
+        docker exec $NGINX_CONTAINER nginx -s reload
+}
+
+usage() {
+        echo
+        echo Possible commands
+        echo "  init  : init nginx.conf file from default"
+        echo "  serve : run nginx docker image"
+        echo
+}
+
+main() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        source $script_dir/.env
+        #
+        [ -z $1 ] && usage && return 1
+        local cmd; cmd=$1; shift
+        #
+        [ $cmd = init ] && { init $*; return $?; }
+        [ $cmd = serve ] && { serve $*; return $?; }
+        usage && return 1
+}
+
+main $*

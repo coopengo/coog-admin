@@ -2,24 +2,43 @@
 # This script helps doing with redis docker image.
 # More informations: https://hub.docker.com/_/redis/
 
-source ./config
-
-daemon() {
+server() {
         docker run \
                 -d \
-                --name $COOG_REDIS \
-                $COOG_CACHE_IMAGE
+                --name $REDIS_CONTAINER \
+                -v $REDIS_VOLUME:/data \
+                $REDIS_IMAGE \
+                redis-server
 }
 
 client() {
         docker run \
                 -ti --rm \
-                --link $COOG_REDIS:redis \
-                $COOG_CACHE_IMAGE \
+                --link $REDIS_CONTAINER:redis \
+                $REDIS_IMAGE \
                 sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
 }
 
-[ -z $1 ] && echo Possible commands: daemon - client && exit 1
-[ $1 = daemon ] && { shift; daemon $*; exit $?; }
-[ $1 = client ] && { shift; client $*; exit $?; }
-echo Unknown command && exit 1
+usage() {
+        echo
+        echo Possible commands:
+        echo
+        echo "  server : run a redis server (docker container)"
+        echo "  client : run a redis client (docker container)"
+        echo
+}
+
+main() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        source $script_dir/.env
+        #
+        [ -z $1 ] && usage && return 1
+        local cmd; cmd=$1; shift
+        #
+        [ $cmd = server ] && { server $*; return $?; }
+        [ $cmd = client ] && { client $*; return $?; }
+        usage && return 1
+}
+
+main $*

@@ -2,28 +2,45 @@
 # This script helps doing with postgres docker image.
 # More informations: https://hub.docker.com/_/postgres/
 
-source ./config
-
-daemon() {
+server() {
         docker run \
                 -d \
-                --name $COOG_POSTGRES \
-                -e "POSTGRES_USER=$COOG_DB_USERNAME" \
-                -e "POSTGRES_PASSWORD=$COOG_DB_PASSWORD" \
+                --name $PG_CONTAINER \
+                -e "POSTGRES_USER=$PG_USERNAME" \
+                -e "POSTGRES_PASSWORD=$PG_PASSWORD" \
                 -e "PGDATA=/var/lib/postgresql/data/pgdata" \
-                -v $COOG_DB_VOLUME:/var/lib/postgresql/data \
-                $COOG_DB_IMAGE
+                -v $PG_VOLUME:/var/lib/postgresql/data \
+                $PG_IMAGE
 }
 
 client() {
         docker run \
                 -ti --rm \
-                --link $COOG_POSTGRES:postgres \
-                $COOG_DB_IMAGE \
-                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$COOG_DB_USERNAME"
+                --link $PG_CONTAINER:postgres \
+                $PG_IMAGE \
+                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$PG_USERNAME"
 }
 
-[ -z $1 ] && echo Possible commands: daemon - client && exit 1
-[ $1 = daemon ] && { shift; daemon $*; exit $?; }
-[ $1 = client ] && { shift; client $*; exit $?; }
-echo Unknown command && exit 1
+usage() {
+        echo
+        echo Possible commands
+        echo
+        echo "  server : run a postgres server (docker container)"
+        echo "  client : run a postgres client (docker container)"
+        echo
+}
+
+main() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        source $script_dir/.env
+        #
+        [ -z $1 ] && usage && return 1
+        local cmd; cmd=$1; shift
+        #
+        [ $cmd = server ] && { server $*; return $?; }
+        [ $cmd = client ] && { client $*; return $?; }
+        usage && return 1
+}
+
+main $*

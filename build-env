@@ -1,7 +1,0 @@
-#!/bin/bash
-# This command builds an env Docker image
-# This image contains the OS and some hard dependencies
-
-# when behind a proxy
-# coog docker env --build-arg http_proxy=http://myproxy.domain.com:8080
-coog docker env
