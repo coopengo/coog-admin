@@ -26,6 +26,7 @@ _run() {
         elif [ $mode = m ]
         then
                 args="-d --name=$SENTRY_CONTAINER"
+                [ ! -z $SENTRY_PUB_PORT ] && args="$args -p $SENTRY_PUB_PORT:9000"
         else
                 echo "unexpected mode" && return 1
         fi

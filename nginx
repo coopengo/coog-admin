@@ -19,13 +19,13 @@ serve() {
                 name=$COOG_CONTAINER-$id
                 ip=`ip $name`
                 [ $? -ne 0 ] && return 1
-                sed -i "s/# server coog-backend-host-$id:/server $ip:/" $conf_file
+                sed -i "s/# server coog-backend-host-$id:port-$id/server $ip:8000/" $conf_file
                 id=`echo "$id+1" | bc`
         done
         docker run \
                 -d \
                 --name $NGINX_CONTAINER \
-                -p $NGINX_PORT:80 \
+                -p $NGINX_PUB_PORT:80 \
                 $NGINX_IMAGE $*
         docker cp $conf_file $NGINX_CONTAINER:/etc/nginx/nginx.conf
         docker exec $NGINX_CONTAINER nginx -s reload
