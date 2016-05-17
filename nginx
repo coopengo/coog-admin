@@ -19,7 +19,7 @@ serve() {
                 name=$COOG_CONTAINER-$id
                 ip=`ip $name`
                 [ $? -ne 0 ] && return 1
-                sed -i "s/# server coog-backend-host-$id:port-$id/server $ip:8000/" $conf_file
+                sed -i "s/# server coog-backend-host-$id:port-$id/server $ip:7999/" $conf_file
                 id=`echo "$id+1" | bc`
         done
         docker run \

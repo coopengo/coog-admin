@@ -94,11 +94,22 @@ _run() {
                 echo "unexpected mode" && return 1
         fi
         args="$args -v $COOG_VOLUME:/opt/coog/data"
-        args="$args "`get_session_args`
-        args="$args "`get_db_args`
-        args="$args "`get_cache_args`
-        args="$args "`get_async_args`
-        args="$args "`get_sentry_args`
+        local spec_args
+        spec_args=`get_session_args`
+        [ $? -ne 0 ] && echo $spec_args && return 1
+        args="$args $spec_args"
+        spec_args=`get_db_args`
+        [ $? -ne 0 ] && echo $spec_args && return 1
+        args="$args $spec_args"
+        spec_args=`get_cache_args`
+        [ $? -ne 0 ] && echo $spec_args && return 1
+        args="$args $spec_args"
+        spec_args=`get_async_args`
+        [ $? -ne 0 ] && echo $spec_args && return 1
+        args="$args $spec_args"
+        spec_args=`get_sentry_args`
+        [ $? -ne 0 ] && echo $spec_args && return 1
+        args="$args $spec_args"
         docker run \
                 $args \
                 $COOG_IMAGE \
@@ -118,14 +129,14 @@ config() {
 }
 
 upgrade() {
-        _run i app -v -d $COOG_DB_NAME -u ir res
+        _run i admin -v -d $COOG_DB_NAME -u ir res
 }
 
 worker() {
         [ -z $1 ] && echo no worker id && return 1
         local name; name=$COOG_CONTAINER-$1
         shift
-        _run d $name app $*
+        _run d $name server $*
 }
 
 workers() {
