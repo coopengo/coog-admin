@@ -93,7 +93,7 @@ _run() {
                 local port; port=$1; shift
                 if [ $port -ne 0 ]
                 then
-                    args="$args ""-p $port:8000"
+                    args="$args -p $port:8000"
                 fi
         else
                 echo "unexpected mode" && return 1
@@ -132,7 +132,7 @@ worker() {
         local port
         if [ ! -z $COOG_PUB_PORT ]
         then
-            port=$(($COOG_PUB_PORT -1 + $1))
+            port=$(($COOG_PUB_PORT + $1))
         else
             port=0
         fi
