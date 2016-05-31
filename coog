@@ -90,6 +90,11 @@ _run() {
         then
                 local name; name=$1; shift
                 args="-d --name=$name"
+                local port; port=$1; shift
+                if [ $port -ne 0 ]
+                then
+                    args="$args -p $port:7999"
+                fi
         else
                 echo "unexpected mode" && return 1
         fi
@@ -135,8 +140,15 @@ upgrade() {
 worker() {
         [ -z $1 ] && echo no worker id && return 1
         local name; name=$COOG_CONTAINER-$1
+        local port
+        if [ ! -z $COOG_PUB_PORT ]
+        then
+            port=$(($COOG_PUB_PORT + $1))
+        else
+            port=0
+        fi
         shift
-        _run d $name server $*
+        _run d $name $port server $*
 }
 
 workers() {
@@ -144,7 +156,7 @@ workers() {
         while [ $id -le $WORKERS ]
         do
                 worker $id $*
-                id=`echo "$id+1" | bc`
+                id=$(($id+1))
         done
 }
 
