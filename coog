@@ -126,6 +126,10 @@ upgrade() {
         _run i app -v -d $COOG_DB_NAME -u ir res
 }
 
+update() {
+        _run i app -v -d $COOG_DB_NAME -u $*
+}
+
 worker() {
         [ -z $1 ] && echo no worker id && return 1
         local name; name=$COOG_CONTAINER-$1
@@ -161,6 +165,7 @@ usage() {
         echo "  env     : get container env vars"
         echo "  config  : get container coog configuration"
         echo "  upgrade : upgrade coog database (according to new app version)"
+        echo "  update  : update specific modules (needs modules)"
         echo "  worker  : start worker container (needs a worker id.)"
         echo "  workers : start workers"
         echo "  batch   : launch batch execution"
@@ -179,6 +184,7 @@ main() {
         [ $cmd = env ] && { env $*; return $?; }
         [ $cmd = config ] && { config $*; return $?; }
         [ $cmd = upgrade ] && { upgrade $*; return $?; }
+        [ $cmd = update ] && { update $*; return $?; }
         [ $cmd = worker ] && { worker $*; return $?; }
         [ $cmd = workers ] && { workers $*; return $?; }
         [ $cmd = batch ] && { batch $*; return $?; }
