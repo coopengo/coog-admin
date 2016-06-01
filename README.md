@@ -1,6 +1,6 @@
 # COOG ADMIN
 
-Coog Admin is a toolkit that makes it easy to manage Coog (Insuance ERP from
+Coog Admin is a toolkit that makes it easy to manage Coog (Insurance ERP from
 Coopengo). It is aimed to provide all useful commands to:
 
 - Deploy Coog (in all recommended configurations)
