@@ -29,6 +29,7 @@ For the first versions, Coog Admin will be focused on deployment.
 - All operations scripts source a special script (`.env`) that sets the
   configuration
 - `.env` last line is:
+
   ```
   [ -f $PREFIX/env ] && source $PREFIX/env
   ```
