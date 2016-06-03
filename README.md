@@ -72,13 +72,13 @@ All commands print commands list when called without arguments
 ### Situation
 
 - You start working on Coog
-- You have an archive with the Coog image (coog.tar.gz)
+- You have an archive with the Coog image (coog.tar)
 - You have no initial dataset
 
 ### Steps
 
 - First you need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
-    - load: `docker load -i coog.tar.gz`
+    - load: `docker load -i coog.tar`
     - check that your image is there: `docker images`
     - edit `/usr/local/coog/env` to set Coog image name (example below)
 
