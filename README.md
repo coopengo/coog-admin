@@ -76,6 +76,7 @@ All commands print commands list when called without arguments
     - load: `docker load -i coog.tar.gz`
     - check that your image is there: `docker images`
     - edit `/usr/local/coog/env` to set Coog image name (example below)
+
     ```
     COOG_IMAGE=coog/coog:1.8
     ```
@@ -85,7 +86,7 @@ All commands print commands list when called without arguments
 - Start redis: be careful, redis supports and keeps his data on `/usr/local/coog/redis`
   (persistent event after container restarting)
     - start redis server: `./redis server`
-    - `./redis client` let you connect to your server to check this step
+    - `./redis client` lets you connect to your server to check this step
 
 - Start postgres: be careful, postgres keeps its data on a `/usr/local/coog/pg`
   (persistent even after containers restarting)
@@ -111,16 +112,24 @@ All commands print commands list when called without arguments
 
 - Start Coog
     - edit `/usr/local/coog/env` to set sentry dsn keys (example below)
+
     ```
     COOG_SENTRY_PROJECT=1
     COOG_SENTRY_PUB=c5811bbab3444364b753df155dd8cc8e
     COOG_SENTRY_SEC=56fb9bb6270e4221b1496a835e2dea8e
     ```
+
     - if you start on a new database, you should initialize it (create tables
       and minimal dataset) by calling `./coog upgrade`
-    - start Coog workers: `./coog workers`: (workers number could be set on `/usr/local/coog/env`
+    - start Coog workers: `./coog workers`: (workers number could be set on `/usr/local/coog/env`)
 
 - Start nginx
     - `./nginx init`: generates a default nginx config file
     - `./nginx serve`: starts nginx to load balance on coog workers
     - now nginx is listening on port 80 (of the host machine). You can connect your client.
+
+This example is a basic one. Keep in mind that you can customize it to have a more adapted configuration:
+- database on a dedicated server (no docker for postgres)
+- sentry and Coog on different database servers
+
+Please refer to [.env](https://github.com/coopengo/coog-admin/blob/master/.env) script to deep into those possibilities.
