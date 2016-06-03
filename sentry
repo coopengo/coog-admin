@@ -11,6 +11,12 @@ set_key() {
         docker run --rm $SENTRY_IMAGE generate-secret-key > $SENTRY_KEY
 }
 
+init_conf() {
+        [ -e $SENTRY_CONF ] && echo backup old config before && return 1
+        install -D $script_dir/config/sentry.yml $SENTRY_CONF
+
+}
+
 _run() {
         local secret_key
         secret_key=`get_key`
@@ -42,6 +48,7 @@ _run() {
                 -e "SENTRY_REDIS_PORT=$REDIS_PORT" \
                 -e "SENTRY_REDIS_DB=$SENTRY_CACHE_DB" \
                 -v $SENTRY_VOLUME:/var/lib/sentry/files \
+                -v $SENTRY_CONF:/etc/sentry/config.yml \
                 $SENTRY_IMAGE $*
 }
 
@@ -69,13 +76,14 @@ usage() {
         echo
         echo Possible commands
         echo
-        echo "  get_key  : get secret key (to link workers)"
-        echo "  set_key  : generate secret key"
-        echo "  upgrade  : upgrade sentry database"
-        echo "  worker   : launch a sentry celery worker (docker container)"
-        echo "  beat     : launch a sentry celery beat (docker container)"
-        echo "  server   : launch the sentry server (docker container)"
-        echo "  client   : open browser on the sentry url"
+        echo "  get_key   : get secret key (to link workers)"
+        echo "  set_key   : generate secret key"
+        echo "  init_conf : init sentry configuration file"
+        echo "  upgrade   : upgrade sentry database"
+        echo "  worker    : launch a sentry celery worker (docker container)"
+        echo "  beat      : launch a sentry celery beat (docker container)"
+        echo "  server    : launch the sentry server (docker container)"
+        echo "  client    : open browser on the sentry url"
         echo
 }
 
@@ -89,6 +97,7 @@ main() {
         #
         [ $cmd = get_key ] && { get_key $*; return $?; }
         [ $cmd = set_key ] && { set_key $*; return $?; }
+        [ $cmd = init_conf ] && { init_conf $*; return $?; }
         [ $cmd = upgrade ] && { upgrade $*; return $?; }
         [ $cmd = worker ] && { worker $*; return $?; }
         [ $cmd = beat ] && { beat $*; return $?; }
