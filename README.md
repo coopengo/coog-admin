@@ -28,8 +28,12 @@ For the first versions, Coog Admin will be focused on deployment.
 - Set of shell scripts to ensure operations
 - All operations scripts source a special script (`.env`) that sets the
   configuration
-- `.env` last command is to source `/usr/local/coog/env` script (the last
-  contains your overrides to personalize your environment
+- `.env` last line is:
+  ```
+  [ -f $PREFIX/env ] && source $PREFIX/env
+  ```
+  this call describes the way we manage overriding in coog-admin. All configuration
+  variables can be set on your custom script to change the way the scripts work.
 - `/usr/local/coog` contains ALL Coog specific data (no worry, we keep your
   server clean)
 
@@ -67,7 +71,7 @@ All commands print commands list when called without arguments
 ### Situation
 
 - You start working on Coog
-- You have got an archive with the Coog image (coog.tar.gz)
+- You have an archive with the Coog image (coog.tar.gz)
 - You have no initial dataset
 
 ### Steps
