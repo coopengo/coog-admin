@@ -98,6 +98,7 @@ _run() {
         else
                 echo "unexpected mode" && return 1
         fi
+        args="$args -v /tmp:/tmp"
         args="$args -v $COOG_VOLUME:/opt/coog/data"
         local spec_args
         spec_args=`get_session_args`
