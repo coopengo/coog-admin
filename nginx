@@ -7,7 +7,11 @@ init() {
         cp $script_dir/config/nginx.conf $NGINX_CONF
 }
 
-serve() {
+edit() {
+        $EDITOR $NGINX_CONF
+}
+
+run() {
         [ ! -e $NGINX_CONF ] && echo no config && return 1
         local conf_file; conf_file="/tmp/ngx_"`date +%s%N`".conf"
         cp $NGINX_CONF $conf_file
@@ -31,11 +35,23 @@ serve() {
         docker exec $NGINX_CONTAINER nginx -s reload
 }
 
+action() {
+        docker $1 $NGINX_CONTAINER
+}
+
 usage() {
         echo
-        echo Possible commands
-        echo "  init  : init nginx.conf file from default"
-        echo "  serve : run nginx docker image"
+        echo Available commands
+        echo
+        echo "  init     -> inits nginx.conf"
+        echo "  edit     -> edits nginx.conf"
+        echo "  run      -> runs an nginx docker image"
+        echo "  top      -> shows nginx container top"
+        echo "  stats    -> shows nginx container stats"
+        echo "  start    -> starts nginx container"
+        echo "  stop     -> stops nginx container"
+        echo "  restart  -> restarts nginx container"
+        echo "  rm       -> removes nginx container"
         echo
 }
 
@@ -47,8 +63,15 @@ main() {
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift
         #
-        [ $cmd = init ] && { init $*; return $?; }
-        [ $cmd = serve ] && { serve $*; return $?; }
+        [ $cmd = "init" ] && { init; return $?; }
+        [ $cmd = "edit" ] && { edit; return $?; }
+        [ $cmd = "run" ] && { run $*; return $?; }
+        [ $cmd = "top" ] && { action "top"; return $?; }
+        [ $cmd = "stats" ] && { action "stats"; return $?; }
+        [ $cmd = "start" ] && { action "start"; return $?; }
+        [ $cmd = "stop" ] && { action "stop"; return $?; }
+        [ $cmd = "restart" ] && { action "restart"; return $?; }
+        [ $cmd = "rm" ] && { action "rm"; return $?; }
         usage && return 1
 }
 

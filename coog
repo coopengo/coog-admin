@@ -2,6 +2,14 @@
 # This script helps doing with Coog image.
 # More informations: https://docs.docker.com/engine/reference/run/
 
+edit_app() {
+        $EDITOR $* $COOG_VOLUME/coog.conf
+}
+
+edit_batch() {
+        $EDITOR $* $COOG_VOLUME/batch.conf
+}
+
 get_session_args() {
         [ -z $COOG_SESSION_SUPERPWD ] && echo missing COOG_SESSION_SUPERPWD && return 1
         echo "-e COOG_SESSION_SUPERPWD=$COOG_SESSION_SUPERPWD"
@@ -93,7 +101,7 @@ _run() {
                 local port; port=$1; shift
                 if [ $port -ne 0 ]
                 then
-                    args="$args -p $port:8000"
+                        args="$args -p $port:8000"
                 fi
         else
                 echo "unexpected mode" && return 1
@@ -137,9 +145,9 @@ worker() {
         local port
         if [ ! -z $COOG_PUB_PORT ]
         then
-            port=$(($COOG_PUB_PORT + $1))
+                port=$(($COOG_PUB_PORT + $1))
         else
-            port=0
+                port=0
         fi
         shift
         _run d $name $port app $*
@@ -158,18 +166,47 @@ batch() {
         _run i batch $*
 }
 
+action() {
+        local cmd; cmd=$1; shift
+        local args
+        if [ -z $1 ]
+        then
+                local id; id=1
+                while [ $id -le $WORKERS ]
+                do
+                        args="$args $COOG_CONTAINER-$id"
+                        id=$(($id+1))
+                done
+        else
+                while [ ! -z $1 ]
+                do
+                        args="$args $COOG_CONTAINER-$1"
+                        shift
+                done
+        fi
+        docker $cmd $args
+}
+
 usage() {
         echo
-        echo Possible commands
+        echo Available commands
         echo
-        echo "  version : get image version (git trees)"
-        echo "  env     : get container env vars"
-        echo "  config  : get container coog configuration"
-        echo "  upgrade : upgrade coog database (according to new app version)"
-        echo "  update  : update specific modules (needs modules)"
-        echo "  worker  : start worker container (needs a worker id.)"
-        echo "  workers : start workers"
-        echo "  batch   : launch batch execution"
+        echo "  edit-app   -> edits coog app config file"
+        echo "  edit-batch -> edits coog batch config file"
+        echo "  version    -> gets image version (git trees)"
+        echo "  env        -> gets container env vars"
+        echo "  config     -> gets container coog configuration"
+        echo "  upgrade    -> upgrades coog database (according to new app version)"
+        echo "  update     -> updates specific modules (needs modules)"
+        echo "  worker     -> starts worker container (needs a worker id.)"
+        echo "  workers    -> starts workers"
+        echo "  top        -> shows coog container top [ids]"
+        echo "  stats      -> shows coog container stats [ids]"
+        echo "  start      -> starts coog container [ids]"
+        echo "  stop       -> stops coog container [ids]"
+        echo "  restart    -> restarts coog container [ids]"
+        echo "  rm         -> removes coog container [ids]"
+        echo "  batch      -> launches batch execution"
         echo
 }
 
@@ -181,14 +218,22 @@ main() {
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift
         #
-        [ $cmd = version ] && { version $*; return $?; }
-        [ $cmd = env ] && { env $*; return $?; }
-        [ $cmd = config ] && { config $*; return $?; }
-        [ $cmd = upgrade ] && { upgrade $*; return $?; }
-        [ $cmd = update ] && { update $*; return $?; }
-        [ $cmd = worker ] && { worker $*; return $?; }
-        [ $cmd = workers ] && { workers $*; return $?; }
-        [ $cmd = batch ] && { batch $*; return $?; }
+        [ $cmd = "edit-app" ] && { edit_app $*; return $?; }
+        [ $cmd = "edit-batch" ] && { edit_batch $*; return $?; }
+        [ $cmd = "version" ] && { version $*; return $?; }
+        [ $cmd = "env" ] && { env $*; return $?; }
+        [ $cmd = "config" ] && { config $*; return $?; }
+        [ $cmd = "upgrade" ] && { upgrade $*; return $?; }
+        [ $cmd = "update" ] && { update $*; return $?; }
+        [ $cmd = "worker" ] && { worker $*; return $?; }
+        [ $cmd = "workers" ] && { workers $*; return $?; }
+        [ $cmd = "top" ] && { action "top" $*; return $?; }
+        [ $cmd = "stats" ] && { action "stats" $*; return $?; }
+        [ $cmd = "start" ] && { action "start" $*; return $?; }
+        [ $cmd = "stop" ] && { action "stop" $*; return $?; }
+        [ $cmd = "restart" ] && { action "restart" $*; return $?; }
+        [ $cmd = "rm" ] && { action "rm" $*; return $?; }
+        [ $cmd = "batch" ] && { batch $*; return $?; }
         usage && return 1
 }
 
