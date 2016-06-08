@@ -8,6 +8,7 @@ init() {
 }
 
 edit() {
+        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         $EDITOR $NGINX_CONF
 }
 

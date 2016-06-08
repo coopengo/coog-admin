@@ -3,10 +3,12 @@
 # More informations: https://docs.docker.com/engine/reference/run/
 
 edit_app() {
+        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         $EDITOR $* $COOG_VOLUME/coog.conf
 }
 
 edit_batch() {
+        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         $EDITOR $* $COOG_VOLUME/batch.conf
 }
 

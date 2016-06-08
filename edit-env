@@ -2,6 +2,7 @@
 # This script launches custom env script edition
 
 main() {
+        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         local script_path; script_path=`readlink -f $0`
         local script_dir; script_dir=`dirname $script_path`
         source $script_dir/.env
