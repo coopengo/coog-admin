@@ -19,12 +19,22 @@ client() {
                 sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
 }
 
+action() {
+        docker $1 $REDIS_CONTAINER
+}
+
 usage() {
         echo
-        echo Possible commands:
+        echo Available commands
         echo
-        echo "  server : run a redis server (docker container)"
-        echo "  client : run a redis client (docker container)"
+        echo "  server   -> runs a redis docker image as a server"
+        echo "  client   -> runs a redis docker image as a client"
+        echo "  top      -> shows redis server container top"
+        echo "  stats    -> shows redis server container stats"
+        echo "  start    -> starts redis server container"
+        echo "  stop     -> stops redis server container"
+        echo "  restart  -> restarts redis server container"
+        echo "  rm       -> removes redis server container"
         echo
 }
 
@@ -36,8 +46,14 @@ main() {
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift
         #
-        [ $cmd = server ] && { server $*; return $?; }
-        [ $cmd = client ] && { client $*; return $?; }
+        [ $cmd = "server" ] && { server $*; return $?; }
+        [ $cmd = "client" ] && { client $*; return $?; }
+        [ $cmd = "top" ] && { action "top"; return $?; }
+        [ $cmd = "stats" ] && { action "stats"; return $?; }
+        [ $cmd = "start" ] && { action "start"; return $?; }
+        [ $cmd = "stop" ] && { action "stop"; return $?; }
+        [ $cmd = "restart" ] && { action "restart"; return $?; }
+        [ $cmd = "rm" ] && { action "rm"; return $?; }
         usage && return 1
 }
 

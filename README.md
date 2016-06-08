@@ -35,11 +35,12 @@ For the first versions, Coog Admin will be focused on deployment.
   ```
   this call describes the way we manage overriding in coog-admin. All configuration
   variables can be set on your custom script to change the way the scripts work.
-- `/usr/local/coog` contains ALL Coog specific data (no worry, we keep your
-  server clean)
-
-    - Never modify Coog Admin directly
-    - To clean your environment, you can just delete `/usr/local/coog` folder
+- All Coog data are stored in **one folder** named `$PREFIX`. This ensures
+  keeping host server clean (no files at different locations). By default
+  `$PREFIX` is mapped to `/usr/local/coog`. It could be overridden by setting `COOG_ROOT`
+  (may be in user's `.profile`)
+    - `env` overrides are on `$PREFIX` folder
+    - To clean your environment, you can just `$PREFIX` folder
 
 It is very recommended to read the scripts to have a deep understanding of how
 it works:
@@ -53,6 +54,7 @@ it works:
 
 All commands print commands list when called without arguments
 
+- edit-env: edits custom env script
 - pull: pulls all needed images for Coog
 - clean: useful to clean old images on filesystem
 - .env: all configuration variables
@@ -65,7 +67,7 @@ All commands print commands list when called without arguments
   configuration
 - nginx: launches nginx as a reverse proxy and load balancer for Coog
     - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/config/nginx.conf)
-    - this could be overridden is `/usr/local/coog/nginx.conf`
+    - this could be overridden using `./nginx edit`
 
 ## Use case
 
@@ -80,7 +82,7 @@ All commands print commands list when called without arguments
 - First you need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
     - load: `docker load -i coog.tar`
     - check that your image is there: `docker images`
-    - edit `/usr/local/coog/env` to set Coog image name (example below)
+    - `./edit-env` to set Coog image name (example below)
 
     ```
     COOG_IMAGE=coog/coog:1.8
@@ -88,14 +90,14 @@ All commands print commands list when called without arguments
 
 - Pull images: `./pull` to get all needed images to run Coog
 
-- Start redis: be careful, redis supports and keeps his data on `/usr/local/coog/redis`
-  (persistent event after container restarting)
-    - start redis server: `./redis server`
+- Start redis: be careful, redis supports and keeps his data on host server
+  (persistent even after container restarting)
+    - `./redis server` to start redis server
     - `./redis client` lets you connect to your server to check this step
 
-- Start postgres: be careful, postgres keeps its data on a `/usr/local/coog/pg`
+- Start postgres: be careful, postgres keeps its data on a host server
   (persistent even after containers restarting)
-    - start postgres server: `./postgres server`
+    - `./postgres server` to start postgres server
     - `./postgres client` let you connect to your server (default password is `postgres`)
     - if this is the first time, you need to create your database:
       `create database coog owner postgres encoding 'utf8';`
@@ -105,7 +107,7 @@ All commands print commands list when called without arguments
     - `./sentry set_key`: generates a secret key for sentry deployment (used to
       recognise different workers)
     - `./sentry init_conf`: generates a default configuration file for sentry
-    - edit `/usr/local/sentry/config.yml` to set exposed hostname and port of sentry
+    - `./sentry edit_conf`: set exposed hostname and port of sentry
     - `./postgres client`: creates a database for sentry (default name is sentry)
     - `./sentry upgrade`: populates sentry database (create tables and minimal dataset)
     - `./sentry worker`: starts a celery worker for sentry (async treatments)
@@ -116,7 +118,7 @@ All commands print commands list when called without arguments
     ![sentry-dsn](./img/sentry.png)
 
 - Start Coog
-    - edit `/usr/local/coog/env` to set sentry dsn keys (example below)
+    - `./edit-env` to set sentry dsn keys (example below)
 
     ```
     COOG_SENTRY_PROJECT=1
@@ -126,11 +128,11 @@ All commands print commands list when called without arguments
 
     - if you start on a new database, you should initialize it (create tables
       and minimal dataset) by calling `./coog upgrade`
-    - start Coog workers: `./coog workers`: (workers number could be set on `/usr/local/coog/env`)
+    - start Coog workers: `./coog workers`: (workers number could be set via `./edit-env`)
 
 - Start nginx
     - `./nginx init`: generates a default nginx config file
-    - `./nginx serve`: starts nginx to load balance on coog workers
+    - `./nginx run`: starts nginx to load balance on coog workers
     - now nginx is listening on port 80 (of the host machine). You can connect your client.
 
 This example is a basic one. Keep in mind that you can customize it to have a more adapted configuration:
