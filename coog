@@ -21,10 +21,10 @@ get_db_args() {
         local args
         [ -z $COOG_DB_SYS ] && echo missing COOG_DB_SYS && return 1
         args="$args -e COOG_DB_SYS=$COOG_DB_SYS"
-        [ -z $PG_HOST ] && echo missing PG_HOST && return 1
-        args="$args -e COOG_DB_HOST=$PG_HOST"
-        [ -z $PG_PORT ] && echo missing PG_PORT && return 1
-        args="$args -e COOG_DB_PORT=$PG_PORT"
+        [ -z $COOG_DB_HOST ] && echo missing COOG_DB_HOST && return 1
+        args="$args -e COOG_DB_HOST=$COOG_DB_HOST"
+        [ -z $COOG_DB_PORT ] && echo missing COOG_DB_PORT && return 1
+        args="$args -e COOG_DB_PORT=$COOG_DB_PORT"
         [ -z $COOG_DB_USERNAME ] && echo missing COOG_DB_USERNAME && return 1
         args="$args -e COOG_DB_USER=$COOG_DB_USERNAME"
         [ -z $COOG_DB_PASSWORD ] && echo missing COOG_DB_PASSWORD && return 1
