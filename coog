@@ -2,6 +2,12 @@
 # This script helps doing with Coog image.
 # More informations: https://docs.docker.com/engine/reference/run/
 
+get_dir() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        echo $script_dir
+}
+
 edit_app() {
         [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         $EDITOR $* $COOG_VOLUME/coog.conf
@@ -224,9 +230,7 @@ usage() {
 }
 
 main() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        source $script_dir/.env
+        source `get_dir`/config
         #
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift

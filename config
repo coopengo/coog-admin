@@ -18,6 +18,12 @@ check_docker_version() {
 
 check_docker_version || exit 1
 
+get_dir() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        echo $script_dir
+}
+
 ip() {
         local exists
         exists=`docker ps --format '{{.Names}}' | grep -P '^'$1'$' | wc -l`
@@ -33,6 +39,7 @@ get_latest() {
 # GENERAL PURPOSE
 #-------------------------------------------------------------------------------#
 
+[ -z $EDITOR ] && EDITOR=nano
 PREFIX=/usr/local/coog                    # where all custom data goes (NEVER OVERRIDE)
 [ ! -z $COOG_ROOT ] && PREFIX=$COOG_ROOT  # can be set via $COOG_ROOT
 mkdir -p $PREFIX                          # make sure folder exists
@@ -132,4 +139,7 @@ NGINX_PUB_PORT=80               # host mapped port
 # CUSTOMS
 #-------------------------------------------------------------------------------#
 
-[ -f $PREFIX/env ] && source $PREFIX/env
+[ ! -e $PREFIX/config ] && cp `get_dir`/defaults/config $PREFIX/config
+[ ! -e $PREFIX/config ] && exit 1
+echo "# For an exhaustive variables list, checkout base config on "`get_dir`/config >> $PREFIX/config
+source $PREFIX/config

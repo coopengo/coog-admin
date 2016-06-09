@@ -2,9 +2,15 @@
 # This script helps doing with nginx docker image.
 # More informations: https://hub.docker.com/_/nginx/
 
+get_dir() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        echo $script_dir
+}
+
 init() {
         [ -e $NGINX_CONF ] && echo backup old config before && return 1
-        cp $script_dir/config/nginx.conf $NGINX_CONF
+        cp `get_dir`/defaults/nginx.conf $NGINX_CONF
 }
 
 edit() {
@@ -57,9 +63,7 @@ usage() {
 }
 
 main() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        source $script_dir/.env
+        source `get_dir`/config
         #
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift

@@ -1,0 +1,3 @@
+# This is the custom configuration for coog-admin
+# Typical override is the Coog image name:
+# COOG_IMAGE=coog/project:version
