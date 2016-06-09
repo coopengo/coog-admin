@@ -2,6 +2,12 @@
 # This script helps doing with postgres docker image.
 # More informations: https://hub.docker.com/_/postgres/
 
+get_dir() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        echo $script_dir
+}
+
 server() {
         docker run \
                 -d \
@@ -41,9 +47,7 @@ usage() {
 }
 
 main() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        source $script_dir/.env
+        source `get_dir`/config
         #
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift

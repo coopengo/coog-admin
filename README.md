@@ -32,22 +32,22 @@ For the first versions, Coog Admin will be focused on deployment.
   by setting `COOG_ROOT` (maybe in user's `.profile`)
 - Coog data includes postgresql databases, redis persistency, coog documents.
   All those are stored in sub-fodlers of `$PREFIX`.
-- All operations scripts source a special script (`.env`) that sets the
+- All operations scripts source a special script (`config`) that sets the
   configuration
-- `.env` last line is:
+- `config` last line is:
 
   ```
-  [ -f $PREFIX/env ] && source $PREFIX/env
+  [ -f $PREFIX/config ] && source $PREFIX/config
   ```
   Basically, all the configuration is done through environment variables, which
-  are defined in `.env`. To modify the configuration, just set your updated
-  environment variables in `$PREFIX/env`.
+  are defined in `config`. To modify the configuration, just set your updated
+  environment variables in `$PREFIX/config`.
 - To clean your environment, you can just `$PREFIX` folder
 
 It is very recommended to read the scripts to have a deep understanding of how
 it works:
 
-- [.env](https://github.com/coopengo/coog-admin/blob/master/.env): configuration
+- [config](https://github.com/coopengo/coog-admin/blob/master/config): configuration
   items explained
 - [postgres](https://github.com/coopengo/coog-admin/blob/master/postgres):
   typical launcher
@@ -56,10 +56,10 @@ it works:
 
 All commands print commands list when called without arguments
 
-- `edit-env`: edits custom env script
+- `edit-config`: edits custom config script
 - `pull`: pulls all needed images for Coog
 - `clean`: useful to clean old images on filesystem
-- `.env`: all configuration variables
+- `config`: all configuration variables
 - `redis`: launches redis (client and server) from a docker image
 - `postgres`: launches postgres (client and server) from a docker images
 - `sentry`: runs sentry (server and workers) from a docker images. This could link
@@ -68,7 +68,7 @@ All commands print commands list when called without arguments
 - `coog`: runs coog (workers, batch). It links to redis and postgres based on
   configuration
 - `nginx`: launches nginx as a reverse proxy and load balancer for Coog
-    - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/config/nginx.conf)
+    - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/defaults/nginx.conf)
     - this could be overridden using `./nginx edit`
 
 ## Use case
@@ -84,7 +84,7 @@ All commands print commands list when called without arguments
 - First you need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
     - load: `docker load -i coog.tar`
     - check that your image is there: `docker images`
-    - `./edit-env` to set Coog image name (example below)
+    - `./edit-config` to set Coog image name (example below)
 
     ```
     COOG_IMAGE=coog/coog:X.Y
@@ -123,7 +123,7 @@ All commands print commands list when called without arguments
     ![sentry-dsn](./img/sentry.png)
 
 - Start Coog
-    - `./edit-env` to set sentry dsn keys (example below)
+    - `./edit-config` to set sentry dsn keys (example below)
 
     ```
     COOG_SENTRY_PROJECT=1
@@ -133,7 +133,7 @@ All commands print commands list when called without arguments
 
     - if you start on a new database, you should initialize it (create tables
       and minimal dataset) by calling `./coog upgrade`
-    - start Coog workers: `./coog workers`: (workers number could be set via `./edit-env`)
+    - start Coog workers: `./coog workers`: (workers number could be set via `./edit-config`)
 
 - Start nginx
     - `./nginx init`: generates a default nginx config file
@@ -145,5 +145,5 @@ better (as in 'closer to your needs') configuration:
 - database on a dedicated server (no docker for postgres)
 - sentry and Coog on different database servers
 
-Please refer to [.env](https://github.com/coopengo/coog-admin/blob/master/.env)
+Please refer to [config](https://github.com/coopengo/coog-admin/blob/master/config)
 script to acquire a better understanding of those possibilities.

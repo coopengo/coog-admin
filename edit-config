@@ -1,0 +1,16 @@
+#!/bin/bash
+# This script launches custom config script edition
+
+get_dir() {
+        local script_path; script_path=`readlink -f $0`
+        local script_dir; script_dir=`dirname $script_path`
+        echo $script_dir
+}
+
+main() {
+        source `get_dir`/config
+        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
+        $EDITOR $PREFIX/config
+}
+
+main
