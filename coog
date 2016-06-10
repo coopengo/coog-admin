@@ -8,14 +8,21 @@ get_dir() {
         echo $script_dir
 }
 
+init() {
+        mkdir -p $COOG_VOLUME
+        mkdir -p $COOG_VOLUME/conf
+        mkdir -p $COOG_VOLUME/edm
+        mkdir -p $COOG_VOLUME/batch
+        [ ! -e $COOG_VOLUME/conf/coog.conf ] && touch $COOG_VOLUME/conf/coog.conf
+        [ ! -e $COOG_VOLUME/conf/batch.conf ] && touch $COOG_VOLUME/conf/batch.conf
+}
+
 edit_app() {
-        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
-        $EDITOR $* $COOG_VOLUME/coog.conf
+        $EDITOR $* $COOG_VOLUME/conf/coog.conf
 }
 
 edit_batch() {
-        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
-        $EDITOR $* $COOG_VOLUME/batch.conf
+        $EDITOR $* $COOG_VOLUME/conf/batch.conf
 }
 
 get_session_args() {
@@ -115,7 +122,7 @@ _run() {
                 echo "unexpected mode" && return 1
         fi
         args="$args -v /tmp:/tmp"
-        args="$args -v $COOG_VOLUME:/opt/coog/data"
+        args="$args -v $COOG_VOLUME:/opt/coog/io"
         local spec_args
         spec_args=`get_session_args`
         [ $? -ne 0 ] && echo $spec_args && return 1

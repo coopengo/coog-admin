@@ -23,7 +23,6 @@ init_conf() {
 }
 
 edit_conf() {
-        [ -z $EDITOR ] && echo '$EDITOR not set' && return 1
         $EDITOR $SENTRY_CONF
 }
 
