@@ -217,6 +217,7 @@ usage() {
         echo
         echo Available commands
         echo
+        echo "  init       -> init volume folder"
         echo "  edit-app   -> edits coog app config file"
         echo "  edit-batch -> edits coog batch config file"
         echo "  version    -> gets image version (git trees)"
@@ -242,6 +243,7 @@ main() {
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift
         #
+        [ $cmd = "init" ] && { init $*; return $?; }
         [ $cmd = "edit-app" ] && { edit_app $*; return $?; }
         [ $cmd = "edit-batch" ] && { edit_batch $*; return $?; }
         [ $cmd = "version" ] && { version $*; return $?; }
