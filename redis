@@ -35,6 +35,7 @@ usage() {
         echo
         echo "  server   -> runs a redis docker image as a server"
         echo "  client   -> runs a redis docker image as a client"
+        echo "  logs     -> shows redis server logs"
         echo "  top      -> shows redis server container top"
         echo "  stats    -> shows redis server container stats"
         echo "  start    -> starts redis server container"
@@ -52,6 +53,7 @@ main() {
         #
         [ $cmd = "server" ] && { server $*; return $?; }
         [ $cmd = "client" ] && { client $*; return $?; }
+        [ $cmd = "logs" ] && { action "logs"; return $?; }
         [ $cmd = "top" ] && { action "top"; return $?; }
         [ $cmd = "stats" ] && { action "stats"; return $?; }
         [ $cmd = "start" ] && { action "start"; return $?; }

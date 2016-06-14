@@ -52,6 +52,7 @@ usage() {
         echo "  init     -> inits nginx.conf"
         echo "  edit     -> edits nginx.conf"
         echo "  run      -> runs an nginx docker image"
+        echo "  logs     -> shows nginx container logs"
         echo "  top      -> shows nginx container top"
         echo "  stats    -> shows nginx container stats"
         echo "  start    -> starts nginx container"
@@ -70,6 +71,7 @@ main() {
         [ $cmd = "init" ] && { init; return $?; }
         [ $cmd = "edit" ] && { edit; return $?; }
         [ $cmd = "run" ] && { run $*; return $?; }
+        [ $cmd = "logs" ] && { action "logs"; return $?; }
         [ $cmd = "top" ] && { action "top"; return $?; }
         [ $cmd = "stats" ] && { action "stats"; return $?; }
         [ $cmd = "start" ] && { action "start"; return $?; }

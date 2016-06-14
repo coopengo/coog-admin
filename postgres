@@ -37,6 +37,7 @@ usage() {
         echo
         echo "  server   -> runs a postgres docker image as a server"
         echo "  client   -> runs a postgres docker image as a client"
+        echo "  logs     -> shows postgres server logs"
         echo "  top      -> shows postgres server container top"
         echo "  stats    -> shows postgres server container stats"
         echo "  start    -> starts postgres server container"
@@ -54,6 +55,7 @@ main() {
         #
         [ $cmd = "server" ] && { server $*; return $?; }
         [ $cmd = "client" ] && { client $*; return $?; }
+        [ $cmd = "logs" ] && { action "logs"; return $?; }
         [ $cmd = "top" ] && { action "top"; return $?; }
         [ $cmd = "stats" ] && { action "stats"; return $?; }
         [ $cmd = "start" ] && { action "start"; return $?; }

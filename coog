@@ -227,6 +227,7 @@ usage() {
         echo "  update     -> updates specific modules (needs modules)"
         echo "  worker     -> starts worker container (needs a worker id.)"
         echo "  workers    -> starts workers"
+        echo "  logs       -> shows coog container logs [ids]"
         echo "  top        -> shows coog container top [ids]"
         echo "  stats      -> shows coog container stats [ids]"
         echo "  start      -> starts coog container [ids]"
@@ -253,6 +254,7 @@ main() {
         [ $cmd = "update" ] && { update $*; return $?; }
         [ $cmd = "worker" ] && { worker $*; return $?; }
         [ $cmd = "workers" ] && { workers $*; return $?; }
+        [ $cmd = "logs" ] && { action "logs" $*; return $?; }
         [ $cmd = "top" ] && { action "top" $*; return $?; }
         [ $cmd = "stats" ] && { action "stats" $*; return $?; }
         [ $cmd = "start" ] && { action "start" $*; return $?; }
