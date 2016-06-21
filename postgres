@@ -20,8 +20,20 @@ server() {
 }
 
 client() {
+        local args
+        if [ ! -z $1 ]
+        then
+                if [ $1 = tty ]
+                then
+                        args=-i
+                else
+                        args=-it
+                fi
+        else
+                args=-it
+        fi
         docker run \
-                -ti --rm \
+                $args --rm \
                 --link $PG_CONTAINER:postgres \
                 $PG_IMAGE \
                 sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$PG_USERNAME"
