@@ -1,0 +1,19 @@
+#!/bin/bash
+
+[ -z $1 ] && echo missing image file && exit 1
+[ ! -e $1 ] && echo bad image file && exit 1
+
+script_path=`readlink -f $0`
+script_dir=`dirname $script_path`
+
+source $script_dir/config
+docker load -i $1
+echo COOG_IMAGE=`docker images --format '{{.Repository}}:{{.Tag}}' | head -1` >> $PREFIX/config
+$script_dir/nginx stop
+$script_dir/coog stop
+$script_dir/coog rm
+echo FLUSHDB | $script_dir/redis client tty
+$script_dir/coog upgrade
+echo FLUSHDB | $script_dir/redis client tty
+$script_dir/coog workers
+$script_dir/nginx start

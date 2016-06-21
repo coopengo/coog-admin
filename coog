@@ -162,7 +162,7 @@ upgrade() {
 }
 
 update() {
-        _run i app -v -d $COOG_DB_NAME -u $*
+        _run i admin -v -d $COOG_DB_NAME -u $*
 }
 
 worker() {
