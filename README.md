@@ -30,6 +30,7 @@ For the first versions, Coog Admin will be focused on deployment.
   that the host server is kept clean (no files at different locations).
   By default `$PREFIX` is mapped to `/usr/local/coog`. It could be overridden
   by setting `COOG_ROOT` (maybe in user's `.profile`)
+  A good practice is to use `data` folder inside coog-admin (git ignored)
 - Coog data includes postgresql databases, redis persistency, coog documents.
   All those are stored in sub-fodlers of `$PREFIX`.
 - All operations scripts source a special script (`config`) that sets the
