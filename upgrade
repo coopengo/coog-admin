@@ -6,14 +6,21 @@
 script_path=`readlink -f $0`
 script_dir=`dirname $script_path`
 
+clear_cache() {
+        if [ ! -z $COOG_CACHE_DB ]
+        then
+                echo -e "SELECT $COOG_CACHE_DB\nFLUSHDB" | $script_dir/redis client tty
+        fi
+}
+
 source $script_dir/config
 docker load -i $1
 echo COOG_IMAGE=`docker images --format '{{.Repository}}:{{.Tag}}' | head -1` >> $PREFIX/config
 $script_dir/nginx stop
 $script_dir/coog stop
 $script_dir/coog rm
-echo FLUSHDB | $script_dir/redis client tty
+clear_cache
 $script_dir/coog upgrade
-echo FLUSHDB | $script_dir/redis client tty
+clear_cache
 $script_dir/coog workers
 $script_dir/nginx start
