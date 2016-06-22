@@ -26,11 +26,11 @@ For the first versions, Coog Admin will be focused on deployment.
 ## What is this tool
 
 - Set of shell scripts to ensure operations
-- All Coog data are stored in **one folder** named `$PREFIX`. This ensures
-  that the host server is kept clean (no files at different locations).
-  By default `$PREFIX` is mapped to `/usr/local/coog`. It could be overridden
-  by setting `COOG_ROOT` (maybe in user's `.profile`)
-  A good practice is to use `data` folder inside coog-admin (git ignored)
+- All Coog data are stored in **one folder** named `$PREFIX`
+    - This ensures that the host server is kept clean (no files at different locations).
+    - By default `$PREFIX` is mapped to `/usr/local/coog`.
+    - It could be overridden by setting `COOG_ROOT` (maybe in user's `.profile`)
+    - A good practice is to use `data` folder inside coog-admin (git ignored)
 - Coog data includes postgresql databases, redis persistency, coog documents.
   All those are stored in sub-fodlers of `$PREFIX`.
 - All operations scripts source a special script (`config`) that sets the
@@ -43,7 +43,7 @@ For the first versions, Coog Admin will be focused on deployment.
   Basically, all the configuration is done through environment variables, which
   are defined in `config`. To modify the configuration, just set your updated
   environment variables in `$PREFIX/config`.
-- To clean your environment, you can just `$PREFIX` folder
+- To clean your environment, you can just remove `$PREFIX` folder
 
 It is very recommended to read the scripts to have a deep understanding of how
 it works:
