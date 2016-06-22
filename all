@@ -1,0 +1,21 @@
+#!/bin/bash
+
+[ -z $1 ] && echo missing command && exit 1
+
+if [ $1 = start ]
+then
+        ./postgres $*
+        ./redis $*
+        ./sentry $*
+        ./coog $*
+        ./nginx $*
+elif [ $1 = stop ] || [ $1 = rm ]
+then
+        ./nginx $*
+        ./coog $*
+        ./sentry $*
+        ./redis $*
+        ./postgres $*
+else
+        echo bad command && exit 1
+fi
