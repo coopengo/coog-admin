@@ -123,6 +123,10 @@ _run() {
         fi
         args="$args -v /tmp:/tmp"
         args="$args -v $COOG_VOLUME:/opt/coog/io"
+        if [ ! -z $COOG_LOG_LEVEL ]
+        then
+                args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
+        fi
         local spec_args
         spec_args=`get_session_args`
         [ $? -ne 0 ] && echo $spec_args && return 1
@@ -213,6 +217,10 @@ action() {
         docker $cmd $args
 }
 
+run() {
+        _run $*
+}
+
 usage() {
         echo
         echo Available commands
@@ -235,6 +243,7 @@ usage() {
         echo "  restart    -> restarts coog container [ids]"
         echo "  rm         -> removes coog container [ids]"
         echo "  batch      -> launches batch execution"
+        echo "  run        -> run coog image"
         echo
 }
 
@@ -262,6 +271,7 @@ main() {
         [ $cmd = "restart" ] && { action "restart" $*; return $?; }
         [ $cmd = "rm" ] && { action "rm" $*; return $?; }
         [ $cmd = "batch" ] && { batch $*; return $?; }
+        [ $cmd = "run" ] && { run $*; return $?; }
         usage && return 1
 }
 
