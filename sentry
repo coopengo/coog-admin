@@ -14,7 +14,7 @@ get_key() {
 }
 
 set_key() {
-        docker run --rm $SENTRY_IMAGE generate-secret-key > $SENTRY_KEY
+        docker run --rm $SENTRY_IMAGE config generate-secret-key > $SENTRY_KEY
 }
 
 init_conf() {
