@@ -31,7 +31,7 @@ run() {
 }
 
 logs() {
-    CONTAINER_NAME=$1    
+    CONTAINER_NAME=$1
     docker logs $CONTAINER_NAME
 }
 
@@ -51,7 +51,7 @@ main() {
     local cmd; cmd=$1; shift
 
     CONTAINER_NAME="$USER-web"
-    
+
     [ $cmd = "start" ] && { run $CONTAINER_NAME $*; return $?; }
     [ $cmd = "stop" ] && { stop $CONTAINER_NAME $*; return $?; }
     [ $cmd = "rm" ] && { remove $CONTAINER_NAME $*; return $?; }
