@@ -1,0 +1,62 @@
+#!/bin/bash
+# This script is used to init and run webat docker image.
+
+
+get_dir() {
+    local script_path; script_path=`readlink -f $0`
+    local script_dir; script_dir=`dirname $script_path`
+    echo $script_dir
+}
+
+stop() {
+    CONTAINER_NAME=$1
+    docker stop $CONTAINER_NAME
+}
+
+remove() {
+    CONTAINER_NAME=$1
+    docker rm $CONTAINER_NAME
+}
+
+run() {
+    CONTAINER_NAME=$1
+    [ -z $WEB_PORT ] && WEB_PORT=3000
+    docker run                              \
+           -d                               \
+           -e "DB_NAME=$COOG_DB_NAME"       \
+           --name $CONTAINER_NAME           \
+           --link $NGINX_CONTAINER:nginx    \
+           -p $WEB_PORT:3000                \
+           $WEB_IMAGE $*
+}
+
+logs() {
+    CONTAINER_NAME=$1    
+    docker logs $CONTAINER_NAME
+}
+
+usage() {
+    echo
+    echo "  start    -> starts webAT server container"
+    echo "  stop     -> stops webAT server container"
+    echo "  rm       -> removes webAT server container"
+    echo "  logs     -> print webAT logs"
+    echo
+}
+
+main() {
+    source `get_dir`/config
+
+    [ -z $1 ] && usage && return 1
+    local cmd; cmd=$1; shift
+
+    CONTAINER_NAME="$USER-web"
+    
+    [ $cmd = "start" ] && { run $CONTAINER_NAME $*; return $?; }
+    [ $cmd = "stop" ] && { stop $CONTAINER_NAME $*; return $?; }
+    [ $cmd = "rm" ] && { remove $CONTAINER_NAME $*; return $?; }
+    [ $cmd = "logs" ] && { logs $CONTAINER_NAME $*; return $?; }
+    usage && return 1
+}
+
+main $*
