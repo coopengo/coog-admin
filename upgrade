@@ -16,6 +16,8 @@ clear_cache() {
 source $script_dir/config
 docker load -i $1
 echo COOG_IMAGE=`docker images --format '{{.Repository}}:{{.Tag}}' | head -1` >> $PREFIX/config
+$script_dir/web stop
+$script_dir/web rm
 $script_dir/nginx stop
 $script_dir/coog stop
 $script_dir/coog rm
@@ -24,3 +26,4 @@ $script_dir/coog upgrade
 clear_cache
 $script_dir/coog workers
 $script_dir/nginx start
+$script_dir/web start
