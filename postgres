@@ -1,80 +1,56 @@
 #!/bin/bash
+# vim: set ft=sh:
 # This script helps doing with postgres docker image.
 # More informations: https://hub.docker.com/_/postgres/
 
 get_dir() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        echo $script_dir
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
 server() {
         docker run \
                 -d \
-                --name $PG_CONTAINER \
-                -e "POSTGRES_USER=$PG_USERNAME" \
-                -e "POSTGRES_PASSWORD=$PG_PASSWORD" \
+                --name "$POSTGRES_CONTAINER" \
+                -e "POSTGRES_USER=$POSTGRES_USER" \
+                -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
                 -e "PGDATA=/var/lib/postgresql/data/pgdata" \
-                -v $PG_VOLUME:/var/lib/postgresql/data \
-                $PG_IMAGE
+                -v "$POSTGRES_VOLUME:/var/lib/postgresql/data" \
+                "$POSTGRES_IMAGE" "$@"
 }
 
 client() {
-        local args
-        if [ ! -z $1 ]
-        then
-                if [ $1 = tty ]
-                then
-                        args=-i
-                else
-                        args=-it
-                fi
-        else
-                args=-it
-        fi
-        docker run \
-                $args --rm \
-                --link $PG_CONTAINER:postgres \
-                $PG_IMAGE \
-                sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U '"$PG_USERNAME"
+        docker run -it --rm \
+                --link "$POSTGRES_CONTAINER:postgres" \
+                -v "/tmp:/tmp" \
+                "$POSTGRES_IMAGE" \
+                psql -h postgres -U "$POSTGRES_USER" "$@"
 }
 
 action() {
-        docker $1 $PG_CONTAINER
+        docker "$@" "$POSTGRES_CONTAINER"
 }
 
 usage() {
         echo
         echo Available commands
         echo
-        echo "  server   -> runs a postgres docker image as a server"
-        echo "  client   -> runs a postgres docker image as a client"
-        echo "  logs     -> shows postgres server logs"
-        echo "  top      -> shows postgres server container top"
-        echo "  stats    -> shows postgres server container stats"
-        echo "  start    -> starts postgres server container"
-        echo "  stop     -> stops postgres server container"
-        echo "  restart  -> restarts postgres server container"
-        echo "  rm       -> removes postgres server container"
+        echo "  server    -> runs a postgres docker image as a server"
+        echo "  client    -> runs a postgres docker image as a client"
+        echo "  <action>  -> calls docker action on server container"
         echo
 }
 
 main() {
-        source `get_dir`/config
+        source "$(get_dir)/config"
         #
-        [ -z $1 ] && usage && return 1
+        [ -z "$1" ] && usage && return 0
         local cmd; cmd=$1; shift
         #
-        [ $cmd = "server" ] && { server $*; return $?; }
-        [ $cmd = "client" ] && { client $*; return $?; }
-        [ $cmd = "logs" ] && { action "logs"; return $?; }
-        [ $cmd = "top" ] && { action "top"; return $?; }
-        [ $cmd = "stats" ] && { action "stats"; return $?; }
-        [ $cmd = "start" ] && { action "start"; return $?; }
-        [ $cmd = "stop" ] && { action "stop"; return $?; }
-        [ $cmd = "restart" ] && { action "restart"; return $?; }
-        [ $cmd = "rm" ] && { action "rm"; return $?; }
-        usage && return 1
+        [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "client" ] && { client "$@"; return $?; }
+        action "$cmd" "$@"
 }
 
-main $*
+main "$@"
