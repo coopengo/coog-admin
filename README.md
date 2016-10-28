@@ -121,7 +121,7 @@ All commands print commands list when called without arguments
     - Sentry is now listening on port 9000 (on the host machine). You can
       connect to get your dsn (public key, private key)
 
-    ![sentry-dsn](./img/sentry.png)
+    ![sentry-dsn](./png/sentry.png)
 
 - Start Coog
     - `./edit-config` to set sentry dsn keys (example below)
