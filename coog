@@ -72,6 +72,10 @@ celery_args() {
         [ ! -z "$COOG_CELERY_DB" ] && echo "-e COOG_CELERY_DB=$COOG_CELERY_DB"
 }
 
+rq_args() {
+        [ ! -z "$COOG_RQ_DB" ] && echo "-e COOG_RQ_DB=$COOG_RQ_DB"
+}
+
 sentry_args() {
         local args
         if [ -z "$COOG_SENTRY_PROTOCOL" ] || [ -z "$COOG_SENTRY_HOST" ] || [ -z "$COOG_SENTRY_PORT" ]
@@ -100,7 +104,7 @@ args() {
         then
                 args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
         fi
-        echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(sentry_args)"
+        echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
 ###############
@@ -149,9 +153,20 @@ server() {
         docker run -d $(args) --name "$COOG_CONTAINER" "$COOG_IMAGE" wsgi "$@"
 }
 
+batch() {
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -t --rm $(args) "$COOG_IMAGE" batch "$@"
+}
+
 celery() {
         [ -z "$1" ] && echo missing args && return 1
         docker run -d $(args) --name "$COOG_CONTAINER-celery" "$COOG_IMAGE" celery "$@"
+}
+
+rq() {
+        [ -z "$1" ] && echo missing args && return 1
+        local id; id=$1; shift
+        docker run -d $(args) --name "$COOG_CONTAINER-rq-$id" "$COOG_IMAGE" rq "$@"
 }
 
 action() {
@@ -175,7 +190,9 @@ usage() {
         echo "  admin         -> launch admin utils - <args>"
         echo "  cron          -> starts coog cron"
         echo "  server        -> starts coog server - <workers nb>"
+        echo "  batch         -> starts coog batch - <name> [args]"
         echo "  celery        -> starts celery workers - <workers nb> <queues>"
+        echo "  rq            -> starts rq worker - <queues>"
         echo "  <action>      -> calls docker action on server container"
         echo
 }
@@ -195,7 +212,9 @@ main() {
         [ "$cmd" = "admin" ] && { admin "$@"; return $?; }
         [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "batch" ] && { batch "$@"; return $?; }
         [ "$cmd" = "celery" ] && { celery "$@"; return $?; }
+        [ "$cmd" = "rq" ] && { rq "$@"; return $?; }
         action "$cmd" "$@"
 }
 

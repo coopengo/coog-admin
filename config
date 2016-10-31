@@ -37,7 +37,7 @@ ip() {
 
 [ -z "$EDITOR" ] && EDITOR=nano
 PREFIX=/usr/local/coog                        # where all custom data goes
-[ ! -z "$COOG_ROOT" ] && PREFIX="$COOG_ROOT"  # can be set via $COOG_ROOT
+[ ! -z "$COOG_DATA" ] && PREFIX="$COOG_DATA"  # can be set via $COOG_DATA
 mkdir -p "$PREFIX"                            # make sure folder exists
 
 #-------------------------------------------------------------------------------#
@@ -69,6 +69,7 @@ REDIS_VOLUME=$PREFIX/redis              # docker data volume
 
 COOG_CACHE_DB=0                         # coog cache db name
 COOG_CELERY_DB=1                        # coog celery db name
+COOG_RQ_DB=2                            # coog rq db name
 SENTRY_REDIS_DB=5                       # sentry db name
 
 #-------------------------------------------------------------------------------#
