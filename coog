@@ -153,20 +153,25 @@ server() {
         docker run -d $(args) --name "$COOG_CONTAINER" "$COOG_IMAGE" wsgi "$@"
 }
 
+_celery() {
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -d $(args) --name "$COOG_CONTAINER-celery" "$COOG_IMAGE" celery "$@"
+}
+
+_rq() {
+        [ -z "$1" ] && echo missing args && return 1
+        local id; id=$1; shift
+        docker run -d $(args) --name "$COOG_CONTAINER-rq-$id" "$COOG_IMAGE" rq "$@"
+}
+
 batch() {
         [ -z "$1" ] && echo missing args && return 1
         docker run -t --rm $(args) "$COOG_IMAGE" batch "$@"
 }
 
-celery() {
+redis() {
         [ -z "$1" ] && echo missing args && return 1
-        docker run -d $(args) --name "$COOG_CONTAINER-celery" "$COOG_IMAGE" celery "$@"
-}
-
-rq() {
-        [ -z "$1" ] && echo missing args && return 1
-        local id; id=$1; shift
-        docker run -d $(args) --name "$COOG_CONTAINER-rq-$id" "$COOG_IMAGE" rq "$@"
+        docker run -t --rm $(args) "$COOG_IMAGE" redis "$@"
 }
 
 action() {
@@ -190,9 +195,10 @@ usage() {
         echo "  admin         -> launch admin utils - <args>"
         echo "  cron          -> starts coog cron"
         echo "  server        -> starts coog server - <workers nb>"
-        echo "  batch         -> starts coog batch - <name> [args]"
         echo "  celery        -> starts celery workers - <workers nb> <queues>"
         echo "  rq            -> starts rq worker - <queues>"
+        echo "  batch         -> starts coog batch - <name> [args]"
+        echo "  redis         -> evaluate specific redis script - <context> [args]"
         echo "  <action>      -> calls docker action on server container"
         echo
 }
@@ -212,9 +218,10 @@ main() {
         [ "$cmd" = "admin" ] && { admin "$@"; return $?; }
         [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "celery" ] && { _celery "$@"; return $?; }
+        [ "$cmd" = "rq" ] && { _rq "$@"; return $?; }
         [ "$cmd" = "batch" ] && { batch "$@"; return $?; }
-        [ "$cmd" = "celery" ] && { celery "$@"; return $?; }
-        [ "$cmd" = "rq" ] && { rq "$@"; return $?; }
+        [ "$cmd" = "redis" ] && { redis "$@"; return $?; }
         action "$cmd" "$@"
 }
 
