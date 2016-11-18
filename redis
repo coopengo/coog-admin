@@ -1,78 +1,55 @@
 #!/bin/bash
+# vim: set ft=sh:
 # This script helps doing with redis docker image.
 # More informations: https://hub.docker.com/_/redis/
 
 get_dir() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        echo $script_dir
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
 server() {
         docker run \
                 -d \
-                --name $REDIS_CONTAINER \
-                -v $REDIS_VOLUME:/data \
-                $REDIS_IMAGE \
-                redis-server
+                --name "$REDIS_CONTAINER" \
+                -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+                -v /etc/timezone:/etc/timezone:ro \
+                -v "$REDIS_VOLUME:/data" \
+                "$REDIS_IMAGE" "$@"
 }
 
 client() {
-        local args
-        if [ ! -z $1 ]
-        then
-                if [ $1 = tty ]
-                then
-                        args=-i
-                else
-                        args=-it
-                fi
-        else
-                args=-it
-        fi
-        docker run \
-                $args --rm \
-                --link $REDIS_CONTAINER:redis \
-                $REDIS_IMAGE \
-                sh -c 'exec redis-cli -h "$REDIS_PORT_6379_TCP_ADDR" -p "$REDIS_PORT_6379_TCP_PORT"'
+        docker run -it --rm \
+                --link "$REDIS_CONTAINER:redis" \
+                -v "/tmp:/tmp" \
+                "$REDIS_IMAGE" \
+                redis-cli -h redis "$@"
 }
 
 action() {
-        docker $1 $REDIS_CONTAINER
+        docker "$@" "$REDIS_CONTAINER"
 }
 
 usage() {
         echo
         echo Available commands
         echo
-        echo "  server   -> runs a redis docker image as a server"
-        echo "  client   -> runs a redis docker image as a client"
-        echo "  logs     -> shows redis server logs"
-        echo "  top      -> shows redis server container top"
-        echo "  stats    -> shows redis server container stats"
-        echo "  start    -> starts redis server container"
-        echo "  stop     -> stops redis server container"
-        echo "  restart  -> restarts redis server container"
-        echo "  rm       -> removes redis server container"
+        echo "  server    -> runs a redis docker image as a server"
+        echo "  client    -> runs a redis docker image as a client"
+        echo "  <action>  -> calls docker action on server container"
         echo
 }
 
 main() {
-        source `get_dir`/config
+        source "$(get_dir)/config"
         #
-        [ -z $1 ] && usage && return 1
+        [ -z "$1" ] && usage && return 0
         local cmd; cmd=$1; shift
         #
-        [ $cmd = "server" ] && { server $*; return $?; }
-        [ $cmd = "client" ] && { client $*; return $?; }
-        [ $cmd = "logs" ] && { action "logs"; return $?; }
-        [ $cmd = "top" ] && { action "top"; return $?; }
-        [ $cmd = "stats" ] && { action "stats"; return $?; }
-        [ $cmd = "start" ] && { action "start"; return $?; }
-        [ $cmd = "stop" ] && { action "stop"; return $?; }
-        [ $cmd = "restart" ] && { action "restart"; return $?; }
-        [ $cmd = "rm" ] && { action "rm"; return $?; }
-        usage && return 1
+        [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "client" ] && { client "$@"; return $?; }
+        action "$cmd" "$@"
 }
 
-main $*
+main "$@"

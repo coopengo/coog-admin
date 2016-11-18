@@ -1,278 +1,228 @@
 #!/bin/bash
+# vim: set ft=sh:
 # This script helps doing with Coog image.
 # More informations: https://docs.docker.com/engine/reference/run/
 
 get_dir() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        echo $script_dir
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
-init() {
-        mkdir -p $COOG_VOLUME
-        mkdir -p $COOG_VOLUME/conf
-        mkdir -p $COOG_VOLUME/edm
-        mkdir -p $COOG_VOLUME/batch
-        [ ! -e $COOG_VOLUME/conf/coog.conf ] && touch $COOG_VOLUME/conf/coog.conf
-        [ ! -e $COOG_VOLUME/conf/batch.conf ] && touch $COOG_VOLUME/conf/batch.conf
+########
+# args #
+########
+
+session_args() {
+        [ ! -z "$COOG_SESSION_SUPERPWD" ] && echo "-e COOG_SESSION_SUPERPWD=$COOG_SESSION_SUPERPWD"
 }
 
-edit_app() {
-        $EDITOR $* $COOG_VOLUME/conf/coog.conf
-}
-
-edit_batch() {
-        $EDITOR $* $COOG_VOLUME/conf/batch.conf
-}
-
-get_session_args() {
-        [ -z $COOG_SESSION_SUPERPWD ] && echo missing COOG_SESSION_SUPERPWD && return 1
-        echo "-e COOG_SESSION_SUPERPWD=$COOG_SESSION_SUPERPWD"
-}
-
-get_db_args() {
+postgres_args() {
         local args
-        [ -z $COOG_DB_SYS ] && echo missing COOG_DB_SYS && return 1
-        args="$args -e COOG_DB_SYS=$COOG_DB_SYS"
-        [ -z $COOG_DB_HOST ] && echo missing COOG_DB_HOST && return 1
-        args="$args -e COOG_DB_HOST=$COOG_DB_HOST"
-        [ -z $COOG_DB_PORT ] && echo missing COOG_DB_PORT && return 1
-        args="$args -e COOG_DB_PORT=$COOG_DB_PORT"
-        [ -z $COOG_DB_USERNAME ] && echo missing COOG_DB_USERNAME && return 1
-        args="$args -e COOG_DB_USER=$COOG_DB_USERNAME"
-        [ -z $COOG_DB_PASSWORD ] && echo missing COOG_DB_PASSWORD && return 1
-        args="$args -e COOG_DB_PASSWORD=$COOG_DB_PASSWORD"
-        [ -z $COOG_DB_NAME ] && echo missing COOG_DB_NAME && return 1
-        args="$args -e COOG_DB_NAME=$COOG_DB_NAME"
-        [ -z $COOG_DB_LANG ] && echo missing COOG_DB_LANG && return 1
-        args="$args -e COOG_DB_LANG=$COOG_DB_LANG"
-        echo "$args"
-}
-
-get_cache_args() {
-        local args
-        [ ! -z $COOG_CACHE_SYS ] && args="$args -e COOG_CACHE_SYS=$COOG_CACHE_SYS"
-        if [ ! -z $COOG_CACHE_SYS ] && [ $COOG_CACHE_SYS = redis ]
+        if [ ! -z "$COOG_POSTGRES_HOST" ]
         then
-                [ -z $REDIS_HOST ] && echo missing REDIS_HOST && return 1
-                args="$args -e COOG_CACHE_HOST=$REDIS_HOST"
-                [ -z $REDIS_PORT ] && echo missing REDIS_PORT && return 1
-                args="$args -e COOG_CACHE_PORT=$REDIS_PORT"
-                [ -z $COOG_CACHE_DB ] && echo missing COOG_CACHE_DB && return 1
-                args="$args -e COOG_CACHE_DB=$COOG_CACHE_DB"
-        fi
-        [ ! -z $COOG_CACHE_MODEL ] && args="$args -e COOG_CACHE_MODEL=$COOG_CACHE_MODEL"
-        [ ! -z $COOG_CACHE_RECORD ] && args="$args -e COOG_CACHE_RECORD=$COOG_CACHE_RECORD"
-        [ ! -z $COOG_CACHE_FIELD ] && args="$args -e COOG_CACHE_FIELD=$COOG_CACHE_FIELD"
-        [ ! -z $COOG_CACHE_COOG ] && args="$args -e COOG_CACHE_COOG=$COOG_CACHE_COOG"
-        echo "$args"
-}
-
-get_async_args() {
-        local args
-        [ ! -z $COOG_ASYNC_SYS ] && args="$args -e COOG_ASYNC_SYS=$COOG_ASYNC_SYS"
-        if [ ! -z $COOG_ASYNC_SYS ]
+                args="-e COOG_POSTGRES_HOST=$COOG_POSTGRES_HOST"
+                [ ! -z "$COOG_POSTGRES_PORT" ] && args="$args -e COOG_POSTGRES_PORT=$COOG_POSTGRES_PORT"
+        elif [ ! -z "$POSTGRES_CONTAINER" ]
         then
-                [ -z $REDIS_HOST ] && echo missing REDIS_HOST && return 1
-                args="$args -e COOG_ASYNC_HOST=$REDIS_HOST"
-                [ -z $REDIS_PORT ] && echo missing REDIS_PORT && return 1
-                args="$args -e COOG_ASYNC_PORT=$REDIS_PORT"
-                [ -z $COOG_ASYNC_DB ] && echo missing COOG_ASYNC_DB && return 1
-                args="$args -e COOG_ASYNC_DB=$COOG_ASYNC_DB"
-        fi
-        echo "$args"
-}
-
-get_sentry_args() {
-        local args
-        if [ ! -z $COOG_SENTRY_PUB ] && [ ! -z $COOG_SENTRY_SEC ] && [ ! -z $COOG_SENTRY_PROJECT ]
-        then
-                [ -z $SENTRY_PROTOCOL ] && echo missing SENTRY_PROTOCOL && return 1
-                args="$args -e COOG_SENTRY_PROTOCOL=$SENTRY_PROTOCOL"
-                [ -z $SENTRY_HOST ] && echo missing SENTRY_HOST && return 1
-                args="$args -e COOG_SENTRY_HOST=$SENTRY_HOST"
-                [ -z $SENTRY_PORT ] && echo missing SENTRY_PORT && return 1
-                args="$args -e COOG_SENTRY_PORT=$SENTRY_PORT"
-                [ -z $COOG_SENTRY_PUB ] && echo missing COOG_SENTRY_PUB && return 1
-                args="$args -e COOG_SENTRY_PUB=$COOG_SENTRY_PUB"
-                [ -z $COOG_SENTRY_SEC ] && echo missing COOG_SENTRY_SEC && return 1
-                args="$args -e COOG_SENTRY_SEC=$COOG_SENTRY_SEC"
-                [ -z $COOG_SENTRY_PROJECT ] && echo missing COOG_SENTRY_PROJECT && return 1
-                args="$args -e COOG_SENTRY_PROJECT=$COOG_SENTRY_PROJECT"
-        fi
-        echo "$args"
-}
-
-_run() {
-        local mode; mode=$1; shift
-        local args
-        if [ $mode = i ]
-        then
-                args="-ti --rm"
-        elif [ $mode = d ]
-        then
-                local name; name=$1; shift
-                args="-d --name=$name"
-                local port; port=$1; shift
-                if [ $port -ne 0 ]
-                then
-                        args="$args -p $port:7999"
-                fi
+                args="--link $POSTGRES_CONTAINER:postgres"
+                args="$args -e COOG_POSTGRES_HOST=postgres"
         else
-                echo "unexpected mode" && return 1
+                return 0
         fi
-        args="$args -v /tmp:/tmp"
-        args="$args -v $COOG_VOLUME:/opt/coog/io"
-        if [ ! -z $COOG_LOG_LEVEL ]
+        echo "$args"
+}
+
+redis_args() {
+        local args
+        if [ ! -z "$COOG_REDIS_HOST" ]
+        then
+                args="-e COOG_REDIS_HOST=$COOG_REDIS_HOST"
+                [ ! -z "$COOG_REDIS_PORT" ] && args="$args -e COOG_REDIS_PORT=$COOG_REDIS_PORT"
+        elif [ ! -z "$REDIS_CONTAINER" ]
+        then
+                args="--link $REDIS_CONTAINER:redis"
+                args="$args -e COOG_REDIS_HOST=redis"
+        else
+                return 0
+        fi
+        echo "$args"
+}
+
+db_args() {
+        local args
+        [ ! -z "$COOG_DB_LANG" ] && args="$args -e COOG_DB_LANG=$COOG_DB_LANG"
+        [ ! -z "$COOG_DB_USER" ] && args="$args -e COOG_DB_USER=$COOG_DB_USER"
+        [ ! -z "$COOG_DB_PASSWORD" ] && args="$args -e COOG_DB_PASSWORD=$COOG_DB_PASSWORD"
+        [ ! -z "$COOG_DB_NAME" ] && args="$args -e COOG_DB_NAME=$COOG_DB_NAME"
+        echo "$args"
+}
+
+cache_args() {
+        local args
+        [ ! -z "$COOG_CACHE_MODEL" ] && args="$args -e COOG_CACHE_MODEL=$COOG_CACHE_MODEL"
+        [ ! -z "$COOG_CACHE_RECORD" ] && args="$args -e COOG_CACHE_RECORD=$COOG_CACHE_RECORD"
+        [ ! -z "$COOG_CACHE_FIELD" ] && args="$args -e COOG_CACHE_FIELD=$COOG_CACHE_FIELD"
+        [ ! -z "$COOG_CACHE_COOG" ] && args="$args -e COOG_CACHE_COOG=$COOG_CACHE_COOG"
+        [ ! -z "$COOG_CACHE_DB" ] && args="$args -e COOG_CACHE_DB=$COOG_CACHE_DB"
+        echo "$args"
+}
+
+celery_args() {
+        [ ! -z "$COOG_CELERY_DB" ] && echo "-e COOG_CELERY_DB=$COOG_CELERY_DB"
+}
+
+rq_args() {
+        [ ! -z "$COOG_RQ_DB" ] && echo "-e COOG_RQ_DB=$COOG_RQ_DB"
+}
+
+sentry_args() {
+        local args
+        if [ -z "$COOG_SENTRY_PROTOCOL" ] || [ -z "$COOG_SENTRY_HOST" ] || [ -z "$COOG_SENTRY_PORT" ]
+        then
+                if [ ! -z "$SENTRY_CONTAINER" ]
+                then
+                        args="--link $SENTRY_CONTAINER:sentry"
+                        COOG_SENTRY_PROTOCOL=http
+                        COOG_SENTRY_HOST=sentry
+                        COOG_SENTRY_PORT=9000
+                else
+                        return
+                fi
+        fi
+        if [ ! -z "$COOG_SENTRY_PUB" ] && [ ! -z "$COOG_SENTRY_SEC" ] && [ ! -z "$COOG_SENTRY_PROJECT" ]
+        then
+                args="$args -e COOG_SENTRY=$COOG_SENTRY_PROTOCOL://$COOG_SENTRY_PUB:$COOG_SENTRY_SEC@$COOG_SENTRY_HOST:$COOG_SENTRY_PORT/$COOG_SENTRY_PROJECT"
+                echo "$args"
+        fi
+}
+
+args() {
+        local args
+        args="-v /tmp:/tmp -v $COOG_VOLUME:/coog/io"
+        if [ ! -z "$COOG_LOG_LEVEL" ]
         then
                 args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
         fi
-        local spec_args
-        spec_args=`get_session_args`
-        [ $? -ne 0 ] && echo $spec_args && return 1
-        args="$args $spec_args"
-        spec_args=`get_db_args`
-        [ $? -ne 0 ] && echo $spec_args && return 1
-        args="$args $spec_args"
-        spec_args=`get_cache_args`
-        [ $? -ne 0 ] && echo $spec_args && return 1
-        args="$args $spec_args"
-        spec_args=`get_async_args`
-        [ $? -ne 0 ] && echo $spec_args && return 1
-        args="$args $spec_args"
-        spec_args=`get_sentry_args`
-        [ $? -ne 0 ] && echo $spec_args && return 1
-        args="$args $spec_args"
-        docker run \
-                $args \
-                $COOG_IMAGE \
-                $*
+        echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
+}
+
+###############
+# entrypoints #
+###############
+
+init() {
+        mkdir -p "$COOG_VOLUME"
+        mkdir -p "$COOG_VOLUME"/conf
+        mkdir -p "$COOG_VOLUME"/edm
+        mkdir -p "$COOG_VOLUME"/batch
+        [ ! -e "$COOG_VOLUME/conf/coog.conf" ] && touch "$COOG_VOLUME/conf/coog.conf"
+        [ ! -e "$COOG_VOLUME/conf/batch.conf" ] && touch "$COOG_VOLUME/conf/batch.conf"
+}
+
+edit_app() {
+        "$EDITOR" "$COOG_VOLUME/conf/coog.conf"
+}
+
+edit_batch() {
+        "$EDITOR" "$COOG_VOLUME/conf/batch.conf"
 }
 
 version() {
-        _run i version $*
+        docker run -t --rm $(args) "$COOG_IMAGE" version
 }
 
 env() {
-        _run i env $*
+        docker run -t --rm $(args) "$COOG_IMAGE" env
 }
 
-config() {
-        _run i config $*
+conf() {
+        docker run -t --rm $(args) "$COOG_IMAGE" conf
 }
 
-upgrade() {
-        _run i admin -v -d $COOG_DB_NAME -u ir res
+admin() {
+        docker run -ti --rm $(args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
 }
 
-update() {
-        _run i admin -v -d $COOG_DB_NAME -u $*
+cron() {
+        docker run -d $(args) --name "$COOG_CONTAINER-cron" "$COOG_IMAGE" cron "$@"
 }
 
-worker() {
-        [ -z $1 ] && echo no worker id && return 1
-        local name; name=$COOG_CONTAINER-$1
-        local port
-        if [ ! -z $COOG_PUB_PORT ]
-        then
-                port=$(($COOG_PUB_PORT + $1))
-        else
-                port=0
-        fi
-        shift
-        _run d $name $port server $*
+server() {
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -d $(args) --name "$COOG_CONTAINER" "$COOG_IMAGE" wsgi "$@"
 }
 
-workers() {
-        local id; id=1
-        while [ $id -le $WORKERS ]
-        do
-                worker $id $*
-                id=$(($id+1))
-        done
+_celery() {
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -d $(args) --name "$COOG_CONTAINER-celery" "$COOG_IMAGE" celery "$@"
+}
+
+_rq() {
+        [ -z "$1" ] && echo missing args && return 1
+        local id; id=$1; shift
+        docker run -d $(args) --name "$COOG_CONTAINER-rq-$id" "$COOG_IMAGE" rq "$@"
 }
 
 batch() {
-        _run i batch $*
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -t --rm $(args) "$COOG_IMAGE" batch "$@"
+}
+
+redis() {
+        [ -z "$1" ] && echo missing args && return 1
+        docker run -t --rm $(args) "$COOG_IMAGE" redis "$@"
 }
 
 action() {
-        local cmd; cmd=$1; shift
-        local args
-        if [ -z $1 ]
-        then
-                local id; id=1
-                while [ $id -le $WORKERS ]
-                do
-                        args="$args $COOG_CONTAINER-$id"
-                        id=$(($id+1))
-                done
-        else
-                while [ ! -z $1 ]
-                do
-                        args="$args $COOG_CONTAINER-$1"
-                        shift
-                done
-        fi
-        docker $cmd $args
+        docker "$@" "$COOG_CONTAINER"
 }
 
-run() {
-        _run $*
-}
+########
+# main #
+########
 
 usage() {
         echo
         echo Available commands
         echo
-        echo "  init       -> init volume folder"
-        echo "  edit-app   -> edits coog app config file"
-        echo "  edit-batch -> edits coog batch config file"
-        echo "  version    -> gets image version (git trees)"
-        echo "  env        -> gets container env vars"
-        echo "  config     -> gets container coog configuration"
-        echo "  upgrade    -> upgrades coog database (according to new app version)"
-        echo "  update     -> updates specific modules (needs modules)"
-        echo "  worker     -> starts worker container (needs a worker id.)"
-        echo "  workers    -> starts workers"
-        echo "  logs       -> shows coog container logs [ids]"
-        echo "  top        -> shows coog container top [ids]"
-        echo "  stats      -> shows coog container stats [ids]"
-        echo "  start      -> starts coog container [ids]"
-        echo "  stop       -> stops coog container [ids]"
-        echo "  restart    -> restarts coog container [ids]"
-        echo "  rm         -> removes coog container [ids]"
-        echo "  batch      -> launches batch execution"
-        echo "  run        -> run coog image"
+        echo "  init          -> init volume folder"
+        echo "  edit-app      -> edits coog app config file"
+        echo "  edit-batch    -> edits coog batch config file"
+        echo "  version       -> gets image version (git trees)"
+        echo "  env           -> gets container env vars"
+        echo "  conf          -> gets container coog configuration"
+        echo "  admin         -> launch admin utils - <args>"
+        echo "  cron          -> starts coog cron"
+        echo "  server        -> starts coog server - <workers nb>"
+        echo "  celery        -> starts celery workers - <workers nb> <queues>"
+        echo "  rq            -> starts rq worker - <queues>"
+        echo "  batch         -> starts coog batch - <name> [args]"
+        echo "  redis         -> evaluate specific redis script - <context> [args]"
+        echo "  <action>      -> calls docker action on server container"
         echo
 }
 
 main() {
-        source `get_dir`/config
+        source "$(get_dir)/config"
         #
-        [ -z $1 ] && usage && return 1
-        local cmd; cmd=$1; shift
+        [ -z "$1" ] && usage && return 0
+        local cmd; cmd="$1"; shift
         #
-        [ $cmd = "init" ] && { init $*; return $?; }
-        [ $cmd = "edit-app" ] && { edit_app $*; return $?; }
-        [ $cmd = "edit-batch" ] && { edit_batch $*; return $?; }
-        [ $cmd = "version" ] && { version $*; return $?; }
-        [ $cmd = "env" ] && { env $*; return $?; }
-        [ $cmd = "config" ] && { config $*; return $?; }
-        [ $cmd = "upgrade" ] && { upgrade $*; return $?; }
-        [ $cmd = "update" ] && { update $*; return $?; }
-        [ $cmd = "worker" ] && { worker $*; return $?; }
-        [ $cmd = "workers" ] && { workers $*; return $?; }
-        [ $cmd = "logs" ] && { action "logs" $*; return $?; }
-        [ $cmd = "top" ] && { action "top" $*; return $?; }
-        [ $cmd = "stats" ] && { action "stats" $*; return $?; }
-        [ $cmd = "start" ] && { action "start" $*; return $?; }
-        [ $cmd = "stop" ] && { action "stop" $*; return $?; }
-        [ $cmd = "restart" ] && { action "restart" $*; return $?; }
-        [ $cmd = "rm" ] && { action "rm" $*; return $?; }
-        [ $cmd = "batch" ] && { batch $*; return $?; }
-        [ $cmd = "run" ] && { run $*; return $?; }
-        usage && return 1
+        [ "$cmd" = "init" ] && { init; return $?; }
+        [ "$cmd" = "edit-app" ] && { edit_app; return $?; }
+        [ "$cmd" = "edit-batch" ] && { edit_batch; return $?; }
+        [ "$cmd" = "version" ] && { version; return $?; }
+        [ "$cmd" = "env" ] && { env; return $?; }
+        [ "$cmd" = "conf" ] && { conf; return $?; }
+        [ "$cmd" = "admin" ] && { admin "$@"; return $?; }
+        [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
+        [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "celery" ] && { _celery "$@"; return $?; }
+        [ "$cmd" = "rq" ] && { _rq "$@"; return $?; }
+        [ "$cmd" = "batch" ] && { batch "$@"; return $?; }
+        [ "$cmd" = "redis" ] && { redis "$@"; return $?; }
+        action "$cmd" "$@"
 }
 
-main $*
+main "$@"

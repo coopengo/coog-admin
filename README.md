@@ -29,7 +29,7 @@ For the first versions, Coog Admin will be focused on deployment.
 - All Coog data are stored in **one folder** named `$PREFIX`
     - This ensures that the host server is kept clean (no files at different locations).
     - By default `$PREFIX` is mapped to `/usr/local/coog`.
-    - It could be overridden by setting `COOG_ROOT` (maybe in user's `.profile`)
+    - It could be overridden by setting `COOG_DATA` (maybe in user's `.profile`)
     - A good practice is to use `data` folder inside coog-admin (git ignored)
 - Coog data includes postgresql databases, redis persistency, coog documents.
   All those are stored in sub-fodlers of `$PREFIX`.
@@ -121,7 +121,7 @@ All commands print commands list when called without arguments
     - Sentry is now listening on port 9000 (on the host machine). You can
       connect to get your dsn (public key, private key)
 
-    ![sentry-dsn](./img/sentry.png)
+    ![sentry-dsn](./png/sentry.png)
 
 - Start Coog
     - `./edit-config` to set sentry dsn keys (example below)
