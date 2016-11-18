@@ -141,7 +141,7 @@ conf() {
 }
 
 admin() {
-        docker run -t --rm $(args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
+        docker run -ti --rm $(args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
 }
 
 cron() {

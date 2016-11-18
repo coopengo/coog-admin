@@ -23,6 +23,8 @@ run() {
                 -d \
                 --name "$NGINX_CONTAINER" \
                 --link "$COOG_CONTAINER:coog" \
+                -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+                -v /etc/timezone:/etc/timezone:ro \
                 -v "$NGINX_CONF:/etc/nginx/nginx.conf:ro" \
                 --volumes-from "$COOG_CONTAINER" \
                 -p "$NGINX_PUB_PORT:80" \

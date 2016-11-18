@@ -44,7 +44,7 @@ mkdir -p "$PREFIX"                            # make sure folder exists
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#
 
-POSTGRES_IMAGE=postgres:9.5             # docker image
+POSTGRES_IMAGE=postgres:9.5-alpine      # docker image
 POSTGRES_CONTAINER=$USER-postgres       # docker container
 POSTGRES_VOLUME=$PREFIX/postgres        # docker data volume
 

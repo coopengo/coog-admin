@@ -13,6 +13,8 @@ server() {
         docker run \
                 -d \
                 --name "$REDIS_CONTAINER" \
+                -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+                -v /etc/timezone:/etc/timezone:ro \
                 -v "$REDIS_VOLUME:/data" \
                 "$REDIS_IMAGE" "$@"
 }
