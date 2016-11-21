@@ -1,8 +1,10 @@
 #!/bin/bash
 # vim: set ft=sh:
 
-[ -z "$1" ] && echo missing image file && exit 1
+[ $# -ne 2 ] && echo missing arguments && exit 1
 [ ! -e "$1" ] && echo bad image file && exit 1
+[ "$2" -eq "$2" ]
+[ $? -ne 0 ] && echo second argument is workers number && exit 1
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -11,23 +13,20 @@ get_dir() {
 }
 
 clear_cache() {
-        [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLASHDB
+        [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
 }
 
 main() {
         local dir
         dir=$(get_dir)
         source "$dir/config"
-        docker load -i "$1"
+        docker load -i "$1" || exit $?
         echo COOG_IMAGE="$(docker images --format '{{.Repository}}:{{.Tag}}' | head -1)" >> "$PREFIX/config"
-        "$dir/nginx" stop
-        "$dir/coog" stop
-        "$dir/coog" rm
+        "$dir/coog" rm -f
         clear_cache
-        "$dir/coog" upgrade
+        "$dir/coog" admin -u ir
         clear_cache
-        "$dir/coog" wsgi
-        "$dir/nginx" start
+        "$dir/coog" server "$2"
 }
 
 main "$@"
