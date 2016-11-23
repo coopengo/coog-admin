@@ -97,13 +97,11 @@ sentry_args() {
         fi
 }
 
-args() {
+_args() {
         local args
         args="-v /tmp:/tmp -v $COOG_VOLUME:/coog/io"
-        if [ ! -z "$COOG_LOG_LEVEL" ]
-        then
-                args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
-        fi
+        [ ! -z "$COOG_LOG_LEVEL" ] && args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
+        [ ! -z "$COOG_ADMIN_EMAIL" ] && args="$args -e COOG_ADMIN_EMAIL=$COOG_ADMIN_EMAIL"
         echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
@@ -111,7 +109,7 @@ args() {
 # entrypoints #
 ###############
 
-init() {
+_init() {
         mkdir -p "$COOG_VOLUME"
         mkdir -p "$COOG_VOLUME"/conf
         mkdir -p "$COOG_VOLUME"/edm
@@ -120,61 +118,63 @@ init() {
         [ ! -e "$COOG_VOLUME/conf/batch.conf" ] && touch "$COOG_VOLUME/conf/batch.conf"
 }
 
-edit_app() {
+_edit_app() {
         "$EDITOR" "$COOG_VOLUME/conf/coog.conf"
 }
 
-edit_batch() {
+_edit_batch() {
         "$EDITOR" "$COOG_VOLUME/conf/batch.conf"
 }
 
-version() {
-        docker run -t --rm $(args) "$COOG_IMAGE" version
+_version() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" version
 }
 
-env() {
-        docker run -t --rm $(args) "$COOG_IMAGE" env
+_env() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" env
 }
 
-conf() {
-        docker run -t --rm $(args) "$COOG_IMAGE" conf
+_conf() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" conf
 }
 
-admin() {
-        docker run -ti --rm $(args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
+_admin() {
+        docker run -ti --rm $(_args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
 }
 
-cron() {
-        docker run -d $(args) --name "$COOG_CONTAINER-cron" "$COOG_IMAGE" cron "$@"
+_cron() {
+        docker run -d $(_args) --name "$COOG_CONTAINER-cron" "$COOG_IMAGE" cron "$@"
 }
 
-server() {
-        [ -z "$1" ] && echo missing args && return 1
-        docker run -d $(args) --name "$COOG_CONTAINER" "$COOG_IMAGE" wsgi "$@"
+_server() {
+        docker run -d $(_args) --name "$COOG_CONTAINER" "$COOG_IMAGE" server "$@"
 }
 
 _celery() {
-        [ -z "$1" ] && echo missing args && return 1
-        docker run -d $(args) --name "$COOG_CONTAINER-celery" "$COOG_IMAGE" celery "$@"
+        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
+        docker run -d $(_args) --name "$COOG_CONTAINER-celery-$COOG_DB_NAME" "$COOG_IMAGE" celery "$@"
 }
 
 _rq() {
+        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
         [ -z "$1" ] && echo missing args && return 1
         local id; id=$1; shift
-        docker run -d $(args) --name "$COOG_CONTAINER-rq-$id" "$COOG_IMAGE" rq "$@"
+        docker run -d $(_args) --name "$COOG_CONTAINER-rq-$COOG_DB_NAME-$id" "$COOG_IMAGE" rq "$@"
 }
 
-batch() {
-        [ -z "$1" ] && echo missing args && return 1
-        docker run -t --rm $(args) "$COOG_IMAGE" batch "$@"
+_batch() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" batch "$@"
 }
 
-redis() {
-        [ -z "$1" ] && echo missing args && return 1
-        docker run -t --rm $(args) "$COOG_IMAGE" redis "$@"
+_chain() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" chain "$@"
 }
 
-action() {
+_redis() {
+        docker run -t --rm $(_args) "$COOG_IMAGE" redis "$@"
+}
+
+_action() {
         docker "$@" "$COOG_CONTAINER"
 }
 
@@ -184,45 +184,40 @@ action() {
 
 usage() {
         echo
-        echo Available commands
+        echo Admin commands
         echo
         echo "  init          -> init volume folder"
         echo "  edit-app      -> edits coog app config file"
         echo "  edit-batch    -> edits coog batch config file"
-        echo "  version       -> gets image version (git trees)"
-        echo "  env           -> gets container env vars"
-        echo "  conf          -> gets container coog configuration"
-        echo "  admin         -> launch admin utils - <args>"
-        echo "  cron          -> starts coog cron"
-        echo "  server        -> starts coog server - <workers nb>"
-        echo "  celery        -> starts celery workers - <workers nb> <queues>"
-        echo "  rq            -> starts rq worker - <queues>"
-        echo "  batch         -> starts coog batch - <name> [args]"
-        echo "  redis         -> evaluate specific redis script - <context> [args]"
+        docker run -t --rm "$COOG_IMAGE"
+        echo Docker commands
+        echo
         echo "  <action>      -> calls docker action on server container"
         echo
 }
 
 main() {
         source "$(get_dir)/config"
+        [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
         #
-        [ -z "$1" ] && usage && return 0
+        [ -z "$1" ] && usage && return 1
         local cmd; cmd="$1"; shift
         #
-        [ "$cmd" = "init" ] && { init; return $?; }
-        [ "$cmd" = "edit-app" ] && { edit_app; return $?; }
-        [ "$cmd" = "edit-batch" ] && { edit_batch; return $?; }
-        [ "$cmd" = "version" ] && { version; return $?; }
-        [ "$cmd" = "env" ] && { env; return $?; }
-        [ "$cmd" = "conf" ] && { conf; return $?; }
-        [ "$cmd" = "admin" ] && { admin "$@"; return $?; }
-        [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
-        [ "$cmd" = "server" ] && { server "$@"; return $?; }
+        [ "$cmd" = "init" ] && { _init; return $?; }
+        [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
+        [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
+        [ "$cmd" = "version" ] && { _version; return $?; }
+        [ "$cmd" = "env" ] && { _env; return $?; }
+        [ "$cmd" = "conf" ] && { _conf; return $?; }
+        [ "$cmd" = "admin" ] && { _admin "$@"; return $?; }
+        [ "$cmd" = "cron" ] && { _cron "$@"; return $?; }
+        [ "$cmd" = "server" ] && { _server "$@"; return $?; }
         [ "$cmd" = "celery" ] && { _celery "$@"; return $?; }
         [ "$cmd" = "rq" ] && { _rq "$@"; return $?; }
-        [ "$cmd" = "batch" ] && { batch "$@"; return $?; }
-        [ "$cmd" = "redis" ] && { redis "$@"; return $?; }
-        action "$cmd" "$@"
+        [ "$cmd" = "batch" ] && { _batch "$@"; return $?; }
+        [ "$cmd" = "chain" ] && { _chain "$@"; return $?; }
+        [ "$cmd" = "redis" ] && { _redis "$@"; return $?; }
+        _action "$cmd" "$@"
 }
 
 main "$@"

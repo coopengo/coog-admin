@@ -124,7 +124,9 @@ COOG_CACHE_MODEL=                       # models cache size
 COOG_CACHE_RECORD=                      # records cache size
 COOG_CACHE_FIELD=                       # fields cache size
 COOG_CACHE_COOG=                        # coog cache size
+
 COOG_LOG_LEVEL=                         # python levels
+COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG
