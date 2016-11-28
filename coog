@@ -241,6 +241,8 @@ usage() {
 main() {
         source `get_dir`/config
         #
+        [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+        #
         [ -z $1 ] && usage && return 1
         local cmd; cmd=$1; shift
         #
