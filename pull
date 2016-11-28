@@ -12,10 +12,10 @@ main() {
         source "$(get_dir)/config"
         docker pull martin/docker-cleanup-volumes:latest
         docker pull python:2-slim
-        docker pull "$POSTGRES_IMAGE"
-        docker pull "$REDIS_IMAGE"
-        docker pull "$SENTRY_IMAGE"
-        docker pull "$NGINX_IMAGE"
+        [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
+        [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
+        [ ! -z "$SENTRY_IMAGE" ] && docker pull "$SENTRY_IMAGE"
+        [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
 }
 
 main
