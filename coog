@@ -198,6 +198,7 @@ usage() {
 
 main() {
         source "$(get_dir)/config"
+        [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
         [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
         #
         [ -z "$1" ] && usage && return 1
