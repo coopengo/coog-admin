@@ -18,6 +18,12 @@ remove() {
     docker rm $CONTAINER_NAME
 }
 
+clean() {
+    stop $1
+    remove $1
+    docker rmi $WEB_IMAGE
+}
+
 run() {
     CONTAINER_NAME=$1
     [ -z $WEB_PORT ] && WEB_PORT=3000
@@ -28,6 +34,12 @@ run() {
            --link $NGINX_CONTAINER:nginx    \
            -p $WEB_PORT:3000                \
            $WEB_IMAGE $*
+}
+
+load() {
+    clean $1
+    docker load -i $2
+    run $1
 }
 
 logs() {
@@ -41,6 +53,8 @@ usage() {
     echo "  stop     -> stops webAT server container"
     echo "  rm       -> removes webAT server container"
     echo "  logs     -> print webAT logs"
+    echo "  load     -> load docker image and start"
+    echo "  clean    -> stop and remove container and image"
     echo
 }
 
@@ -56,6 +70,8 @@ main() {
     [ $cmd = "stop" ] && { stop $CONTAINER_NAME $*; return $?; }
     [ $cmd = "rm" ] && { remove $CONTAINER_NAME $*; return $?; }
     [ $cmd = "logs" ] && { logs $CONTAINER_NAME $*; return $?; }
+    [ $cmd = "load" ] && { load $CONTAINER_NAME $*; return $?; }
+    [ $cmd = "clean" ] && { clean $CONTAINER_NAME $*; return $?; }
     usage && return 1
 }
 
