@@ -1,29 +1,32 @@
 #!/bin/bash
+# vim: set ft=sh:
 
-[ -z $1 ] && echo missing image file && exit 1
-[ ! -e $1 ] && echo bad image file && exit 1
+[ $# -ne 2 ] && echo missing arguments && exit 1
+[ ! -e "$1" ] && echo bad image file && exit 1
+[ "$2" -eq "$2" ]
+[ $? -ne 0 ] && echo second argument is workers number && exit 1
 
-script_path=`readlink -f $0`
-script_dir=`dirname $script_path`
-
-clear_cache() {
-        if [ ! -z $COOG_CACHE_DB ]
-        then
-                echo -e "SELECT $COOG_CACHE_DB\nFLUSHDB" | $script_dir/redis client tty
-        fi
+get_dir() {
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
-source $script_dir/config
-docker load -i $1
-echo COOG_IMAGE=`docker images --format '{{.Repository}}:{{.Tag}}' | head -1` >> $PREFIX/config
-$script_dir/web stop
-$script_dir/web rm
-$script_dir/nginx stop
-$script_dir/coog stop
-$script_dir/coog rm
-clear_cache
-$script_dir/coog upgrade
-clear_cache
-$script_dir/coog workers
-$script_dir/nginx start
-$script_dir/web start
+clear_cache() {
+        [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
+}
+
+main() {
+        local dir
+        dir=$(get_dir)
+        source "$dir/config"
+        docker load -i "$1" || exit $?
+        echo COOG_IMAGE="$(docker images --format '{{.Repository}}:{{.Tag}}' | head -1)" >> "$PREFIX/config"
+        "$dir/coog" rm -f
+        clear_cache
+        "$dir/coog" admin -u ir
+        clear_cache
+        "$dir/coog" server "$2"
+}
+
+main "$@"

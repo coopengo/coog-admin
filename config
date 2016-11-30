@@ -1,4 +1,4 @@
-#!/bin/bash
+# vim: set ft=sh:
 # This script sets coog administration environment
 
 DOCKER_MAJOR_VERSION=1
@@ -6,141 +6,143 @@ DOCKER_MINOR_VERSION=11
 
 check_docker_version() {
         local version
-        version=`docker version --format '{{.Server.Version}}'`
+        version=$(docker version --format '{{.Server.Version}}')
         [ $? -ne 0 ] && echo check docker installation && return 1
-        [ -z $version ] && echo can not retrieve docker version && return 1
-        local major_version; major_version=`echo $version | cut -d '.' -f 1`
-        local minor_version; minor_version=`echo $version | cut -d '.' -f 2`
-        [ $major_version -ne $DOCKER_MAJOR_VERSION ] && echo docker major version should be = $DOCKER_MAJOR_VERSION && return 1
-        [ $minor_version -lt $DOCKER_MINOR_VERSION ] && echo docker minor version should be at least $DOCKER_MINOR_VERSION && return 1
+        [ -z "$version" ] && echo can not retrieve docker version && return 1
+        local major_version; major_version=$(echo "$version" | cut -d '.' -f 1)
+        local minor_version; minor_version=$(echo "$version" | cut -d '.' -f 2)
+        [ "$major_version" -ne "$DOCKER_MAJOR_VERSION" ] && echo docker major version should be = $DOCKER_MAJOR_VERSION && return 1
+        [ "$minor_version" -lt "$DOCKER_MINOR_VERSION" ] && echo docker minor version should be at least $DOCKER_MINOR_VERSION && return 1
         return 0
 }
 
 check_docker_version || exit 1
 
 get_dir() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        echo $script_dir
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
 ip() {
         local exists
-        exists=`docker ps --format '{{.Names}}' | grep -P '^'$1'$' | wc -l`
-        [ $exists -eq 0 ] && return
-        docker inspect --format '{{.NetworkSettings.IPAddress}}' $1
-}
-
-get_latest() {
-        echo `docker images --format '{{.Repository}}:{{.Tag}}' | grep "$1" | sort | tail -1`
+        exists=$(docker ps --format '{{.Names}}' | grep -cP ^"$1"\$)
+        [ "$exists" -eq 0 ] && return 1
+        docker inspect --format '{{.NetworkSettings.IPAddress}}' "$1"
 }
 
 #-------------------------------------------------------------------------------#
 # GENERAL PURPOSE
 #-------------------------------------------------------------------------------#
 
-[ -z $EDITOR ] && EDITOR=nano
-PREFIX=/usr/local/coog                    # where all custom data goes (NEVER OVERRIDE)
-[ ! -z $COOG_ROOT ] && PREFIX=$COOG_ROOT  # can be set via $COOG_ROOT
-mkdir -p $PREFIX                          # make sure folder exists
-WORKERS=4                                 # workers number
+[ -z "$EDITOR" ] && EDITOR=nano
+PREFIX=/usr/local/coog                        # where all custom data goes
+[ ! -z "$COOG_DATA" ] && PREFIX="$COOG_DATA"  # can be set via $COOG_DATA
+mkdir -p "$PREFIX"                            # make sure folder exists
 
 #-------------------------------------------------------------------------------#
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#
 
-PG_IMAGE=postgres:9.4                   # docker image
-PG_CONTAINER=$USER-postgres             # docker container (NEVER OVERRIDE)
-PG_VOLUME=$PREFIX/pg                    # docker data volume
+POSTGRES_IMAGE=postgres:9.5-alpine      # docker image
+POSTGRES_CONTAINER=$USER-postgres       # docker container
+POSTGRES_VOLUME=$PREFIX/postgres        # docker data volume
 
-PG_HOST=`ip $PG_CONTAINER`              # server host
-PG_PORT=5432                            # server port
-PG_USERNAME=postgres                    # postgres username
-PG_PASSWORD=postgres                    # postgres pasword
+POSTGRES_USER=postgres                  # postgres user
+POSTGRES_PASSWORD=postgres              # postgres password
+
+COOG_DB_USER=$POSTGRES_USER             # coog pg user
+COOG_DB_PASSWORD=$POSTGRES_PASSWORD     # coog pg password
+COOG_DB_NAME=coog                       # coog pg db name
+
+SENTRY_DB_USER=$POSTGRES_USER           # sentry db user
+SENTRY_DB_PASSWORD=$POSTGRES_PASSWORD   # sentry db password
+SENTRY_DB_NAME=sentry                   # sentry db db name
 
 #-------------------------------------------------------------------------------#
 # REDIS CONFIG
 #-------------------------------------------------------------------------------#
 
-REDIS_IMAGE=redis:3.0                   # docker image
-REDIS_CONTAINER=$USER-redis             # docker container (NEVER OVERRIDE)
+REDIS_IMAGE=redis:3.2-alpine            # docker image
+REDIS_CONTAINER=$USER-redis             # docker container
 REDIS_VOLUME=$PREFIX/redis              # docker data volume
 
-REDIS_HOST=`ip $REDIS_CONTAINER`        # server host
-REDIS_PORT=6379                         # server port
+COOG_CACHE_DB=0                         # coog cache db name
+COOG_CELERY_DB=1                        # coog celery db name
+COOG_RQ_DB=2                            # coog rq db name
+SENTRY_REDIS_DB=5                       # sentry db name
+
+#-------------------------------------------------------------------------------#
+# UNOCONV CONFIG
+#-------------------------------------------------------------------------------#
+
+UNOCONV_IMAGE=coog/unoconv              # docker image
+UNOCONV_CONTAINER=$USER-unoconv         # docker container
 
 #-------------------------------------------------------------------------------#
 # SENTRY CONFIG
 #-------------------------------------------------------------------------------#
 
-SENTRY_IMAGE=sentry:8                   # docker image
-SENTRY_CONTAINER=$USER-sentry           # docker container (NEVER OVERRIDE)
-SENTRY_KEY=$PREFIX/sentry.key           # containers shared key
+SENTRY_IMAGE=sentry:8.9                 # docker image
+SENTRY_CONTAINER=$USER-sentry           # docker container
 SENTRY_VOLUME=$PREFIX/sentry            # docker data volume
-SENTRY_PUB_PORT=9000                    # host mapped port
+SENTRY_KEY=$PREFIX/sentry.key           # containers shared key
 
-SENTRY_PROTOCOL=http                    # server protocol
-SENTRY_HOST=`ip $SENTRY_CONTAINER`      # server ip
-SENTRY_PORT=9000                        # server port
+SENTRY_POSTGRES_HOST=                   # defaults to postgres container
+SENTRY_POSTGRES_PORT=                   # defaults to postgres container
 
-SENTRY_DB_HOST=$PG_HOST                 # database host
-SENTRY_DB_PORT=$PG_PORT                 # database port
-SENTRY_DB_USERNAME=$PG_USERNAME         # database username
-SENTRY_DB_PASSWORD=$PG_PASSWORD         # database password
-SENTRY_DB_NAME=sentry                   # database db name
-
-SENTRY_CACHE_DB=5                       # cache db name (redis)
+SENTRY_REDIS_HOST=                      # defaults to redis container
+SENTRY_REDIS_PORT=                      # defaults to redis container
 
 #-------------------------------------------------------------------------------#
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:1.8        # docker image
-COOG_CONTAINER=$USER-coog       # docker container (NEVER OVERRIDE)
-COOG_VOLUME=$PREFIX/coog        # docker data volume
-COOG_PUB_PORT=                  # host mapped port (+n for nth worker)
+COOG_IMAGE=coog/coog:1.8                # docker image
+COOG_CONTAINER=$USER-coog               # docker container
+COOG_VOLUME=$PREFIX/coog                # docker data volume
 
-COOG_SESSION_SUPERPWD=super     # coog super password (not a user)
+COOG_POSTGRES_HOST=                     # defaults to postgres container
+COOG_POSTGRES_PORT=                     # defaults to postgres container
 
-COOG_DB_SYS=postgresql          # database system (postgres, etc.)
-COOG_DB_HOST=$PG_HOST           # database host
-COOG_DB_PORT=$PG_PORT           # database port
-COOG_DB_USERNAME=$PG_USERNAME   # database username
-COOG_DB_PASSWORD=$PG_PASSWORD   # database password
-COOG_DB_NAME=coog               # database db name
-COOG_DB_LANG=fr_FR              # database locale - eg. fr_FR
+COOG_REDIS_HOST=                        # defaults to redis container
+COOG_REDIS_PORT=                        # defaults to redis container
 
-COOG_CACHE_SYS=redis            # cache system (redis or none)
-COOG_CACHE_DB=0                 # cache db name (redis)
-COOG_CACHE_MODEL=               # models cache size
-COOG_CACHE_RECORD=              # records cache size
-COOG_CACHE_FIELD=               # fields cache size
-COOG_CACHE_COOG=                # coog cache size
+COOG_UNOCONV_HOST=                      # defaults to unoconv container
+COOG_UNOCONV_PORT=                      # defaults to unoconv container
 
-COOG_ASYNC_SYS=celery           # async broker (celery, rq, etc)
-COOG_ASYNC_DB=1                 # async db name (redis)
+COOG_SENTRY_PROTOCOL=                   # defaults to http
+COOG_SENTRY_HOST=                       # defaults to sentry container
+COOG_SENTRY_PORT=                       # defaults to sentry container
+COOG_SENTRY_PUB=
+COOG_SENTRY_SEC=
+COOG_SENTRY_PROJECT=
 
-# sentry dsn format: {PROTOCOL}://{PUBLIC_KEY}:{SECRET_KEY}@{HOST}/{PATH}{PROJECT_ID}
-# sentry dsn variables: http://pub:sec@hostname:port/project
-COOG_SENTRY_PUB=                # should be retrieved from sentry app
-COOG_SENTRY_SEC=                # should be retrieved from sentry app
-COOG_SENTRY_PROJECT=            # should be retrieved from sentry app
+COOG_SESSION_SUPERPWD=super             # coog super password (not a user)
+COOG_DB_LANG=fr_FR                      # database locale - eg. fr_FR
+COOG_CACHE_MODEL=                       # models cache size
+COOG_CACHE_RECORD=                      # records cache size
+COOG_CACHE_FIELD=                       # fields cache size
+COOG_CACHE_COOG=                        # coog cache size
+
+COOG_LOG_LEVEL=                         # python levels
+COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG
 #-------------------------------------------------------------------------------#
 
-NGINX_IMAGE=nginx:1             # docker image
-NGINX_CONTAINER=$USER-nginx     # docker container (NEVER OVERRIDE)
-NGINX_CONF=$PREFIX/nginx.conf   # nginx conf path
-NGINX_PUB_PORT=80               # host mapped port
+NGINX_IMAGE=nginx:1-alpine              # docker image
+NGINX_CONTAINER=$USER-nginx             # docker container
+NGINX_CONF=$PREFIX/nginx.conf           # nginx conf path
+NGINX_PUB_PORT=80                       # host mapped port
 
 #-------------------------------------------------------------------------------#
 # CUSTOMS
 #-------------------------------------------------------------------------------#
 
-[ ! -e $PREFIX/config ] &&
-        cp `get_dir`/defaults/config $PREFIX/config &&
-        echo "# For an exhaustive variables list, checkout base config on "`get_dir`/config >> $PREFIX/config
-[ ! -e $PREFIX/config ] && exit 1
-source $PREFIX/config
+[ ! -e "$PREFIX/config" ] &&
+        cp "$(get_dir)/defaults/config" "$PREFIX/config" &&
+        echo "# For an exhaustive variables list, checkout base config on $(get_dir)/config" >> "$PREFIX/config"
+[ ! -e "$PREFIX/config" ] && exit 1
+source "$PREFIX/config"

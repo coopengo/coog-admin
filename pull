@@ -1,19 +1,21 @@
 #!/bin/bash
+# vim: set ft=sh:
 # This script pulls all needed images to run Coog on Docker
 
 get_dir() {
-        local script_path; script_path=`readlink -f $0`
-        local script_dir; script_dir=`dirname $script_path`
-        echo $script_dir
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
 }
 
 main() {
-        source `get_dir`/config
-        docker pull martin/docker-cleanup-volumes
-        docker pull $PG_IMAGE
-        docker pull $REDIS_IMAGE
-        docker pull $SENTRY_IMAGE
-        docker pull $NGINX_IMAGE
+        source "$(get_dir)/config"
+        docker pull martin/docker-cleanup-volumes:latest
+        docker pull python:2-slim
+        [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
+        [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
+        [ ! -z "$SENTRY_IMAGE" ] && docker pull "$SENTRY_IMAGE"
+        [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
 }
 
 main
