@@ -1,10 +1,12 @@
 #!/bin/bash
 # vim: set ft=sh:
 
-[ $# -ne 2 ] && echo missing arguments && exit 1
+[ $# -ne 3 ] && echo missing arguments && exit 1
 [ ! -e "$1" ] && echo bad image file && exit 1
 [ "$2" -eq "$2" ]
-[ $? -ne 0 ] && echo second argument is workers number && exit 1
+[ $? -ne 0 ] && echo second argument is wsgi workers number && exit 1
+[ "$3" -eq "$3" ]
+[ $? -ne 0 ] && echo third argument is celery workers number && exit 1
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -22,11 +24,15 @@ main() {
         source "$dir/config"
         docker load -i "$1" || exit $?
         echo COOG_IMAGE="$(docker images --format '{{.Repository}}:{{.Tag}}' | head -1)" >> "$PREFIX/config"
-        "$dir/coog" rm -f
+        "$dir/nginx" rm -f
+        "$dir/coog" -- server rm -f
+        "$dir/coog" -- celery rm -f
         clear_cache
         "$dir/coog" admin -u ir
         clear_cache
+        "$dir/coog" celery "$3"
         "$dir/coog" server "$2"
+        "$dir/nginx" run
 }
 
 main "$@"
