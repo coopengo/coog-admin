@@ -16,6 +16,7 @@ server() {
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
                 -v /etc/timezone:/etc/timezone:ro \
                 -v "$REDIS_VOLUME:/data" \
+                -v "/tmp:/tmp" \
                 "$REDIS_IMAGE" "$@"
 }
 

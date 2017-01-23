@@ -59,7 +59,6 @@ All commands print commands list when called without arguments
 
 - `edit-config`: edits custom config script
 - `pull`: pulls all needed images for Coog
-- `clean`: useful to clean old images on filesystem
 - `config`: all configuration variables
 - `redis`: launches redis (client and server) from a docker image
 - `postgres`: launches postgres (client and server) from a docker images
