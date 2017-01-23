@@ -19,6 +19,7 @@ server() {
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
                 -v /etc/timezone:/etc/timezone:ro \
                 -v "$POSTGRES_VOLUME:/var/lib/postgresql/data" \
+                -v "/tmp:/tmp" \
                 "$POSTGRES_IMAGE" "$@"
 }
 

@@ -26,6 +26,7 @@ run() {
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
                 -v /etc/timezone:/etc/timezone:ro \
                 -v "$NGINX_CONF:/etc/nginx/nginx.conf:ro" \
+                -v "/tmp:/tmp" \
                 --volumes-from "$COOG_CONTAINER-server" \
                 -p "$NGINX_PUB_PORT:80" \
                 "$NGINX_IMAGE" "$@"
