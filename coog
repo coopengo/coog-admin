@@ -126,56 +126,27 @@ _edit_batch() {
         "$EDITOR" "$COOG_VOLUME/conf/batch.conf"
 }
 
-_version() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" version
+_docker() {
+        [ -z "$1" ] && echo missing container && return 1
+        local cont; cont=$1; shift
+        docker "$@" "$COOG_CONTAINER-$cont"
 }
 
-_env() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" env
-}
-
-_conf() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" conf
-}
-
-_admin() {
-        docker run -ti --rm $(_args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
-}
-
-_cron() {
-        docker run -d $(_args) --name "$COOG_CONTAINER-cron" "$COOG_IMAGE" cron "$@"
-}
-
-_server() {
-        docker run -d $(_args) --name "$COOG_CONTAINER" "$COOG_IMAGE" server "$@"
-}
-
-_celery() {
-        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
-        docker run -d $(_args) --name "$COOG_CONTAINER-celery-$COOG_DB_NAME" "$COOG_IMAGE" celery "$@"
-}
-
-_rq() {
-        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
-        [ -z "$1" ] && echo missing args && return 1
-        local id; id=$1; shift
-        docker run -d $(_args) --name "$COOG_CONTAINER-rq-$COOG_DB_NAME-$id" "$COOG_IMAGE" rq "$@"
-}
-
-_batch() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" batch "$@"
-}
-
-_chain() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" chain "$@"
-}
-
-_redis() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" redis "$@"
-}
-
-_action() {
-        docker "$@" "$COOG_CONTAINER"
+_image() {
+        [ -z "$1" ] && echo missing command && return 1
+        local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
+        local args
+        if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
+        then
+                args="-d --name $COOG_CONTAINER-$1"
+        elif [ "$cmd" = admin ]
+        then
+                args="-it --rm"
+        else
+                args="-t --rm"
+        fi
+        shift
+        docker run $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
 }
 
 ########
@@ -189,11 +160,12 @@ usage() {
         echo "  init          -> init volume folder"
         echo "  edit-app      -> edits coog app config file"
         echo "  edit-batch    -> edits coog batch config file"
-        docker run -t --rm "$COOG_IMAGE"
+        echo
         echo Docker commands
         echo
-        echo "  <action>      -> calls docker action on server container"
-        echo
+        echo "  --            -> calls docker action on container - <cont> <act>"
+        docker run -t --rm "$COOG_IMAGE"
+        return 0
 }
 
 main() {
@@ -207,18 +179,8 @@ main() {
         [ "$cmd" = "init" ] && { _init; return $?; }
         [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
         [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
-        [ "$cmd" = "version" ] && { _version; return $?; }
-        [ "$cmd" = "env" ] && { _env; return $?; }
-        [ "$cmd" = "conf" ] && { _conf; return $?; }
-        [ "$cmd" = "admin" ] && { _admin "$@"; return $?; }
-        [ "$cmd" = "cron" ] && { _cron "$@"; return $?; }
-        [ "$cmd" = "server" ] && { _server "$@"; return $?; }
-        [ "$cmd" = "celery" ] && { _celery "$@"; return $?; }
-        [ "$cmd" = "rq" ] && { _rq "$@"; return $?; }
-        [ "$cmd" = "batch" ] && { _batch "$@"; return $?; }
-        [ "$cmd" = "chain" ] && { _chain "$@"; return $?; }
-        [ "$cmd" = "redis" ] && { _redis "$@"; return $?; }
-        _action "$cmd" "$@"
+        [ "$cmd" = "--" ] && { _docker "$@"; return $?; }
+        _image "$cmd" "$@"
 }
 
 main "$@"
