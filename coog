@@ -126,6 +126,16 @@ _edit_batch() {
         "$EDITOR" "$COOG_VOLUME/conf/batch.conf"
 }
 
+_edit_cron() {
+        local f; f="$PREFIX/cron"
+        crontab -l > "$f"
+        echo "# you need to run ./coog celery <n> ir.ui.view.validate to start workers" >> "$f"
+        echo "* * * * * USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check >> /tmp/$USER-cron-log 2>&1" >> "$f"
+        crontab "$f"
+        rm "$f"
+        crontab -e
+}
+
 _docker() {
         [ -z "$1" ] && echo missing container && return 1
         local cont; cont=$1; shift
@@ -160,6 +170,7 @@ usage() {
         echo "  init          -> init volume folder"
         echo "  edit-app      -> edits coog app config file"
         echo "  edit-batch    -> edits coog batch config file"
+        echo "  edit-cron     -> configure cron for a chain execution"
         echo
         echo Docker commands
         echo
@@ -179,6 +190,7 @@ main() {
         [ "$cmd" = "init" ] && { _init; return $?; }
         [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
         [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
+        [ "$cmd" = "edit-cron" ] && { _edit_cron; return $?; }
         [ "$cmd" = "--" ] && { _docker "$@"; return $?; }
         _image "$cmd" "$@"
 }
