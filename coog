@@ -129,8 +129,8 @@ _edit_batch() {
 _edit_cron() {
         local f; f="$PREFIX/cron"
         crontab -l > "$f"
-        echo "# you need to run ./coog celery <n> ir.ui.view.validate to start workers" >> "$f"
-        echo "* * * * * USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check >> /tmp/$USER-cron-log 2>&1" >> "$f"
+        echo "#uncomment the line below to activate the chain (a celery container should be running to consume jobs)" >> "$f"
+        echo "#* * * * * USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check >> /tmp/$USER-cron-log 2>&1" >> "$f"
         crontab "$f"
         rm "$f"
         crontab -e
