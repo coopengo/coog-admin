@@ -4,7 +4,7 @@
 # 30 21 * * * /home/root/coog-admin/cron/migration_cron.sh
 
 USER=root
-COOG_ADMIN="$HOME/coog_admin"
+COOG_ADMIN="$HOME/coog-admin"
 MIGRATION_DIR="/usr/local/coog/coog/as400"
 DOCKER_MIGRATION_DIR="/coog/io/as400"
 BACKUP="backup_$(date "+%d-%m-%y").tar.gz"
