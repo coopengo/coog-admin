@@ -3,21 +3,35 @@
 
 # 30 21 * * * /home/root/coog-admin/cron/migration_cron.sh
 
-USER=jack
-COOG_ADMIN=/home/jack/workspace/coog-admin/
-MIGRATION_DIR=/home/jack/workspace/roederer/migration
-BACKUP=backup_$(date "+%d-%m-%y").tar.gz
-
+USER=root
+COOG_ADMIN="$HOME/coog_admin"
+MIGRATION_DIR="/usr/local/coog/coog/as400"
+DOCKER_MIGRATION_DIR="/coog/io/as400"
+BACKUP="backup_$(date "+%d-%m-%y").tar.gz"
 JOB_SIZE=100
 UPDATE=true
 
-cd $COOG_ADMIN
+export USER=$USER
 
-if [ "$(ls -A $MIGRATION_DIR/done/*.CSV)" ]; then
-    find $MIGRATION_DIR/'done' -name "*.CSV" -type f -print0 |
-        tar -czvf $MIGRATION_DIR/'done'/$BACKUP --null -T -
+cd $MIGRATION_DIR/'done'
+
+if [ "$(ls -A *.CSV)" ]; then
+    find . -name "*.CSV" -type f -print0 |
+        tar -czvf ./$BACKUP --null -T -
+	rm -rf "*.CSV"
 fi
 
-./coog batch roederer.file.import dir=$MIGRATION_DIR --job_size=1
-./coog chain roederer_interface migrate-update --job_size=$JOB_SIZE --limit=10 --update=$UPDATE
+cd $COOG_ADMIN
+
+./coog redis celery qremove migrator.party
+./coog redis celery qremove migrator.company
+./coog redis celery qremove migrator.group
+./coog redis celery qremove migrator.address
+./coog redis celery qremove migrator.bank
+./coog redis celery qremove migrator.contact
+./coog redis celery qremove migrator.contract
+./coog redis celery qremove migrator.adhesions
+
+./coog batch roederer.file.import dir=$DOCKER_MIGRATION_DIR --job_size=1
+./coog chain roederer_interface migrate-update --job_size=$JOB_SIZE --update=$UPDATE
 
