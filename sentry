@@ -81,15 +81,6 @@ set_key() {
         docker run --rm "$SENTRY_IMAGE" config generate-secret-key > "$SENTRY_KEY"
 }
 
-init_conf() {
-        [ -e "$SENTRY_CONF" ] && echo backup old config before && return 1
-        install -D "$(get_dir)/defaults/sentry.yml" "$SENTRY_CONF"
-}
-
-edit_conf() {
-        $EDITOR "$SENTRY_CONF"
-}
-
 upgrade() {
         docker run -it --rm $(args) "$SENTRY_IMAGE" upgrade "$@"
 }
@@ -120,13 +111,11 @@ usage() {
         echo
         echo "  get-key   -> gets secret key (to link workers)"
         echo "  set-key   -> generates secret key"
-        echo "  init-conf -> inits sentry configuration file"
-        echo "  edit-conf -> edits sentry configuration file"
         echo "  upgrade   -> upgrades sentry database"
         echo "  server    -> launches sentry server"
         echo "  client    -> launches sentry client on browser"
-        echo "  beat      -> launches sentry cron"
-        echo "  server    -> launches sentry worker"
+        echo "  cron      -> launches sentry cron"
+        echo "  worker    -> launches sentry worker"
         echo "  <action>  -> calls docker action on server container"
         echo
 }
@@ -139,8 +128,6 @@ main() {
         #
         [ "$cmd" = "get-key" ] && { get_key; return $?; }
         [ "$cmd" = "set-key" ] && { set_key; return $?; }
-        [ "$cmd" = "init-conf" ] && { init_conf; return $?; }
-        [ "$cmd" = "edit-conf" ] && { edit_conf; return $?; }
         [ "$cmd" = "upgrade" ] && { upgrade "$@"; return $?; }
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
         [ "$cmd" = "client" ] && { client; return $?; }
