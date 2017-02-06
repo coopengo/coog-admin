@@ -83,7 +83,7 @@ UNOCONV_CONTAINER=$USER-unoconv         # docker container
 # SENTRY CONFIG
 #-------------------------------------------------------------------------------#
 
-SENTRY_IMAGE=sentry:8.9                 # docker image
+SENTRY_IMAGE=sentry:8                   # docker image
 SENTRY_CONTAINER=$USER-sentry           # docker container
 SENTRY_VOLUME=$PREFIX/sentry            # docker data volume
 SENTRY_KEY=$PREFIX/sentry.key           # containers shared key
