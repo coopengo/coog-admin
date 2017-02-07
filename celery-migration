@@ -8,11 +8,11 @@ if [ ! -z "$1" ]; then
 fi
 
 ./coog celery "$WORKERS" roederer.file.import, \
-    migrator.party, \
-    migrator.company, \
-    migrator.group, \
-    migrator.address, \
-    migrator.bank, \
-    migrator.contact, \
-    migrator.contract, \
-    migrator.adhesions
+migrator.party, \
+migrator.company, \
+migrator.group, \
+migrator.address, \
+migrator.bank, \
+migrator.contact, \
+migrator.contract, \
+migrator.adhesions
