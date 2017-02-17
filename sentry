@@ -3,7 +3,6 @@
 # This script helps doing with sentry docker image.
 # More informations: https://hub.docker.com/_/sentry/
 
-#set -x
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
