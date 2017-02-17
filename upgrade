@@ -5,8 +5,8 @@
 [ ! -e "$1" ] && echo bad image file && exit 1
 [ "$2" -eq "$2" ]
 [ $? -ne 0 ] && echo second argument is wsgi workers number && exit 1
-[ "$3" -eq "$3" ]
-[ $? -ne 0 ] && echo third argument is celery workers number && exit 1
+#[ "$3" -eq "$3" ]
+#[ $? -ne 0 ] && echo third argument is celery workers number && exit 1
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -30,9 +30,11 @@ main() {
         clear_cache
         "$dir/coog" admin -u ir
         clear_cache
-        "$dir/coog" celery "$3"
+        "$dir/launch-celery"
+        #"$dir/coog" celery "$3"
         "$dir/coog" server "$2"
         "$dir/nginx" run
+        "$dir/sentry" restart
 }
 
 main "$@"
