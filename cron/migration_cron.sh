@@ -17,8 +17,8 @@ cd $MIGRATION_DIR/'done'
 
 if [ "$(ls -A *.CSV)" ]; then
     find . -name "*.CSV" -type f -print0 |
-        tar -czvf ./$BACKUP --null -T -
-	rm -rf *.CSV
+        tar -czvf ./$BACKUP --null -T -;
+    rm -rf *.CSV
 fi
 
 cd $COOG_ADMIN
