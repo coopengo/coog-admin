@@ -22,4 +22,5 @@ account.payment.acknowledge,\
 account.payment.do_sepa_messages,\
 account.payment.fail,\
 account.move.snapshot.take,\
-roederer.extract.account_move
+roederer.extract.account_move,\
+report_production.request.batch_treat
