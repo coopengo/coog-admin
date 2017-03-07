@@ -54,13 +54,7 @@ COOG_CACHE_DB=0                         # coog cache db name
 COOG_CELERY_DB=1                        # coog celery db name
 COOG_RQ_DB=2                            # coog rq db name
 SENTRY_REDIS_DB=5                       # sentry db name
-
-#-------------------------------------------------------------------------------#
-# UNOCONV CONFIG
-#-------------------------------------------------------------------------------#
-
-UNOCONV_IMAGE=coog/unoconv              # docker image
-UNOCONV_CONTAINER=$USER-unoconv         # docker container
+API_REDIS_DB=7                          # api db name
 
 #-------------------------------------------------------------------------------#
 # SENTRY CONFIG
@@ -81,7 +75,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:1.8                # docker image
+COOG_IMAGE=coog/coog:master             # docker image
 COOG_CONTAINER=$USER-coog               # docker container
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
@@ -90,9 +84,6 @@ COOG_POSTGRES_PORT=                     # defaults to postgres container
 
 COOG_REDIS_HOST=                        # defaults to redis container
 COOG_REDIS_PORT=                        # defaults to redis container
-
-COOG_UNOCONV_HOST=                      # defaults to unoconv container
-COOG_UNOCONV_PORT=                      # defaults to unoconv container
 
 COOG_SENTRY_PROTOCOL=                   # defaults to http
 COOG_SENTRY_HOST=                       # defaults to sentry container
@@ -110,6 +101,13 @@ COOG_CACHE_COOG=                        # coog cache size
 
 COOG_LOG_LEVEL=                         # python levels
 COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
+
+#-------------------------------------------------------------------------------#
+# API CONFIG
+#-------------------------------------------------------------------------------#
+
+API_IMAGE=coog/api:master               # docker image
+API_CONTAINER=$USER-api                 # docker container
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG
