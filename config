@@ -1,23 +1,6 @@
 # vim: set ft=sh:
 # This script sets coog administration environment
 
-DOCKER_MAJOR_VERSION=1
-DOCKER_MINOR_VERSION=11
-
-check_docker_version() {
-        local version
-        version=$(docker version --format '{{.Server.Version}}')
-        [ $? -ne 0 ] && echo check docker installation && return 1
-        [ -z "$version" ] && echo can not retrieve docker version && return 1
-        local major_version; major_version=$(echo "$version" | cut -d '.' -f 1)
-        local minor_version; minor_version=$(echo "$version" | cut -d '.' -f 2)
-        [ "$major_version" -ne "$DOCKER_MAJOR_VERSION" ] && echo docker major version should be = $DOCKER_MAJOR_VERSION && return 1
-        [ "$minor_version" -lt "$DOCKER_MINOR_VERSION" ] && echo docker minor version should be at least $DOCKER_MINOR_VERSION && return 1
-        return 0
-}
-
-check_docker_version || exit 1
-
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
         local script_dir; script_dir=$(dirname "$script_path")
@@ -71,13 +54,7 @@ COOG_CACHE_DB=0                         # coog cache db name
 COOG_CELERY_DB=1                        # coog celery db name
 COOG_RQ_DB=2                            # coog rq db name
 SENTRY_REDIS_DB=5                       # sentry db name
-
-#-------------------------------------------------------------------------------#
-# UNOCONV CONFIG
-#-------------------------------------------------------------------------------#
-
-UNOCONV_IMAGE=coog/unoconv              # docker image
-UNOCONV_CONTAINER=$USER-unoconv         # docker container
+API_REDIS_DB=7                          # api db name
 
 #-------------------------------------------------------------------------------#
 # SENTRY CONFIG
@@ -98,7 +75,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:1.8                # docker image
+COOG_IMAGE=coog/coog:master             # docker image
 COOG_CONTAINER=$USER-coog               # docker container
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
@@ -107,9 +84,6 @@ COOG_POSTGRES_PORT=                     # defaults to postgres container
 
 COOG_REDIS_HOST=                        # defaults to redis container
 COOG_REDIS_PORT=                        # defaults to redis container
-
-COOG_UNOCONV_HOST=                      # defaults to unoconv container
-COOG_UNOCONV_PORT=                      # defaults to unoconv container
 
 COOG_SENTRY_PROTOCOL=                   # defaults to http
 COOG_SENTRY_HOST=                       # defaults to sentry container
@@ -127,6 +101,13 @@ COOG_CACHE_COOG=                        # coog cache size
 
 COOG_LOG_LEVEL=                         # python levels
 COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
+
+#-------------------------------------------------------------------------------#
+# API CONFIG
+#-------------------------------------------------------------------------------#
+
+API_IMAGE=coog/api:master               # docker image
+API_CONTAINER=$USER-api                 # docker container
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG
