@@ -28,11 +28,13 @@ main() {
         "$dir/coog" -- server rm -f
         "$dir/coog" -- celery rm -f
         clear_cache
+        echo "Updating database.."
         "$dir/coog" admin -u ir
+        echo "Done"
         clear_cache
-        "$dir/launch-celery"
         #"$dir/coog" celery "$3"
         "$dir/coog" server "$2"
+        "$dir/launch-celery"
         "$dir/nginx" run
         "$dir/sentry" restart
 }
