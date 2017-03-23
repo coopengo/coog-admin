@@ -32,11 +32,9 @@ main() {
         "$dir/coog" admin -u ir
         echo "Done"
         clear_cache
-        #"$dir/coog" celery "$3"
         "$dir/coog" server "$2"
         "$dir/launch-celery"
         "$dir/nginx" run
-        "$dir/sentry" restart
 }
 
 main "$@"
