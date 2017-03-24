@@ -98,6 +98,12 @@ All commands print commands list when called without arguments
     COOG_IMAGE=coog/coog:X.Y
     ```
 
+- Load Webat image
+    - Load WEBAT images: `docker load -i coog-webat.tar`
+
+- Load Coog-API image
+    - Load coog-api images: `docker load -i coog-api.tar`
+
 - Pull images: `./pull` to get all needed images to run Coog, requires internet
     connection to [DockerHub](https://hub.docker.com/)
 
@@ -138,10 +144,16 @@ All commands print commands list when called without arguments
       and minimal dataset) by calling `./coog upgrade`
     - start Coog workers: `./coog workers`: (workers number could be set via `./edit-config`)
 
+- Start API docker:
+    - `./api run: starts api server
+
 - Start nginx
     - `./nginx init`: generates a default nginx config file
     - `./nginx run`: starts nginx to load balance on coog workers
     - now nginx is listening on port 80 (of the host machine). You can connect your client.
+
+- Start Webat Server
+    - `./web start`: starts webat server link to NGINX
 
 This example is a basic one. Keep in mind that you can customize it to have a
 better (as in 'closer to your needs') configuration:
