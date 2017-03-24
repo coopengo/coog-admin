@@ -81,7 +81,15 @@ All commands print commands list when called without arguments
 
 ### Steps
 
-- First you need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
+- First you need a hosting Linux server (dedicated or virtual)
+    - Install Git, Docker
+    - create a dedicated system user for Coog IT operations (not root and no sudo)
+    - add this user to `docker group` (it needs to launch containers)
+    - set `COOG_DATA` value for the user (on `~/.bashrc` or `~/.profile`). This is the path for the exchange volumes (typically: `~/.local/share/coog`)
+    - `(cd ~ && git clone https://github.com/coopengo/coog-admin)` to install coog-admin
+    - all latter commands will suppose that you are on `~/coog-admin` folder
+
+- You need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
     - load: `docker load -i coog.tar`
     - check that your image is there: `docker images`
     - `./edit-config` to set Coog image name (example below)
@@ -109,16 +117,11 @@ All commands print commands list when called without arguments
   It makes it easy to live troubleshoot the application.
     - `./sentry set_key`: generates a secret key for sentry deployment (used to
       recognise different workers)
-    - `./sentry init_conf`: generates a default configuration file for sentry
-    - `./sentry edit_conf`: set exposed hostname and port of sentry
     - `./postgres client`: creates a database for sentry (default name is sentry)
     - `./sentry upgrade`: populates sentry database (create tables and minimal dataset)
     - `./sentry worker`: starts a celery worker for sentry (async treatments)
-    - `./sentry beat`: starts a celery beat worker for sentry, needed by sentry
-        for its planned tasks. See celery documentation if needed.
+    - `./sentry cron`: starts sentry cron
     - `./sentry server`: starts sentry server
-    - Sentry is now listening on port 9000 (on the host machine). You can
-      connect to get your dsn (public key, private key)
 
     ![sentry-dsn](./png/sentry.png)
 
