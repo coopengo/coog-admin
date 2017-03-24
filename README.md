@@ -145,7 +145,7 @@ All commands print commands list when called without arguments
     - start Coog workers: `./coog workers`: (workers number could be set via `./edit-config`)
 
 - Start API docker:
-    - `./api run: starts api server
+    - `./api run`: starts api server
 
 - Start nginx
     - `./nginx init`: generates a default nginx config file
