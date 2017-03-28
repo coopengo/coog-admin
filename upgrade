@@ -4,10 +4,10 @@
 OPTIND=1
 COOG_IMAGE_TAG=
 COOG_IMAGE_ARCHIVE=
-COOG_SERVER_WORKERS=$(nproc)
-[ -z "$COOG_SERVER_WORKERS" ] && COOG_SERVER_WORKERS=2
-COOG_CELERY_WORKERS=$(nproc)
-[ -z "$COOG_CELERY_WORKERS" ] && COOG_CELERY_WORKERS=2
+DEFAULT_WORKERS=$(nproc)
+[ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
+COOG_SERVER_WORKERS=$DEFAULT_WORKERS
+COOG_CELERY_WORKERS=$DEFAULT_WORKERS
 COOG_DB_BACKUP=0
 COOG_DB_UPDATE=0
 
@@ -37,25 +37,25 @@ cache_clear() {
 
 database_backup() {
         local file_name
-        file_name="pg-$COOG_DB_NAME-$(date +'%y-%m-%d_%H:%M:%S').dmp.gz"
+        file_name="pg-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
         if [ -z "$COOG_POSTGRES_HOST" ]
         then
-                docker run -it --rm \
+                docker run -a stdout --rm \
                         --link "$POSTGRES_CONTAINER:postgres" \
                         -e PGHOST=postgres \
                         -e PGUSER="$POSTGRES_USER" \
                         -e PGPASSWORD="$POSTGRES_PASSWORD" \
                         -v "/tmp:/tmp" \
                         "$POSTGRES_IMAGE" \
-                        pg_dump "$COOG_DB_NAME" | gzip -c > "/tmp/$file_name"
+                        pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
         else
-                docker run -it --rm \
+                docker run -a stdout --rm \
                         -e PGHOST="$COOG_POSTGRES_HOST" \
                         -e PGUSER="$POSTGRES_USER" \
                         -e PGPASSWORD="$POSTGRES_PASSWORD" \
                         -v "/tmp:/tmp" \
                         "$POSTGRES_IMAGE" \
-                        pg_dump "$COOG_DB_NAME" | gzip -c > "/tmp/$file_name"
+                        pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
         fi
         mv "/tmp/$file_name" "$PREFIX/$file_name"
 }
@@ -109,7 +109,7 @@ main() {
                 echo
                 echo "loading image from $COOG_IMAGE_ARCHIVE"
                 docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
-                COOG_IMAGE_TAG=$(docker_last_image)
+                COOG_IMAGE_TAG="$(docker_last_image)"
         fi
         if [ ! -z "$COOG_IMAGE_TAG" ]
         then
