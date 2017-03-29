@@ -61,7 +61,7 @@ database_backup() {
 }
 
 database_update() {
-        "$dir/coog" admin -u ir
+        "$dir/coog" admin -u ir "$@"
 }
 
 print_help() {
@@ -76,9 +76,10 @@ print_help() {
         echo "  -u : update database"
         echo "  -h : print this help"
         echo
+        echo "Extra parameters will be forwarded to the database update command"
 }
 
-while getopts "t:a:s:c:bh" opt
+while getopts "t:a:s:c:buh" opt
 do
         case "$opt" in
                 t) COOG_IMAGE_TAG="$OPTARG"
@@ -173,7 +174,7 @@ main() {
         fi
         if [ "$COOG_DB_UPDATE" -eq 1 ]
         then
-                echo "updating database" && { database_update || return $?; }
+                echo "updating database" && { database_update "$@" || return $?; }
                 echo "clearing cache" && { cache_clear || return $?; }
         fi
         if [ ! -z "$celery_container" ]
@@ -215,7 +216,7 @@ echo
 
 read -p "Confirm upgrading? [y/N] " choice
 case "$choice" in
-        y|Y) main
+        y|Y) main "$@"
                 ;;
         n|N) echo "leaving" && exit 1
                 ;;
