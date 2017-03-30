@@ -40,7 +40,8 @@ database_backup() {
         file_name="pg-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
         if [ -z "$COOG_POSTGRES_HOST" ]
         then
-                docker run -a stdout --rm \
+                docker run \
+                        $DOCKER_PIPED_OPTS \
                         --link "$POSTGRES_CONTAINER:postgres" \
                         -e PGHOST=postgres \
                         -e PGUSER="$POSTGRES_USER" \
@@ -49,7 +50,8 @@ database_backup() {
                         "$POSTGRES_IMAGE" \
                         pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
         else
-                docker run -a stdout --rm \
+                docker run \
+                        $DOCKER_PIPED_OPTS \
                         -e PGHOST="$COOG_POSTGRES_HOST" \
                         -e PGUSER="$POSTGRES_USER" \
                         -e PGPASSWORD="$POSTGRES_PASSWORD" \

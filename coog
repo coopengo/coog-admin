@@ -148,12 +148,9 @@ _image() {
         local args
         if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
         then
-                args="-d --name $COOG_CONTAINER-$1"
-        elif [ "$cmd" = admin ]
-        then
-                args="-it --rm"
+                args="$DOCKER_DAEMON_OPTS --name $COOG_CONTAINER-$1"
         else
-                args="-t --rm"
+                args="$DOCKER_INTERACTIVE_OPTS"
         fi
         shift
         docker run $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
@@ -175,7 +172,7 @@ usage() {
         echo Docker commands
         echo
         echo "  --            -> calls docker action on container - <cont> <act>"
-        docker run -t --rm "$COOG_IMAGE"
+        docker run $DOCKER_PIPED_OPTS "$COOG_IMAGE"
         return 0
 }
 

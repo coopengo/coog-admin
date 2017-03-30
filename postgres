@@ -11,7 +11,7 @@ get_dir() {
 
 server() {
         docker run \
-                -d \
+                $DOCKER_DAEMON_OPTS \
                 --name "$POSTGRES_CONTAINER" \
                 -e "POSTGRES_USER=$POSTGRES_USER" \
                 -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
@@ -24,7 +24,8 @@ server() {
 }
 
 client() {
-        docker run -it --rm \
+        docker run \
+                $DOCKER_INTERACTIVE_OPTS \
                 --link "$POSTGRES_CONTAINER:postgres" \
                 -v "/tmp:/tmp" \
                 "$POSTGRES_IMAGE" \
