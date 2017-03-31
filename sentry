@@ -98,6 +98,7 @@ server() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
                 --name "$SENTRY_CONTAINER" \
+                -p "9000:9000" \
                 $(args) "$SENTRY_IMAGE" "$@"
 }
 
@@ -119,10 +120,6 @@ action() {
         docker "$@" "$SENTRY_CONTAINER"
 }
 
-client() {
-        xdg-open "http://$(ip "$SENTRY_CONTAINER"):9000"
-}
-
 usage() {
         echo
         echo Available commands
@@ -131,7 +128,6 @@ usage() {
         echo "  set-key   -> generates secret key"
         echo "  upgrade   -> upgrades sentry database"
         echo "  server    -> launches sentry server"
-        echo "  client    -> launches sentry client on browser"
         echo "  cron      -> launches sentry cron"
         echo "  worker    -> launches sentry worker"
         echo "  <action>  -> calls docker action on server container"
