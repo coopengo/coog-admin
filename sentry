@@ -83,31 +83,41 @@ get_key() {
 }
 
 set_key() {
-        docker run --rm "$SENTRY_IMAGE" config generate-secret-key > "$SENTRY_KEY"
+        docker run \
+                $DOCKER_PIPED_OPTS \
+                "$SENTRY_IMAGE" config generate-secret-key > "$SENTRY_KEY"
 }
 
 upgrade() {
-        docker run -it --rm $(args) "$SENTRY_IMAGE" upgrade "$@"
+        docker run \
+                $DOCKER_INTERACTIVE_OPTS \
+                $(args) "$SENTRY_IMAGE" upgrade "$@"
 }
 
 server() {
-        docker run -d --name "$SENTRY_CONTAINER" -p 9000:9000 $(args) "$SENTRY_IMAGE" "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --name "$SENTRY_CONTAINER" \
+                -p "9000:9000" \
+                $(args) "$SENTRY_IMAGE" "$@"
 }
 
 cron() {
-        docker run -d --name "$SENTRY_CONTAINER-cron" $(args) "$SENTRY_IMAGE" run cron "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --name "$SENTRY_CONTAINER-cron" \
+                $(args) "$SENTRY_IMAGE" run cron "$@"
 }
 
 worker() {
-        docker run -d --name "$SENTRY_CONTAINER-worker" $(args) "$SENTRY_IMAGE" run worker "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --name "$SENTRY_CONTAINER-worker" \
+                $(args) "$SENTRY_IMAGE" run worker "$@"
 }
 
 action() {
         docker "$@" "$SENTRY_CONTAINER"
-}
-
-client() {
-        xdg-open "http://$(ip "$SENTRY_CONTAINER"):9000"
 }
 
 usage() {
@@ -118,7 +128,6 @@ usage() {
         echo "  set-key   -> generates secret key"
         echo "  upgrade   -> upgrades sentry database"
         echo "  server    -> launches sentry server"
-        echo "  client    -> launches sentry client on browser"
         echo "  cron      -> launches sentry cron"
         echo "  worker    -> launches sentry worker"
         echo "  <action>  -> calls docker action on server container"

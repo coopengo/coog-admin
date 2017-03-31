@@ -11,7 +11,7 @@ get_dir() {
 
 server() {
         docker run \
-                -d \
+                $DOCKER_DAEMON_OPTS \
                 --name "$REDIS_CONTAINER" \
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
                 -v /etc/timezone:/etc/timezone:ro \
@@ -21,7 +21,8 @@ server() {
 }
 
 client() {
-        docker run -it --rm \
+        docker run \
+                $DOCKER_INTERACTIVE_OPTS \
                 --link "$REDIS_CONTAINER:redis" \
                 -v "/tmp:/tmp" \
                 "$REDIS_IMAGE" \
