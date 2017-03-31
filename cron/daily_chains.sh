@@ -15,6 +15,6 @@ cd $COOG_ADMIN
 ./coog chain account_aggregate snapshot
 ./coog chain roederer extract_snapshot --treatment_date=$(date --iso) --flush_size='1024' --env_name='ROEDR' --output_filename="/coog/io/batch/extractions/snapshots/snapshots_$(date --iso).csv";
 ./coog chain report_engine produce_request
-#./coog batch ftp.move --input="/usr/local/coog/coog/batch/extractions/snapshots/" --output="/path/to/ftp/dir"
+#./coog batch ftp.move --input="/coog/io/reports/bdoc/" --output="."
 
 cd -
