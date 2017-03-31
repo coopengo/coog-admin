@@ -91,7 +91,7 @@ upgrade() {
 }
 
 server() {
-        docker run -d --name "$SENTRY_CONTAINER" -p 9000:9000 $(args) "$SENTRY_IMAGE" "$@"
+        docker run -d --name "$SENTRY_CONTAINER" $(args) "$SENTRY_IMAGE" "$@"
 }
 
 cron() {
