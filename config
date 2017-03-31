@@ -23,6 +23,10 @@ PREFIX=/usr/local/coog                        # where all custom data goes
 [ ! -z "$COOG_DATA" ] && PREFIX="$COOG_DATA"  # can be set via $COOG_DATA
 mkdir -p "$PREFIX"                            # make sure folder exists
 
+[ -z "$DOCKER_DAEMON_OPTS" ] && DOCKER_DAEMON_OPTS="-d"
+[ -z "$DOCKER_PIPED_OPTS" ] && DOCKER_PIPED_OPTS="--rm"
+[ -z "$DOCKER_INTERACTIVE_OPTS" ] && DOCKER_INTERACTIVE_OPTS="-it --rm"
+
 #-------------------------------------------------------------------------------#
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#

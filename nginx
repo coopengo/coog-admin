@@ -20,7 +20,7 @@ edit() {
 
 run() {
         docker run \
-                -d \
+                $DOCKER_DAEMON_OPTS \
                 --name "$NGINX_CONTAINER" \
                 --link "$COOG_CONTAINER-server:coog" \
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
