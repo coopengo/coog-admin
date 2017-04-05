@@ -129,8 +129,12 @@ _edit_batch() {
 _edit_cron() {
         local f; f="$PREFIX/cron"
         crontab -l > "$f"
-        echo "#uncomment the line below to activate the chain (a celery container should be running to consume jobs)" >> "$f"
-        echo "#* * * * * USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check >> /tmp/$USER-cron-log 2>&1" >> "$f"
+        {
+                echo "# uncomment the line below to activate the chain"
+                echo "# - a celery container should be running to consume jobs"
+                echo "# - when a chain fails, the container will pipe to stderr an execution report"
+                echo "#* * * * 5 USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check"
+        } >> "$f"
         crontab "$f"
         rm "$f"
         crontab -e
@@ -149,8 +153,11 @@ _image() {
         if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
         then
                 args="$DOCKER_DAEMON_OPTS --name $COOG_CONTAINER-$1"
-        else
+        elif [ "$cmd" = "admin" ]
+        then
                 args="$DOCKER_INTERACTIVE_OPTS"
+        else
+                args="$DOCKER_PIPED_OPTS"
         fi
         shift
         docker run $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
