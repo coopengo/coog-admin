@@ -149,8 +149,11 @@ _image() {
         if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
         then
                 args="$DOCKER_DAEMON_OPTS --name $COOG_CONTAINER-$1"
-        else
+        elif [ "$cmd" = "admin" ]
+        then
                 args="$DOCKER_INTERACTIVE_OPTS"
+        else
+                args="$DOCKER_PIPED_OPTS"
         fi
         shift
         docker run $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
