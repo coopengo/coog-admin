@@ -28,7 +28,7 @@ run() {
     CONTAINER_NAME=$1
     [ -z $WEB_PORT ] && WEB_PORT=3000
     docker run                              \
-           -d                               \
+           $DOCKER_DAEMON_OPTS              \
            -e "DB_NAME=$COOG_DB_NAME"       \
            --name $CONTAINER_NAME           \
            --link $NGINX_CONTAINER:nginx    \
