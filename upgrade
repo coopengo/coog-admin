@@ -37,7 +37,7 @@ cache_clear() {
 
 database_backup() {
         local file_name
-        file_name="pg-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
+        file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
         if [ -z "$COOG_POSTGRES_HOST" ]
         then
                 docker run \
@@ -59,7 +59,6 @@ database_backup() {
                         "$POSTGRES_IMAGE" \
                         pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
         fi
-        mv "/tmp/$file_name" "$PREFIX/$file_name"
 }
 
 database_update() {
