@@ -127,6 +127,16 @@ main() {
                         return 1
                 fi
         fi
+        local paybox_container
+        paybox_container=$(docker_container "$PAYBOX_CONTAINER")
+        echo
+        if [ ! -z "$paybox_container" ]
+        then
+                echo "removing paybox container"
+                "$dir/paybox" rm -f
+        else
+                echo "no paybox container running"
+        fi
         local api_container
         api_container=$(docker_container "$API_CONTAINER")
         echo
@@ -201,6 +211,12 @@ main() {
                 echo
                 echo "starting api container"
                 "$dir/api" run
+        fi
+        if [ ! -z "$paybox_container" ]
+        then
+                echo
+                echo "starting paybox container"
+                "$dir/paybox" run
         fi
 }
 
