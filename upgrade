@@ -2,8 +2,8 @@
 # vim: set ft=sh:
 
 OPTIND=1
-COOG_IMAGE_TAG=
-COOG_IMAGE_ARCHIVE=
+COOG_IMAGE_TAG="-"
+COOG_IMAGE_ARCHIVE="-"
 DEFAULT_WORKERS=$(nproc)
 [ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
 COOG_SERVER_WORKERS=$DEFAULT_WORKERS
@@ -106,14 +106,14 @@ main() {
         dir=$(get_dir)
         source "$dir/config"
         [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
-        if [ ! -z "$COOG_IMAGE_ARCHIVE" ]
+        if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
         then
                 echo
                 echo "loading image from $COOG_IMAGE_ARCHIVE"
                 docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
                 COOG_IMAGE_TAG="$(docker_last_image)"
         fi
-        if [ ! -z "$COOG_IMAGE_TAG" ]
+        if [ "$COOG_IMAGE_TAG" != "-" ]
         then
                 local img
                 img=$(docker_image "$COOG_IMAGE_TAG")
@@ -207,12 +207,12 @@ main() {
 echo "This command is about to **upgrade** your Coog installation!"
 echo "Please make sure this is what you want to do and check parameters below before confirming"
 echo
-echo "- Image tag: $COOG_IMAGE_TAG"
-echo "- Image archive: $COOG_IMAGE_ARCHIVE"
-echo "- Server workers: $COOG_SERVER_WORKERS"
-echo "- Celery workers: $COOG_CELERY_WORKERS"
-echo "- Backup database: $COOG_DB_BACKUP"
-echo "- Update database: $COOG_DB_UPDATE"
+echo "- Image tag: $COOG_IMAGE_TAG (-t)"
+echo "- Image archive: $COOG_IMAGE_ARCHIVE (-a)"
+echo "- Server workers: $COOG_SERVER_WORKERS (-s)"
+echo "- Celery workers: $COOG_CELERY_WORKERS (-c)"
+echo "- Backup database: $COOG_DB_BACKUP (-b)"
+echo "- Update database: $COOG_DB_UPDATE (-u)"
 echo
 
 read -p "Confirm upgrading? [y/N] " choice
