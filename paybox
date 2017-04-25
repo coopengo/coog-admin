@@ -1,0 +1,51 @@
+#!/bin/bash
+# vim: set ft=sh:
+# This script helps doing with coog paybox image
+
+get_dir() {
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
+}
+
+_args() {
+        local args
+        args="$args --link $NGINX_CONTAINER:coog -e COOG_PAYBOX_COOG_URL=http://coog:80 -e COOG_PAYBOX_COOG_DB=$COOG_DB_NAME"
+        args="$args -e COOG_PAYBOX_COOG_USER=$PAYBOX_COOG_USER -e COOG_PAYBOX_COOG_PASS=$PAYBOX_COOG_PASS"
+        args="$args -p $PAYBOX_PUB_PORT:3000"
+        [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
+        echo "$args"
+
+}
+
+_run() {
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --name "$PAYBOX_CONTAINER" \
+                $(_args) "$PAYBOX_IMAGE" "$@"
+}
+
+_docker() {
+        docker "$@" "$PAYBOX_CONTAINER"
+}
+
+usage() {
+        echo
+        echo Available commands
+        echo
+        echo "  run       -> runs a paybox docker image"
+        echo "  <action>  -> calls docker action on paybox container"
+        echo
+}
+
+main() {
+        source "$(get_dir)/config"
+        #
+        [ -z "$1" ] && usage && return 0
+        local cmd; cmd="$1"; shift
+        #
+        [ "$cmd" = "run" ] && { _run "$@"; return $?; }
+        _docker "$cmd" "$@"
+}
+
+main "$@"
