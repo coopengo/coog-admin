@@ -192,6 +192,7 @@ main() {
         local cmd; cmd="$1"; shift
         #
         [ "$cmd" = "init" ] && { _init; return $?; }
+        [ ! -e "$COOG_VOLUME" ] && echo "You need to run: './coog init'" && return 1
         [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
         [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
         [ "$cmd" = "edit-cron" ] && { _edit_cron; return $?; }
