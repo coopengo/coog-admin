@@ -8,8 +8,8 @@ DEFAULT_WORKERS=$(nproc)
 [ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
 COOG_SERVER_WORKERS=$DEFAULT_WORKERS
 COOG_CELERY_WORKERS=$DEFAULT_WORKERS
-COOG_DB_BACKUP=0
-COOG_DB_UPDATE=0
+COOG_DB_BACKUP=n
+COOG_DB_UPDATE=n
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -91,9 +91,9 @@ do
                         ;;
                 c) COOG_CELERY_WORKERS="$OPTARG"
                         ;;
-                b) COOG_DB_BACKUP=1
+                b) COOG_DB_BACKUP=y
                         ;;
-                u) COOG_DB_UPDATE=1
+                u) COOG_DB_UPDATE=y
                         ;;
                 h) print_help && exit 0
                         ;;
@@ -179,11 +179,11 @@ main() {
         fi
         echo
         echo "clearing cache" && { cache_clear || return $?; }
-        if [ "$COOG_DB_BACKUP" -eq 1 ]
+        if [ "$COOG_DB_BACKUP" = y ]
         then
                 echo "backup database" && { database_backup || return $?; }
         fi
-        if [ "$COOG_DB_UPDATE" -eq 1 ]
+        if [ "$COOG_DB_UPDATE" = y ]
         then
                 echo "updating database" && { database_update "$@" || return $?; }
                 echo "clearing cache" && { cache_clear || return $?; }
