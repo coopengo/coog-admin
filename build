@@ -16,8 +16,7 @@ main() { # <image-tag> <repositories> -- [docker-build-arg*]
         echo "<repositories...> must contain at least coog, trytond, trytond-modules" && \
         echo "One repository must be formatted this way: <repo_name>:<branch>" >&2 && return 1
 
-        # local script_path; script_path=$(readlink -f "$0")
-        local script_path; script_path=$(greadlink -f "$0")
+        local script_path; script_path=$(readlink -f "$0")
         local wd; wd=$(dirname "$script_path"); wd="$wd/docker"
 
         local workspace="$wd/workspace"
