@@ -6,10 +6,13 @@ get_dir() {
         echo "$script_dir/docker"
 }
 
-build_docker() {  # <repo_directory> <branch_tag>
-        [ -d "$1/docker" ] && $1/docker/build "$2" && \
-        mv "$1/docker/dist" "_$1" && rm -rf "$1" && \
-        mv "_$1" "$1"
+build_docker() {  # <repo_directory> <repo_name> <branch_tag>
+        if [ -d "$1/$2/docker" ]
+        then
+                $1/$2/docker/build "$3" && \
+                mv "$1/$2/docker/dist" "$1/_$2" && rm -rf "$1/$2" && \
+                mv "$1/_$2" "$1/$2"
+        fi
 }
 
 clone_repo() { # <wd> <repo_name> <repo_uri> <repo_branch>
@@ -18,7 +21,7 @@ clone_repo() { # <wd> <repo_name> <repo_uri> <repo_branch>
         printf "%s:" "$2" >> "$1/workspace/.version"
         (cd "$1/workspace/$2" && git rev-parse HEAD >> "$1/workspace/.version")
 
-        build_docker "$1/workspace/$2" "$4"
+        build_docker "$1/workspace" "$2" "$4"
 }
 
 get_clone_uri() { # <wd> <repo_name>
@@ -56,7 +59,7 @@ main() { # <image-tag> <repositories> -- [docker-build-arg*]
 
         local wd; wd=$(get_dir)
         local workspace="$wd/workspace"
-        
+
         mkdir "$workspace" || return 1
 
         local image; image="$1"
