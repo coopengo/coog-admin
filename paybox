@@ -10,7 +10,7 @@ get_dir() {
 
 _args() {
         local args
-        args="$args --link $NGINX_CONTAINER:coog -e COOG_PAYBOX_COOG_URL=http://coog:80 -e COOG_PAYBOX_COOG_DB=$COOG_DB_NAME"
+        args="$args -e COOG_PAYBOX_COOG_URL=http://$NETWORK_NAME-nginx:80 -e COOG_PAYBOX_COOG_DB=$COOG_DB_NAME"
         args="$args -e COOG_PAYBOX_COOG_USER=$PAYBOX_COOG_USER -e COOG_PAYBOX_COOG_PASS=$PAYBOX_COOG_PASS"
         args="$args -p $PAYBOX_PUB_PORT:3000"
         [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
@@ -21,12 +21,13 @@ _args() {
 _run() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
-                --name "$PAYBOX_CONTAINER" \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-paybox" \
                 $(_args) "$PAYBOX_IMAGE" "$@"
 }
 
 _docker() {
-        docker "$@" "$PAYBOX_CONTAINER"
+        docker "$@" "$NETWORK_NAME-paybox"
 }
 
 usage() {
