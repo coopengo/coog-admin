@@ -12,29 +12,22 @@ build_docker() {  # <repo_directory> <repo_name> <branch_tag>
                 $1/$2/docker/build "$3" && \
                 mv "$1/$2/docker/dist" "$1/_$2" && rm -rf "$1/$2" && \
                 mv "$1/_$2" "$1/$2"
+                [ $? -ne 0 ] && return 1
         fi
+        return
 }
 
 clone_repo() { # <wd> <repo_name> <repo_uri> <repo_branch>
         [ $# -ne 4 ] && echo bad args >&2 && return 1
-        git clone --depth=1 --recursive -b "$4" "$3" "$1/workspace/$2"
+        git clone --depth=1 --recursive -b "$4" "$3" "$1/workspace/$2" || return 1
         printf "%s:" "$2" >> "$1/workspace/.version"
         (cd "$1/workspace/$2" && git rev-parse HEAD >> "$1/workspace/.version")
 
-        build_docker "$1/workspace" "$2" "$4"
+        build_docker "$1/workspace" "$2" "$4" || return 1
 }
 
 get_clone_uri() { # <wd> <repo_name>
         cat "$1/repos.vendor" "$1/repos.custom" | grep -P "^$2;" | tail -1 | cut -d ";" -f 2
-}
-
-clean_up() {  # <wd>
-        local files; files=$(ls "$1" | grep -vP "repos.vendor|Dockerfile|ep|repos.custom")
-
-        for file in "$files"
-        do
-                rm -rf "$1/file" || return 1
-        done
 }
 
 usage() {
@@ -84,7 +77,7 @@ main() { # <image-tag> <repositories> -- [docker-build-arg*]
 
         docker build -t "$image" "$@" "$wd"
 
-        clean_up "$wd"
+        rm -rf "$workspace"
 }
 
 main "$@"
