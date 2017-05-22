@@ -9,12 +9,13 @@ get_dir() {
 build_docker() {  # <repo_directory> <repo_name> <branch_tag>
         if [ -d "$1/$2/docker" ]
         then
-                $1/$2/docker/build "$3" && \
-                mv "$1/$2/docker/dist" "$1/_$2" && rm -rf "$1/$2" && \
-                mv "$1/_$2" "$1/$2"
-                [ $? -ne 0 ] && return 1
+                $1/$2/docker/build "$3" \
+                  && mv "$1/$2/docker/dist" "$1/_$2" \
+		  && rm -rf "$1/$2" \
+                  && mv "$1/_$2" "$1/$2" \
+		  || return 1
         fi
-        return
+	return
 }
 
 clone_repo() { # <wd> <repo_name> <repo_uri> <repo_branch>
