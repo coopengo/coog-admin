@@ -246,6 +246,7 @@ _chain() {
         . "$COOG_ROOT/coog/bin/coog-rq"
         . "$COOG_ROOT/coog/bin/coog-batch"
         . "$COOG_ROOT/coog/bin/coog-chain"
+        [ "$1" == "--" ] && shift 1
         coog_chain_main "$@"
 }
 
