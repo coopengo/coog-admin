@@ -8,23 +8,18 @@ get_dir() {
         echo "$script_dir"
 }
 
-_args() {
-        local args
-        args="$args --link $API_CONTAINER:coog-api"
-        args="$args -p 80$NGINX_PUB_PORT:80"
-        echo "$args"
-
-}
-
 _run() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
-                --name "$APP_CONTAINER" \
-                $(_args) "$APP_IMAGE" "$@"
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-app" \
+                -p "80$NGINX_PUB_PORT:80" \
+                "$APP_IMAGE" \
+                sh -c "sed -i s/NETWORK_NAME/$NETWORK_NAME/g /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 }
 
 _docker() {
-        docker "$@" "$APP_CONTAINER"
+        docker "$@" "$NETWORK_NAME-app"
 }
 
 usage() {
@@ -42,7 +37,7 @@ main() {
         [ -z "$1" ] && usage && return 0
         local cmd; cmd="$1"; shift
         #
-        [ "$cmd" = "run" ] && { _run "$@"; return $?; }
+        [ "$cmd" = "run" ] && { _run; return $?; }
         _docker "$cmd" "$@"
 }
 

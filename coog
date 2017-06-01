@@ -23,12 +23,8 @@ postgres_args() {
         then
                 args="-e COOG_POSTGRES_HOST=$COOG_POSTGRES_HOST"
                 [ ! -z "$COOG_POSTGRES_PORT" ] && args="$args -e COOG_POSTGRES_PORT=$COOG_POSTGRES_PORT"
-        elif [ ! -z "$POSTGRES_CONTAINER" ]
-        then
-                args="--link $POSTGRES_CONTAINER:postgres"
-                args="$args -e COOG_POSTGRES_HOST=postgres"
         else
-                return 0
+                args="$args -e COOG_POSTGRES_HOST=$NETWORK_NAME-postgres"
         fi
         echo "$args"
 }
@@ -39,12 +35,8 @@ redis_args() {
         then
                 args="-e COOG_REDIS_HOST=$COOG_REDIS_HOST"
                 [ ! -z "$COOG_REDIS_PORT" ] && args="$args -e COOG_REDIS_PORT=$COOG_REDIS_PORT"
-        elif [ ! -z "$REDIS_CONTAINER" ]
-        then
-                args="--link $REDIS_CONTAINER:redis"
-                args="$args -e COOG_REDIS_HOST=redis"
         else
-                return 0
+                args="$args -e COOG_REDIS_HOST=$NETWORK_NAME-redis"
         fi
         echo "$args"
 }
@@ -80,15 +72,9 @@ sentry_args() {
         local args
         if [ -z "$COOG_SENTRY_PROTOCOL" ] || [ -z "$COOG_SENTRY_HOST" ] || [ -z "$COOG_SENTRY_PORT" ]
         then
-                if [ ! -z "$SENTRY_CONTAINER" ]
-                then
-                        args="--link $SENTRY_CONTAINER:sentry"
-                        COOG_SENTRY_PROTOCOL=http
-                        COOG_SENTRY_HOST=sentry
-                        COOG_SENTRY_PORT=9000
-                else
-                        return
-                fi
+                COOG_SENTRY_PROTOCOL=http
+                COOG_SENTRY_HOST="$NETWORK_NAME-sentry"
+                COOG_SENTRY_PORT=9000
         fi
         if [ ! -z "$COOG_SENTRY_PUB" ] && [ ! -z "$COOG_SENTRY_SEC" ] && [ ! -z "$COOG_SENTRY_PROJECT" ]
         then
@@ -143,7 +129,7 @@ _edit_cron() {
 _docker() {
         [ -z "$1" ] && echo missing container && return 1
         local cont; cont=$1; shift
-        docker "$@" "$COOG_CONTAINER-$cont"
+        docker "$@" "$NETWORK_NAME-coog-$cont"
 }
 
 _image() {
@@ -152,7 +138,7 @@ _image() {
         local args
         if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
         then
-                args="$DOCKER_DAEMON_OPTS --name $COOG_CONTAINER-$1"
+                args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
         elif [ "$cmd" = "admin" ]
         then
                 args="$DOCKER_INTERACTIVE_OPTS"
@@ -160,7 +146,7 @@ _image() {
                 args="$DOCKER_PIPED_OPTS"
         fi
         shift
-        docker run $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
+        docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
 }
 
 ########
