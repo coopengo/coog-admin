@@ -1,0 +1,84 @@
+#!/bin/bash
+
+get_dir() {
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir/docker"
+}
+
+build_docker() {  # <repo_directory> <repo_name> <branch_tag>
+        if [ -d "$1/$2/docker" ]
+        then
+                $1/$2/docker/build "$3" \
+                  && mv "$1/$2/docker/dist" "$1/_$2" \
+		  && rm -rf "$1/$2" \
+                  && mv "$1/_$2" "$1/$2" \
+		  || return 1
+        fi
+	return
+}
+
+clone_repo() { # <wd> <repo_name> <repo_uri> <repo_branch>
+        [ $# -ne 4 ] && echo bad args >&2 && return 1
+        git clone --depth=1 --recursive -b "$4" "$3" "$1/workspace/$2" || return 1
+        printf "%s:" "$2" >> "$1/workspace/.version"
+        (cd "$1/workspace/$2" && git rev-parse HEAD >> "$1/workspace/.version")
+
+        build_docker "$1/workspace" "$2" "$4" || return 1
+}
+
+get_clone_uri() { # <wd> <repo_name>
+        cat "$1/repos.vendor" "$1/repos.custom" | grep -P "^$2;" | tail -1 | cut -d ";" -f 2
+}
+
+usage() {
+        echo
+        echo "Usage:"
+        echo
+        echo "  ./build <image-tag> <repositories...> [docker-build-args]"
+        echo "  <repositories...> must contain at least coog, trytond, trytond-modules."
+        echo "  One repository must be formatted this way: <repo_name>:<branch>"
+        echo
+        echo "  You can alternatively add your custom repositories' url in a file named \`repos.custom\` in the docker directory."
+        echo "  The urls put in that file will override urls that are in repos.vendor."
+        echo
+        echo "  To do so, simply write in repos.custom"
+        echo "  Each line should be as such"
+        echo "  <repo_name>;<repo_uri>"
+        echo
+}
+
+main() { # <image-tag> <repositories> -- [docker-build-arg*]
+        [ $# -lt 4 ] && usage >&2 && return 1
+
+        local wd; wd=$(get_dir)
+        local workspace="$wd/workspace"
+
+        mkdir "$workspace" || return 1
+
+        local image; image="$1"
+        shift
+
+        while [ ! -z "$1" ]
+        do
+                [ "$1" = "--" ] && shift && break
+
+                echo "Working on $1."
+
+                local name; name=$(echo "$1" | cut -d ":" -f 1)
+                local branch; branch=$(echo "$1" | cut -d ":" -f 2)
+                local uri; uri=$(get_clone_uri "$wd" "$name")
+
+                [ -z "$uri" ] && echo "Unknown repo: $name" >&2 && return 1
+
+                clone_repo "$wd" "$name" "$uri" "$branch" || return 1
+
+                shift
+        done
+
+        docker build -t "$image" "$@" "$wd"
+
+        rm -rf "$workspace"
+}
+
+main "$@"

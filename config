@@ -114,6 +114,23 @@ API_IMAGE=coog/api:master               # docker image
 API_CONTAINER=$USER-api                 # docker container
 
 #-------------------------------------------------------------------------------#
+# APP CONFIG
+#-------------------------------------------------------------------------------#
+
+APP_IMAGE=coog/app:master               # docker image
+APP_CONTAINER=$USER-app                 # docker container
+
+#-------------------------------------------------------------------------------#
+# PAYBOX CONFIG
+#-------------------------------------------------------------------------------#
+
+PAYBOX_IMAGE=coog/paybox:master
+PAYBOX_CONTAINER=$USER-paybox
+PAYBOX_PUB_PORT=3000
+PAYBOX_COOG_USER=admin
+PAYBOX_COOG_PASS=admin
+
+#-------------------------------------------------------------------------------#
 # NGINX CONFIG
 #-------------------------------------------------------------------------------#
 

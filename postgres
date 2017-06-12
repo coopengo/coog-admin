@@ -32,6 +32,16 @@ client() {
                 psql -h postgres -U "$POSTGRES_USER" "$@"
 }
 
+dump() {
+        docker run \
+                $DOCKER_PIPED_OPTS \
+                --link "$POSTGRES_CONTAINER:postgres" \
+                -e "PGPASSWORD=$PGPASSWORD" \
+                -v "/tmp:/tmp" \
+                "$POSTGRES_IMAGE" \
+                pg_dump -h postgres -U "$POSTGRES_USER" "$@"
+}
+
 action() {
         docker "$@" "$POSTGRES_CONTAINER"
 }
@@ -42,6 +52,7 @@ usage() {
         echo
         echo "  server    -> runs a postgres docker image as a server"
         echo "  client    -> runs a postgres docker image as a client"
+        echo "  dump      -> creates a dump of coog database"
         echo "  <action>  -> calls docker action on server container"
         echo
 }
@@ -54,6 +65,7 @@ main() {
         #
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
         [ "$cmd" = "client" ] && { client "$@"; return $?; }
+        [ "$cmd" = "dump" ] && { dump "$@"; return $?; }
         action "$cmd" "$@"
 }
 

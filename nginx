@@ -54,6 +54,7 @@ main() {
         local cmd; cmd="$1"; shift
         #
         [ "$cmd" = "init" ] && { init; return $?; }
+        [ ! -e "$NGINX_CONF" ] && echo "You need to run: './nginx init'" && return 1
         [ "$cmd" = "edit" ] && { edit; return $?; }
         [ "$cmd" = "run" ] && { run "$@"; return $?; }
         action "$cmd" "$@"

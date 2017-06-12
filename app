@@ -1,6 +1,6 @@
 #!/bin/bash
 # vim: set ft=sh:
-# This script helps doing with coog api image
+# This script helps doing with coog app image
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -10,10 +10,8 @@ get_dir() {
 
 _args() {
         local args
-        args="$args --link $REDIS_CONTAINER:redis -e COOG_API_REDIS_URL=//redis:6379 -e COOG_API_REDIS_DB=$API_REDIS_DB"
-        args="$args --link $NGINX_CONTAINER:coog -e COOG_API_COOG_URL=http://coog:80 -e COOG_API_COOG_DB=$COOG_DB_NAME"
-        args="$args -p 30$NGINX_PUB_PORT:3000"
-        [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
+        args="$args --link $API_CONTAINER:coog-api"
+        args="$args -p 80$NGINX_PUB_PORT:80"
         echo "$args"
 
 }
@@ -21,20 +19,20 @@ _args() {
 _run() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
-                --name "$API_CONTAINER" \
-                $(_args) "$API_IMAGE" "$@"
+                --name "$APP_CONTAINER" \
+                $(_args) "$APP_IMAGE" "$@"
 }
 
 _docker() {
-        docker "$@" "$API_CONTAINER"
+        docker "$@" "$APP_CONTAINER"
 }
 
 usage() {
         echo
         echo Available commands
         echo
-        echo "  run       -> runs an api docker image"
-        echo "  <action>  -> calls docker action on api container"
+        echo "  run       -> runs an app docker image"
+        echo "  <action>  -> calls docker action on app container"
         echo
 }
 

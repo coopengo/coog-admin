@@ -2,14 +2,14 @@
 # vim: set ft=sh:
 
 OPTIND=1
-COOG_IMAGE_TAG=
-COOG_IMAGE_ARCHIVE=
+COOG_IMAGE_TAG="-"
+COOG_IMAGE_ARCHIVE="-"
 DEFAULT_WORKERS=$(nproc)
 [ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
 COOG_SERVER_WORKERS=$DEFAULT_WORKERS
 COOG_CELERY_WORKERS=$DEFAULT_WORKERS
-COOG_DB_BACKUP=0
-COOG_DB_UPDATE=0
+COOG_DB_BACKUP=n
+COOG_DB_UPDATE=n
 
 get_dir() {
         local script_path; script_path=$(readlink -f "$0")
@@ -37,7 +37,7 @@ cache_clear() {
 
 database_backup() {
         local file_name
-        file_name="pg-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
+        file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
         if [ -z "$COOG_POSTGRES_HOST" ]
         then
                 docker run \
@@ -59,7 +59,6 @@ database_backup() {
                         "$POSTGRES_IMAGE" \
                         pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
         fi
-        mv "/tmp/$file_name" "$PREFIX/$file_name"
 }
 
 database_update() {
@@ -92,9 +91,9 @@ do
                         ;;
                 c) COOG_CELERY_WORKERS="$OPTARG"
                         ;;
-                b) COOG_DB_BACKUP=1
+                b) COOG_DB_BACKUP=y
                         ;;
-                u) COOG_DB_UPDATE=1
+                u) COOG_DB_UPDATE=y
                         ;;
                 h) print_help && exit 0
                         ;;
@@ -107,14 +106,14 @@ main() {
         dir=$(get_dir)
         source "$dir/config"
         [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
-        if [ ! -z "$COOG_IMAGE_ARCHIVE" ]
+        if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
         then
                 echo
                 echo "loading image from $COOG_IMAGE_ARCHIVE"
                 docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
                 COOG_IMAGE_TAG="$(docker_last_image)"
         fi
-        if [ ! -z "$COOG_IMAGE_TAG" ]
+        if [ "$COOG_IMAGE_TAG" != "-" ]
         then
                 local img
                 img=$(docker_image "$COOG_IMAGE_TAG")
@@ -127,6 +126,16 @@ main() {
                         echo "$COOG_IMAGE_TAG image not found"
                         return 1
                 fi
+        fi
+        local paybox_container
+        paybox_container=$(docker_container "$PAYBOX_CONTAINER")
+        echo
+        if [ ! -z "$paybox_container" ]
+        then
+                echo "removing paybox container"
+                "$dir/paybox" rm -f
+        else
+                echo "no paybox container running"
         fi
         local api_container
         api_container=$(docker_container "$API_CONTAINER")
@@ -170,11 +179,11 @@ main() {
         fi
         echo
         echo "clearing cache" && { cache_clear || return $?; }
-        if [ "$COOG_DB_BACKUP" -eq 1 ]
+        if [ "$COOG_DB_BACKUP" = y ]
         then
                 echo "backup database" && { database_backup || return $?; }
         fi
-        if [ "$COOG_DB_UPDATE" -eq 1 ]
+        if [ "$COOG_DB_UPDATE" = y ]
         then
                 echo "updating database" && { database_update "$@" || return $?; }
                 echo "clearing cache" && { cache_clear || return $?; }
@@ -203,17 +212,23 @@ main() {
                 echo "starting api container"
                 "$dir/api" run
         fi
+        if [ ! -z "$paybox_container" ]
+        then
+                echo
+                echo "starting paybox container"
+                "$dir/paybox" run
+        fi
 }
 
 echo "This command is about to **upgrade** your Coog installation!"
 echo "Please make sure this is what you want to do and check parameters below before confirming"
 echo
-echo "- Image tag: $COOG_IMAGE_TAG"
-echo "- Image archive: $COOG_IMAGE_ARCHIVE"
-echo "- Server workers: $COOG_SERVER_WORKERS"
-echo "- Celery workers: $COOG_CELERY_WORKERS"
-echo "- Backup database: $COOG_DB_BACKUP"
-echo "- Update database: $COOG_DB_UPDATE"
+echo "- Image tag: $COOG_IMAGE_TAG (-t)"
+echo "- Image archive: $COOG_IMAGE_ARCHIVE (-a)"
+echo "- Server workers: $COOG_SERVER_WORKERS (-s)"
+echo "- Celery workers: $COOG_CELERY_WORKERS (-c)"
+echo "- Backup database: $COOG_DB_BACKUP (-b)"
+echo "- Update database: $COOG_DB_UPDATE (-u)"
 echo
 
 read -p "Confirm upgrading? [y/N] " choice
