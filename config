@@ -23,6 +23,7 @@ PREFIX=/usr/local/coog                        # where all custom data goes
 [ ! -z "$COOG_DATA" ] && PREFIX="$COOG_DATA"  # can be set via $COOG_DATA
 mkdir -p "$PREFIX"                            # make sure folder exists
 
+NETWORK_NAME=$USER
 [ -z "$DOCKER_DAEMON_OPTS" ] && DOCKER_DAEMON_OPTS="-d"
 [ -z "$DOCKER_PIPED_OPTS" ] && DOCKER_PIPED_OPTS="--rm"
 [ -z "$DOCKER_INTERACTIVE_OPTS" ] && DOCKER_INTERACTIVE_OPTS="-it --rm"
@@ -32,7 +33,6 @@ mkdir -p "$PREFIX"                            # make sure folder exists
 #-------------------------------------------------------------------------------#
 
 POSTGRES_IMAGE=postgres:9.5-alpine      # docker image
-POSTGRES_CONTAINER=$USER-postgres       # docker container
 POSTGRES_VOLUME=$PREFIX/postgres        # docker data volume
 
 POSTGRES_USER=postgres                  # postgres user
@@ -51,7 +51,6 @@ SENTRY_DB_NAME=sentry                   # sentry db db name
 #-------------------------------------------------------------------------------#
 
 REDIS_IMAGE=redis:3.2-alpine            # docker image
-REDIS_CONTAINER=$USER-redis             # docker container
 REDIS_VOLUME=$PREFIX/redis              # docker data volume
 
 COOG_CACHE_DB=0                         # coog cache db name
@@ -65,7 +64,6 @@ API_REDIS_DB=7                          # api db name
 #-------------------------------------------------------------------------------#
 
 SENTRY_IMAGE=sentry:8                   # docker image
-SENTRY_CONTAINER=$USER-sentry           # docker container
 SENTRY_VOLUME=$PREFIX/sentry            # docker data volume
 SENTRY_KEY=$PREFIX/sentry.key           # containers shared key
 
@@ -80,7 +78,6 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 #-------------------------------------------------------------------------------#
 
 COOG_IMAGE=coog/coog:master             # docker image
-COOG_CONTAINER=$USER-coog               # docker container
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
@@ -111,7 +108,12 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 #-------------------------------------------------------------------------------#
 
 API_IMAGE=coog/api:master               # docker image
-API_CONTAINER=$USER-api                 # docker container
+
+#-------------------------------------------------------------------------------#
+# APP CONFIG
+#-------------------------------------------------------------------------------#
+
+APP_IMAGE=coog/app:master               # docker image
 
 #-------------------------------------------------------------------------------#
 # APP CONFIG
@@ -125,7 +127,6 @@ APP_CONTAINER=$USER-app                 # docker container
 #-------------------------------------------------------------------------------#
 
 PAYBOX_IMAGE=coog/paybox:master
-PAYBOX_CONTAINER=$USER-paybox
 PAYBOX_PUB_PORT=3000
 PAYBOX_COOG_USER=admin
 PAYBOX_COOG_PASS=admin
@@ -135,7 +136,6 @@ PAYBOX_COOG_PASS=admin
 #-------------------------------------------------------------------------------#
 
 NGINX_IMAGE=nginx:1-alpine              # docker image
-NGINX_CONTAINER=$USER-nginx             # docker container
 NGINX_CONF=$PREFIX/nginx.conf           # nginx conf path
 NGINX_PUB_PORT=80                       # host mapped port
 

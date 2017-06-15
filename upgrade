@@ -28,7 +28,7 @@ docker_last_image() {
 
 docker_container() {
         [ -z "$1" ] && return 1
-        docker ps --format '{{.Names}}' --filter "name=$1"
+        docker ps --format '{{.Names}}' --filter "name=$NETWORK_NAME-$1"
 }
 
 cache_clear() {
@@ -42,8 +42,8 @@ database_backup() {
         then
                 docker run \
                         $DOCKER_PIPED_OPTS \
-                        --link "$POSTGRES_CONTAINER:postgres" \
-                        -e PGHOST=postgres \
+                        --network "$NETWORK_NAME" \
+                        -e PGHOST="$NETWORK_NAME" \
                         -e PGUSER="$POSTGRES_USER" \
                         -e PGPASSWORD="$POSTGRES_PASSWORD" \
                         -v "/tmp:/tmp" \
@@ -128,7 +128,7 @@ main() {
                 fi
         fi
         local paybox_container
-        paybox_container=$(docker_container "$PAYBOX_CONTAINER")
+        paybox_container=$(docker_container paybox)
         echo
         if [ ! -z "$paybox_container" ]
         then
@@ -137,8 +137,18 @@ main() {
         else
                 echo "no paybox container running"
         fi
+        local app_container
+        app_container=$(docker_container app)
+        echo
+        if [ ! -z "$app_container" ]
+        then
+                echo "removing app container"
+                "$dir/app" rm -f
+        else
+                echo "no app container running"
+        fi
         local api_container
-        api_container=$(docker_container "$API_CONTAINER")
+        api_container=$(docker_container api)
         echo
         if [ ! -z "$api_container" ]
         then
@@ -148,7 +158,7 @@ main() {
                 echo "no api container running"
         fi
         local nginx_container
-        nginx_container=$(docker_container "$NGINX_CONTAINER")
+        nginx_container=$(docker_container nginx)
         echo
         if [ ! -z "$nginx_container" ]
         then
@@ -158,7 +168,7 @@ main() {
                 echo "no nginx container running"
         fi
         local server_container
-        server_container=$(docker_container "$COOG_CONTAINER-server")
+        server_container=$(docker_container coog-server)
         echo
         if [ ! -z "$server_container" ]
         then
@@ -168,7 +178,7 @@ main() {
                 echo "no server container running"
         fi
         local celery_container
-        celery_container=$(docker_container "$COOG_CONTAINER-celery")
+        celery_container=$(docker_container coog-celery)
         echo
         if [ ! -z "$celery_container" ]
         then
@@ -211,6 +221,12 @@ main() {
                 echo
                 echo "starting api container"
                 "$dir/api" run
+        fi
+        if [ ! -z "$app_container" ]
+        then
+                echo
+                echo "starting app container"
+                "$dir/app" run
         fi
         if [ ! -z "$paybox_container" ]
         then
