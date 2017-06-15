@@ -137,6 +137,16 @@ main() {
         else
                 echo "no paybox container running"
         fi
+        local app_container
+        app_container=$(docker_container app)
+        echo
+        if [ ! -z "$app_container" ]
+        then
+                echo "removing app container"
+                "$dir/app" rm -f
+        else
+                echo "no app container running"
+        fi
         local api_container
         api_container=$(docker_container api)
         echo
@@ -211,6 +221,12 @@ main() {
                 echo
                 echo "starting api container"
                 "$dir/api" run
+        fi
+        if [ ! -z "$app_container" ]
+        then
+                echo
+                echo "starting app container"
+                "$dir/app" run
         fi
         if [ ! -z "$paybox_container" ]
         then

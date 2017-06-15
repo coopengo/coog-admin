@@ -15,7 +15,6 @@ _args() {
         args="$args -p 30$NGINX_PUB_PORT:3000"
         [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
         echo "$args"
-
 }
 
 _run() {
