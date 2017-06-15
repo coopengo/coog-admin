@@ -11,7 +11,7 @@ check_docker_version() {
         [ -z "$version" ] && echo can not retrieve docker version && return 1
         local major_version; major_version=$(echo "$version" | cut -d '.' -f 1)
         local minor_version; minor_version=$(echo "$version" | cut -d '.' -f 2)
-        [ "$major_version" -ne "$DOCKER_MAJOR_VERSION" ] && echo docker major version should be = $DOCKER_MAJOR_VERSION && return 1
+        [ "$major_version" -lt "$DOCKER_MAJOR_VERSION" ] && echo docker major version should be = $DOCKER_MAJOR_VERSION && return 1
         [ "$minor_version" -lt "$DOCKER_MINOR_VERSION" ] && echo docker minor version should be at least $DOCKER_MINOR_VERSION && return 1
         return 0
 }
@@ -40,12 +40,16 @@ PREFIX=/usr/local/coog                        # where all custom data goes
 [ ! -z "$COOG_DATA" ] && PREFIX="$COOG_DATA"  # can be set via $COOG_DATA
 mkdir -p "$PREFIX"                            # make sure folder exists
 
+NETWORK_NAME=$USER
+[ -z "$DOCKER_DAEMON_OPTS" ] && DOCKER_DAEMON_OPTS="-d"
+[ -z "$DOCKER_PIPED_OPTS" ] && DOCKER_PIPED_OPTS="--rm"
+[ -z "$DOCKER_INTERACTIVE_OPTS" ] && DOCKER_INTERACTIVE_OPTS="-it --rm"
+
 #-------------------------------------------------------------------------------#
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#
 
 POSTGRES_IMAGE=postgres:9.5-alpine      # docker image
-POSTGRES_CONTAINER=$USER-postgres       # docker container
 POSTGRES_VOLUME=$PREFIX/postgres        # docker data volume
 
 POSTGRES_USER=postgres                  # postgres user
@@ -64,7 +68,6 @@ SENTRY_DB_NAME=sentry                   # sentry db db name
 #-------------------------------------------------------------------------------#
 
 REDIS_IMAGE=redis:3.2-alpine            # docker image
-REDIS_CONTAINER=$USER-redis             # docker container
 REDIS_VOLUME=$PREFIX/redis              # docker data volume
 
 COOG_CACHE_DB=0                         # coog cache db name
@@ -83,8 +86,7 @@ UNOCONV_CONTAINER=$USER-unoconv         # docker container
 # SENTRY CONFIG
 #-------------------------------------------------------------------------------#
 
-SENTRY_IMAGE=sentry:8.9                 # docker image
-SENTRY_CONTAINER=$USER-sentry           # docker container
+SENTRY_IMAGE=sentry:8                   # docker image
 SENTRY_VOLUME=$PREFIX/sentry            # docker data volume
 SENTRY_KEY=$PREFIX/sentry.key           # containers shared key
 
@@ -98,8 +100,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:1.8                # docker image
-COOG_CONTAINER=$USER-coog               # docker container
+COOG_IMAGE=coog/coog:master             # docker image
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
@@ -133,7 +134,6 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 #-------------------------------------------------------------------------------#
 
 NGINX_IMAGE=nginx:1-alpine              # docker image
-NGINX_CONTAINER=$USER-nginx             # docker container
 NGINX_CONF=$PREFIX/nginx.conf           # nginx conf path
 NGINX_PUB_PORT=80                       # host mapped port
 

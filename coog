@@ -23,12 +23,8 @@ postgres_args() {
         then
                 args="-e COOG_POSTGRES_HOST=$COOG_POSTGRES_HOST"
                 [ ! -z "$COOG_POSTGRES_PORT" ] && args="$args -e COOG_POSTGRES_PORT=$COOG_POSTGRES_PORT"
-        elif [ ! -z "$POSTGRES_CONTAINER" ]
-        then
-                args="--link $POSTGRES_CONTAINER:postgres"
-                args="$args -e COOG_POSTGRES_HOST=postgres"
         else
-                return 0
+                args="$args -e COOG_POSTGRES_HOST=$NETWORK_NAME-postgres"
         fi
         echo "$args"
 }
@@ -39,12 +35,8 @@ redis_args() {
         then
                 args="-e COOG_REDIS_HOST=$COOG_REDIS_HOST"
                 [ ! -z "$COOG_REDIS_PORT" ] && args="$args -e COOG_REDIS_PORT=$COOG_REDIS_PORT"
-        elif [ ! -z "$REDIS_CONTAINER" ]
-        then
-                args="--link $REDIS_CONTAINER:redis"
-                args="$args -e COOG_REDIS_HOST=redis"
         else
-                return 0
+                args="$args -e COOG_REDIS_HOST=$NETWORK_NAME-redis"
         fi
         echo "$args"
 }
@@ -80,15 +72,9 @@ sentry_args() {
         local args
         if [ -z "$COOG_SENTRY_PROTOCOL" ] || [ -z "$COOG_SENTRY_HOST" ] || [ -z "$COOG_SENTRY_PORT" ]
         then
-                if [ ! -z "$SENTRY_CONTAINER" ]
-                then
-                        args="--link $SENTRY_CONTAINER:sentry"
-                        COOG_SENTRY_PROTOCOL=http
-                        COOG_SENTRY_HOST=sentry
-                        COOG_SENTRY_PORT=9000
-                else
-                        return
-                fi
+                COOG_SENTRY_PROTOCOL=http
+                COOG_SENTRY_HOST="$NETWORK_NAME-sentry"
+                COOG_SENTRY_PORT=9000
         fi
         if [ ! -z "$COOG_SENTRY_PUB" ] && [ ! -z "$COOG_SENTRY_SEC" ] && [ ! -z "$COOG_SENTRY_PROJECT" ]
         then
@@ -136,56 +122,27 @@ _edit_cron() {
         crontab -e
 }
 
-_version() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" version
+_docker() {
+        [ -z "$1" ] && echo missing container && return 1
+        local cont; cont=$1; shift
+        docker "$@" "$NETWORK_NAME-coog-$cont"
 }
 
-_env() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" env
-}
-
-_conf() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" conf
-}
-
-_admin() {
-        docker run -ti --rm $(_args) "$COOG_IMAGE" admin -v -d "$COOG_DB_NAME" "$@"
-}
-
-_cron() {
-        docker run -d $(_args) --name "$COOG_CONTAINER-cron" "$COOG_IMAGE" cron "$@"
-}
-
-_server() {
-        docker run -d $(_args) --name "$COOG_CONTAINER" "$COOG_IMAGE" server "$@"
-}
-
-_celery() {
-        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
-        docker run -d $(_args) --name "$COOG_CONTAINER-celery-$COOG_DB_NAME" "$COOG_IMAGE" celery "$@"
-}
-
-_rq() {
-        [ -z "$COOG_DB_NAME" ] && echo no db name && return 1
-        [ -z "$1" ] && echo missing args && return 1
-        local id; id=$1; shift
-        docker run -d $(_args) --name "$COOG_CONTAINER-rq-$COOG_DB_NAME-$id" "$COOG_IMAGE" rq "$@"
-}
-
-_batch() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" batch "$@"
-}
-
-_chain() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" chain "$@"
-}
-
-_redis() {
-        docker run -t --rm $(_args) "$COOG_IMAGE" redis "$@"
-}
-
-_action() {
-        docker "$@" "$COOG_CONTAINER"
+_image() {
+        [ -z "$1" ] && echo missing command && return 1
+        local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
+        local args
+        if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
+        then
+                args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
+        elif [ "$cmd" = "admin" ]
+        then
+                args="$DOCKER_INTERACTIVE_OPTS"
+        else
+                args="$DOCKER_PIPED_OPTS"
+        fi
+        shift
+        docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
 }
 
 ########

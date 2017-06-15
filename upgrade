@@ -12,21 +12,175 @@ get_dir() {
         echo "$script_dir"
 }
 
-clear_cache() {
+docker_image() {
+        [ -z "$1" ] && return 1
+        docker images --format '{{.Repository}}:{{.Tag}}' --filter "reference=$1"
+}
+
+docker_last_image() {
+        docker images --format '{{.Repository}}:{{.Tag}}' | head -1
+}
+
+docker_container() {
+        [ -z "$1" ] && return 1
+        docker ps --format '{{.Names}}' --filter "name=$NETWORK_NAME-$1"
+}
+
+cache_clear() {
         [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
 }
+
+database_backup() {
+        local file_name
+        file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
+        if [ -z "$COOG_POSTGRES_HOST" ]
+        then
+                docker run \
+                        $DOCKER_PIPED_OPTS \
+                        --network "$NETWORK_NAME" \
+                        -e PGHOST="$NETWORK_NAME" \
+                        -e PGUSER="$POSTGRES_USER" \
+                        -e PGPASSWORD="$POSTGRES_PASSWORD" \
+                        -v "/tmp:/tmp" \
+                        "$POSTGRES_IMAGE" \
+                        pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
+        else
+                docker run \
+                        $DOCKER_PIPED_OPTS \
+                        -e PGHOST="$COOG_POSTGRES_HOST" \
+                        -e PGUSER="$POSTGRES_USER" \
+                        -e PGPASSWORD="$POSTGRES_PASSWORD" \
+                        -v "/tmp:/tmp" \
+                        "$POSTGRES_IMAGE" \
+                        pg_dump -F c "$COOG_DB_NAME" > "/tmp/$file_name"
+        fi
+}
+
+database_update() {
+        "$dir/coog" admin -u ir "$@"
+}
+
+print_help() {
+        echo "This command upgrades Coog installation"
+        echo
+        echo "Command options:"
+        echo "  -t <image-tag>"
+        echo "  -a <image-archive>"
+        echo "  -s <server-workers-number>"
+        echo "  -c <celery-workers-number>"
+        echo "  -b : backup database"
+        echo "  -u : update database"
+        echo "  -h : print this help"
+        echo
+        echo "Extra parameters will be forwarded to the database update command"
+}
+
+while getopts "t:a:s:c:buh" opt
+do
+        case "$opt" in
+                t) COOG_IMAGE_TAG="$OPTARG"
+                        ;;
+                a) COOG_IMAGE_ARCHIVE="$OPTARG"
+                        ;;
+                s) COOG_SERVER_WORKERS="$OPTARG"
+                        ;;
+                c) COOG_CELERY_WORKERS="$OPTARG"
+                        ;;
+                b) COOG_DB_BACKUP=y
+                        ;;
+                u) COOG_DB_UPDATE=y
+                        ;;
+                h) print_help && exit 0
+                        ;;
+        esac
+done
+shift $((OPTIND-1))
 
 main() {
         local dir
         dir=$(get_dir)
         source "$dir/config"
-        docker load -i "$1" || exit $?
-        echo COOG_IMAGE="$(docker images --format '{{.Repository}}:{{.Tag}}' | head -1)" >> "$PREFIX/config"
-        "$dir/coog" rm -f
-        clear_cache
-        "$dir/coog" admin -u ir
-        clear_cache
-        "$dir/coog" server "$2"
+        [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+        if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
+        then
+                echo
+                echo "loading image from $COOG_IMAGE_ARCHIVE"
+                docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
+                COOG_IMAGE_TAG="$(docker_last_image)"
+        fi
+        if [ "$COOG_IMAGE_TAG" != "-" ]
+        then
+                local img
+                img=$(docker_image "$COOG_IMAGE_TAG")
+                echo
+                if [ ! -z "$img" ]
+                then
+                        echo "adding $COOG_IMAGE_TAG image to config"
+                        echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
+                else
+                        echo "$COOG_IMAGE_TAG image not found"
+                        return 1
+                fi
+        fi
+        local nginx_container
+        nginx_container=$(docker_container nginx)
+        echo
+        if [ ! -z "$nginx_container" ]
+        then
+                echo "removing nginx container"
+                "$dir/nginx" rm -f
+        else
+                echo "no nginx container running"
+        fi
+        local server_container
+        server_container=$(docker_container coog-server)
+        echo
+        if [ ! -z "$server_container" ]
+        then
+                echo "removing server container"
+                "$dir/coog" -- server rm -f
+        else
+                echo "no server container running"
+        fi
+        local celery_container
+        celery_container=$(docker_container coog-celery)
+        echo
+        if [ ! -z "$celery_container" ]
+        then
+                echo "removing celery container"
+                "$dir/coog" -- celery rm -f
+        else
+                echo "no celery container running"
+        fi
+        echo
+        echo "clearing cache" && { cache_clear || return $?; }
+        if [ "$COOG_DB_BACKUP" = y ]
+        then
+                echo "backup database" && { database_backup || return $?; }
+        fi
+        if [ "$COOG_DB_UPDATE" = y ]
+        then
+                echo "updating database" && { database_update "$@" || return $?; }
+                echo "clearing cache" && { cache_clear || return $?; }
+        fi
+        if [ ! -z "$celery_container" ]
+        then
+                echo
+                echo "starting celery container"
+                "$dir/coog" celery "$COOG_CELERY_WORKERS"
+        fi
+        if [ ! -z "$server_container" ]
+        then
+                echo
+                echo "starting server container"
+                "$dir/coog" server "$COOG_SERVER_WORKERS"
+        fi
+        if [ ! -z "$nginx_container" ]
+        then
+                echo
+                echo "starting nginx container"
+                "$dir/nginx" run
+        fi
 }
 
 main "$@"
