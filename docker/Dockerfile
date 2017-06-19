@@ -32,7 +32,7 @@ RUN pip install \
         wrapt \
         werkzeug \
         simpleeval \
-        ldap3 \
+        "ldap3<2.0" \
         requests \
         raven \
         redis \
