@@ -265,7 +265,7 @@ _daily() {
         . "$COOG_ROOT/coog/bin/coog-batch"
         . "$COOG_ROOT/coog/bin/coog-chain"
         . "$COOG_ROOT/coog/bin/coog-module"
-        . "$COOG_ROOT/coog/bin/daily"
+        . "$COOG_ROOT/coog/bin/coog-daily"
         PGHOST="$COOG_POSTGRES_HOST" \
             PGPASSWORD="$COOG_DB_PASSWORD" \
             PGUSER="$COOG_DB_USER" \
