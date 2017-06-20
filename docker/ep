@@ -269,7 +269,7 @@ _daily() {
         PGHOST="$COOG_POSTGRES_HOST" \
             PGPASSWORD="$COOG_DB_PASSWORD" \
             PGUSER="$COOG_DB_USER" \
-            PGDATABASE="$COOG_DB_NAME" daily_main "$@"
+            PGDATABASE="$COOG_DB_NAME" coog_daily_main "$@"
 }
 
 ########
