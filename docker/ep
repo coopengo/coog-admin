@@ -257,6 +257,21 @@ _redis() {
         coog_redis_eval "$@"
 }
 
+_daily() {
+        _init || return $?
+        . "$COOG_ROOT/coog/bin/coog-redis"
+        . "$COOG_ROOT/coog/bin/coog-celery"
+        . "$COOG_ROOT/coog/bin/coog-rq"
+        . "$COOG_ROOT/coog/bin/coog-batch"
+        . "$COOG_ROOT/coog/bin/coog-chain"
+        . "$COOG_ROOT/coog/bin/coog-module"
+        . "$COOG_ROOT/coog/bin/coog-daily"
+        PGHOST="$COOG_POSTGRES_HOST" \
+            PGPASSWORD="$COOG_DB_PASSWORD" \
+            PGUSER="$COOG_DB_USER" \
+            PGDATABASE="$COOG_DB_NAME" coog_daily_main "$@"
+}
+
 ########
 # main #
 ########
@@ -276,6 +291,7 @@ usage() {
         echo "  batch         -> executes batch - <name> [args *]"
         echo "  chain         -> executes batch chain - <module> <chain> [args *]"
         echo "  redis         -> executes redis script - <context> [args *]"
+        echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
         echo
 }
 
@@ -295,6 +311,7 @@ main() {
         [ "$cmd" = batch ] && { _batch "$@"; return $?; }
         [ "$cmd" = chain ] && { _chain "$@"; return $?; }
         [ "$cmd" = redis ] && { _redis "$@"; return $?; }
+        [ "$cmd" = daily ] && { _daily "$@"; return $?; }
         echo "Not supported command" && return 1
 }
 
