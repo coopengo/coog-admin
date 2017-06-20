@@ -10,23 +10,23 @@ get_dir() {
 
 _args() {
         local args
-        args="$args --link $REDIS_CONTAINER:redis -e COOG_API_REDIS_URL=//redis:6379 -e COOG_API_REDIS_DB=$API_REDIS_DB"
-        args="$args --link $NGINX_CONTAINER:coog -e COOG_API_COOG_URL=http://coog:80 -e COOG_API_COOG_DB=$COOG_DB_NAME"
+        args="$args -e COOG_API_REDIS_URL=//$NETWORK_NAME-redis:6379 -e COOG_API_REDIS_DB=$API_REDIS_DB"
+        args="$args -e COOG_API_COOG_URL=http://$NETWORK_NAME-nginx:80 -e COOG_API_COOG_DB=$COOG_DB_NAME"
         args="$args -p 30$NGINX_PUB_PORT:3000"
         [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
         echo "$args"
-
 }
 
 _run() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
-                --name "$API_CONTAINER" \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-api" \
                 $(_args) "$API_IMAGE" "$@"
 }
 
 _docker() {
-        docker "$@" "$API_CONTAINER"
+        docker "$@" "$NETWORK_NAME-api"
 }
 
 usage() {
