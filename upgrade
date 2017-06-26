@@ -43,7 +43,7 @@ database_backup() {
                 docker run \
                         $DOCKER_PIPED_OPTS \
                         --network "$NETWORK_NAME" \
-                        -e PGHOST="$NETWORK_NAME" \
+                        -e PGHOST="$NETWORK_NAME-postgres" \
                         -e PGUSER="$POSTGRES_USER" \
                         -e PGPASSWORD="$POSTGRES_PASSWORD" \
                         -v "/tmp:/tmp" \
