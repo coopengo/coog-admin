@@ -34,13 +34,25 @@ client() {
 }
 
 dump() {
-        docker run \
-                $DOCKER_PIPED_OPTS \
-                --network "$NETWORK_NAME" \
-                -e "PGPASSWORD=$PGPASSWORD" \
-                -v "/tmp:/tmp" \
-                "$POSTGRES_IMAGE" \
-                pg_dump -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
+        if [ -z "$COOG_POSTGRES_HOST" ]
+        then
+                docker run \
+                        $DOCKER_PIPED_OPTS \
+                        --network "$NETWORK_NAME" \
+                        -e PGHOST="$NETWORK_NAME-postgres" \
+                        -e PGUSER="$COOG_DB_USER" \
+                        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+                        "$POSTGRES_IMAGE" \
+                        pg_dump "$COOG_DB_NAME" "$@"
+        else
+                docker run \
+                        $DOCKER_PIPED_OPTS \
+                        -e PGHOST="$COOG_POSTGRES_HOST" \
+                        -e PGUSER="$COOG_DB_USER" \
+                        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+                        "$POSTGRES_IMAGE" \
+                        pg_dump "$COOG_DB_NAME" "$@"
+        fi
 }
 
 action() {
@@ -60,6 +72,9 @@ usage() {
 
 main() {
         source "$(get_dir)/config"
+        [ ! -z "$PGUSER" ] && COOG_DB_USER="$PGUSER"
+        [ ! -z "$PGPASSWORD" ] && COOG_DB_PASSWORD="$PGPASSWORD"
+        [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
         #
         [ -z "$1" ] && usage && return 0
         local cmd; cmd=$1; shift
