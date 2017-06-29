@@ -8,51 +8,41 @@ get_dir() {
 
 dump_database() {
     backup_path="$1"
-    ./postgres dump > $backup_path
+    ./postgres dump -Fc > "$BACKUP_DIRECTORY/$backup_path"
 }
 
 dump_attachments() {
     backup_path="$1"
-    cd $COOG_DATA/coog/edm/ && tar -cz -f "$backup_path" $db_name
-    cd -
+    (cd $COOG_DATA/coog/edm/ && 
+        tar -cz -f "$BACKUP_DIRECTORY/$backup_path" "$COOG_DB_NAME")
 }
 
 usage() {
     echo
     echo "Backup command:"
     echo
-    echo "  Backup database and attachments in /mnt/coog_backup/"
-    echo
-    echo "Usage:"
-    echo 
-    echo "  PGPASSWORD=<postgres_password> ./backup"
+    echo "  Backup database and attachments in $BACKUP_DIRECTORY/"
     echo
 }
 
 main() {
     source "$(get_dir)/config"
-    [[ $# -ne 0 || -z $PGPASSWORD ]] && usage && exit 1
-    [[ -z "$COOG_DATA" ]] && echo "\$COOG_DATA must be set" && exit 1
-
-    container_name="$NETWORK_NAME-postgres"
-    db_name="$COOG_DB_NAME"
-
-    echo $PGPASSWORD
+    [[ $# -ne 0 || ! -z $PGPASSWORD ]] && usage && exit 1
 
     if [[ $(date '+%m%d') == 0101 ]]; then
-        dump_database "/mnt/coog_backup/db-$(date '+%Y').dump.gz"
+        dump_database "db-$COOG_DB_NAME-$(date '+%Y').dump.gz"
     fi
 
     if [[ $(date '+%d') == 01 ]]; then
-        dump_database "/mnt/coog_backup/db-$(date '+%B').dump.gz"
+        dump_database "db-$COOG_DB_NAME-$(date '+%B').dump.gz"
     fi
 
     if [[ $(date '+%u') == 0 ]]; then
-        dump_database "/mnt/coog_backup/db-week-$(date '+%V').dump.gz"
+        dump_database "db-$COOG_DB_NAME-week-$(date '+%V').dump.gz"
     fi
 
-    dump_database "/mnt/coog_backup/db-$db_name-$(date '+%A').dump.gz"
-    dump_attachments "/mnt/coog_backup/attachments-$db_name-$(date '+%A').tar.gz"
+    dump_database "db-$COOG_DB_NAME-$(date '+%A').dump.gz"
+    dump_attachments "attachments-$COOG_DB_NAME-$(date '+%A').tar.gz"
 }
 
 main "$@"
