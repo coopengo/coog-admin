@@ -136,7 +136,7 @@ _image() {
         [ -z "$1" ] && echo missing command && return 1
         local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
         local args
-        if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
+        if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ] || [ "$cmd" = "cron" ]
         then
                 args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
         elif [ "$cmd" = "admin" ]
