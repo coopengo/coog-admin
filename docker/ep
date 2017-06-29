@@ -320,7 +320,6 @@ main() {
         [ "$cmd" = redis ] && { _redis "$@"; return $?; }
         [ "$cmd" = daily ] && { _daily "$@"; return $?; }
         [ "$cmd" = cron ] && { _cron "$@"; return $?; }
-
         echo "Not supported command" && return 1
 }
 
