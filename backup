@@ -28,19 +28,19 @@ main() {
     [[ $# -ne 0 ]] && usage && exit 1
 
     if [[ $(date '+%m%d') == 0101 ]]; then
-        dump_database "db-$USER-$(date '+%Y').dump.gz"
+        dump_database "db-$USER-$COOG_DB_NAME-$(date '+%Y').dump.gz"
     fi
 
     if [[ $(date '+%d') == 01 ]]; then
-        dump_database "db-$USER-$(date '+%B').dump.gz"
+        dump_database "db-$USER-$COOG_DB_NAME-$(date '+%B').dump.gz"
     fi
 
     if [[ $(date '+%u') == 0 ]]; then
-        dump_database "db-$USER-week-$(date '+%V').dump.gz"
+        dump_database "db-$USER-$COOG_DB_NAME-week-$(date '+%V').dump.gz"
     fi
 
-    dump_database "db-$USER-$(date '+%A').dump.gz"
-    dump_attachments "attachments-$USER-$(date '+%A').tar.gz"
+    dump_database "db-$USER-$COOG_DB_NAME-$(date '+%A').dump.gz"
+    dump_attachments "attachments-$USER-$COOG_DB_NAME-$(date '+%A').tar.gz"
 }
 
 main "$@"
