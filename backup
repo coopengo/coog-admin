@@ -1,0 +1,46 @@
+#!/bin/bash
+
+get_dir() {
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
+}
+
+dump_database() {
+    "$(get_dir)"/postgres dump -Fc > "$BACKUP_DIRECTORY/$1"
+}
+
+dump_attachments() {
+    (cd $COOG_DATA/coog/edm/ && 
+        tar -cz -f "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
+}
+
+usage() {
+    echo
+    echo "Backup command:"
+    echo
+    echo "  Backup database and attachments in $BACKUP_DIRECTORY/"
+    echo
+}
+
+main() {
+    source "$(get_dir)/config"
+    [[ $# -ne 0 ]] && usage && exit 1
+
+    if [[ $(date '+%m%d') == 0101 ]]; then
+        dump_database "db-$COOG_DB_NAME-$(date '+%Y').dump.gz"
+    fi
+
+    if [[ $(date '+%d') == 01 ]]; then
+        dump_database "db-$COOG_DB_NAME-$(date '+%B').dump.gz"
+    fi
+
+    if [[ $(date '+%u') == 0 ]]; then
+        dump_database "db-$COOG_DB_NAME-week-$(date '+%V').dump.gz"
+    fi
+
+    dump_database "db-$COOG_DB_NAME-$(date '+%A').dump.gz"
+    dump_attachments "attachments-$COOG_DB_NAME-$(date '+%A').tar.gz"
+}
+
+main "$@"
