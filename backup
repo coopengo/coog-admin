@@ -7,14 +7,12 @@ get_dir() {
 }
 
 dump_database() {
-    backup_path="$1"
-    ./postgres dump -Fc > "$BACKUP_DIRECTORY/$backup_path"
+    "$(get_dir)"/postgres dump -Fc > "$BACKUP_DIRECTORY/$1"
 }
 
 dump_attachments() {
-    backup_path="$1"
     (cd $COOG_DATA/coog/edm/ && 
-        tar -cz -f "$BACKUP_DIRECTORY/$backup_path" "$COOG_DB_NAME")
+        tar -cz -f "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
 }
 
 usage() {
@@ -27,7 +25,7 @@ usage() {
 
 main() {
     source "$(get_dir)/config"
-    [[ $# -ne 0 || ! -z $PGPASSWORD ]] && usage && exit 1
+    [[ $# -ne 0 ]] && usage && exit 1
 
     if [[ $(date '+%m%d') == 0101 ]]; then
         dump_database "db-$COOG_DB_NAME-$(date '+%Y').dump.gz"
