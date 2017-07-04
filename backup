@@ -27,6 +27,8 @@ main() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
+    [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
+
     if [[ $(date '+%m%d') == 0101 ]]; then
         dump_database "db-$COOG_DB_NAME-$(date '+%Y').dump.gz"
     fi

@@ -1,9 +1,7 @@
-from node:8-alpine
+from alpine:3.6
 
-COPY sync.js /root/sync.js
+RUN apk add --no-cache rsync inotify-tools
 
-WORKDIR /root
+COPY sync /bin/coog-sync
 
-RUN npm i node-watch minimist && npm cache clean --force && rm -rf /root/.node-gyp
-
-ENTRYPOINT ["node", "/root/sync.js"]
+ENTRYPOINT ["/bin/coog-sync"]

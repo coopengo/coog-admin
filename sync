@@ -9,7 +9,7 @@ get_dir() {
 }
 
 _build() {
-    (cd $(get_dir)/images/sync && docker build -t coog/sync:latest .)
+    (cd $(get_dir)/images/sync && docker build -t coog/sync .)
 }
 
 _run() {
@@ -18,12 +18,12 @@ _run() {
                 --network "$NETWORK_NAME" \
                 --name "$NETWORK_NAME-sync" \
                 -v "$SYNC_SRC:/src" \
-                -v "$SYNC_DEST:/dest"
-                "$SYNC_IMAGE" -s /src -d /dest
+                -v "$SYNC_DEST:/dest" \
+                "$SYNC_IMAGE" /src/ /dest/
 }
 
 _docker() {
-        docker "$@" "$NETWORK_NAME-app"
+        docker "$@" "$NETWORK_NAME-sync"
 }
 
 usage() {
