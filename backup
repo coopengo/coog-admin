@@ -17,30 +17,53 @@ dump_attachments() {
 
 usage() {
     echo
-    echo "Backup command:"
+    echo "Available command:"
     echo
-    echo "  Backup database and attachments in $BACKUP_DIRECTORY/"
+    echo "  save    -> Backup database and attachments in $BACKUP_DIRECTORY/"
+    echo "  clean   -> Remove old backups "
     echo
 }
 
-main() {
+save() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
     if [[ $(date '+%m%d') == 0101 ]]; then
-        dump_database "db-$USER-$COOG_DB_NAME-$(date '+%Y').dump.gz"
+        dump_database "$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%d') == 01 ]]; then
-        dump_database "db-$USER-$COOG_DB_NAME-$(date '+%B').dump.gz"
+        dump_database "$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%u') == 0 ]]; then
-        dump_database "db-$USER-$COOG_DB_NAME-week-$(date '+%V').dump.gz"
+        dump_database "week-$(date '+%V')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$week-(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
-    dump_database "db-$USER-$COOG_DB_NAME-$(date '+%A').dump.gz"
-    dump_attachments "attachments-$USER-$COOG_DB_NAME-$(date '+%A').tar.gz"
+    dump_database "$(date '+%Y%m%d')-daily-db-$USER-$COOG_DB_NAME.dump.gz"
+    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$USER-$COOG_DB_NAME.tar.gz"
+}
+
+clean() {
+    while [[ $(ls -d $BACKUP_DIRECTORY/*daily-db*) -gt 7 ]]; do
+        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-db" | tail -1)
+    done
+
+    while [[ $(ls -d $BACKUP_DIRECTORY/*daily-attachments*) -gt 7 ]]; do
+        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-attachments" | tail -1)
+    done
+}
+
+main() {
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd=$1; shift
+    #
+    [ "$cmd" = "save" ] && { save "$@"; return $?; }
+    [ "$cmd" = "clean" ] && { clean "$@"; return $?; }
+    action "$cmd" "$@"
 }
 
 main "$@"
