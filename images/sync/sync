@@ -1,7 +1,7 @@
 #!/bin/sh
 
 log() {
-    echo "$(date +'% %T')" "$1"
+    echo "$(date +'%D %T')" "$1"
 }
 
 main() {
