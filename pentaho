@@ -1,0 +1,101 @@
+#!/bin/bash
+# vim: set ft=sh:
+
+ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
+         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
+         -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
+
+
+get_dir() {
+        local script_path; script_path=$(readlink -f "$0")
+        local script_dir; script_dir=$(dirname "$script_path")
+        echo "$script_dir"
+}
+
+init() {
+	[ -e "$PENTAHO_CONF" ] && echo backup old config before && return 1
+	cp "$(get_dir)/defaults/pentaho.conf" "$PENTAHO_CONF"
+	echo Change datawarehouse connection settings in $PENTAHO_CONF
+}
+
+_build(){
+#	(cd $(get_dir)/images/bi/ && docker-compose build)
+	docker build -t bi_pentaho ./images/bi/pentaho/
+	docker build -t bi_pentaho ./images/bi/biserver/
+	docker system prune
+}
+
+
+usage() {
+        echo
+        echo " Available commands Global(g), Server(s), Etl(e)"
+        echo
+	echo "  build			-> (g,s,e) build pentaho images"
+	echo "  init			-> (g)     init pentaho.conf"
+	echo "  run			-> (g,s,e) run server and etl image"
+	echo "  <action>		-> (g,s,e) calls docker action on pentaho container"
+        echo "  <images> <command>	-> (s,e)   launch commands for specific pentaho image"
+	echo "  import			-> (s)     import default dashboard and cube"
+	echo 
+	echo Available images put it at then end ofdd command line
+	echo
+	echo "  etl			-> datawarehouse construction image"
+	echo "  server			-> reporting server image"
+	echo
+}
+
+launch() {
+	echo 
+	echo Running docker should need 5 more arguments for datawarehouse connection
+	echo
+	echo "run <DW_HOSTNAME> <DW_DB> <DW_PORT> <DW_USER> <DW_PASSWORD> \"<etl>\"" 
+	echo
+}
+_server(){
+	[ "$cmd" = "build" ] && docker build -t bi_server ./images/bi/biserver/
+	[ "$cmd" = "run" ] && docker run --name biserver -d --link postgres:postgres -e PGHOST=$DW_HOSTNAME -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server
+}
+_etl(){
+	[ "$cmd" = "etl" ] && usage && return 0
+	[ "$cmd" = "build" ] && docker build -t bi_pentaho ./images/bi/pentaho/
+	[ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
+}
+
+_etl_run(){
+	docker run --rm $ETL_ENV bi_pentaho 
+}
+
+_import(){
+	docker ps | grep bi_server
+	[ "$?" != 0 ] && echo "Server need to run, ./pentaho run server OR ./pentaho run" && return 1
+	docker run --rm --name biserver_import --link biserver:biserver --entrypoint "/opt/pentaho/scripts/import_file.sh" bi_server:latest
+}
+
+_run() {
+	[ -z "$5" ] && launch && return 0
+	(cd $(get_dir()/images/bi && sh launch.sh $1 $2 $3 $4 $5))
+}
+
+main(){
+
+	source "$(get_dir)/config"
+	#
+	[ -z "$1" ] && usage && return 0
+	for img; do true; done
+	local cmd; cmd="$1"; shift
+	[ "$cmd" = "init" ] && { init; return $?; }
+	[ ! -e "$PENTAHO_CONF" ] && echo "You need to run: './pentaho init'" && return 1
+	source $PENTAHO_CONF
+	ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
+         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
+         -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
+
+	[ "$img" = "etl" ] && { _etl $@; return $?; }
+	[ "$img" = "server" ] && { _server; return $?; }
+	#
+	[ "$cmd" = "run" ] && { _run $@; return $?; }
+	[ "$cmd" = "build" ] && { _build; return $?; }
+	[ "$cmd" = "import" ] && { _import; return $?; }
+}
+
+main "$@"
