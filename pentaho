@@ -1,9 +1,6 @@
 #!/bin/bash
 # vim: set ft=sh:
 
-ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
-         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
-         -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
 
 
 get_dir() {
@@ -16,19 +13,23 @@ init() {
 	[ -e "$PENTAHO_CONF" ] && echo backup old config before && return 1
 	cp "$(get_dir)/defaults/pentaho.conf" "$PENTAHO_CONF"
 	echo Change datawarehouse connection settings in $PENTAHO_CONF
+	# git pull $ADDRESS pull x version
+	# Ou mettre le git folder ?? deux git (etl et server) ou unique taille(-5 Mo)
+	# /usr/lib/coog/bi ? 
 }
 
 _build(){
 #	(cd $(get_dir)/images/bi/ && docker-compose build)
+	# TODO changer avec le git folder
 	docker build -t bi_pentaho ./images/bi/pentaho/
-	docker build -t bi_pentaho ./images/bi/biserver/
+	docker build -t bi_server ./images/bi/biserver/
 	docker system prune
 }
 
 
 usage() {
         echo
-        echo " Available commands Global(g), Server(s), Etl(e)"
+        echo "  Available commands Global(g), Server(s), Etl(e)"
         echo
 	echo "  build			-> (g,s,e) build pentaho images"
 	echo "  init			-> (g)     init pentaho.conf"
@@ -52,13 +53,19 @@ launch() {
 	echo
 }
 _server(){
-	[ "$cmd" = "build" ] && docker build -t bi_server ./images/bi/biserver/
-	[ "$cmd" = "run" ] && docker run --name biserver -d --link postgres:postgres -e PGHOST=$DW_HOSTNAME -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server
+	# TODO changer avec le git folder
+	[ "$cmd" = "build" ] && docker build -t bi_server ./images/bi/biserver/ && return 0;
+	[ "$cmd" = "run" ] && { _server_run; return $?; } 
+	set -- "${@:1:$(($#-1))}" 
+	docker $cmd $@ biserver
 }
 _etl(){
+	# TODO changer avec le git folder
 	[ "$cmd" = "etl" ] && usage && return 0
-	[ "$cmd" = "build" ] && docker build -t bi_pentaho ./images/bi/pentaho/
+	[ "$cmd" = "build" ] && docker build -t bi_pentaho ./images/bi/pentaho/ && return 0;
 	[ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
+	set -- "${@:1:$(($#-1))}" 
+	docker $cmd $@ pentaho	
 }
 
 _etl_run(){
@@ -72,30 +79,47 @@ _import(){
 }
 
 _run() {
-	[ -z "$5" ] && launch && return 0
-	(cd $(get_dir()/images/bi && sh launch.sh $1 $2 $3 $4 $5))
+	_etl_run & _server_run && _import
 }
 
+_server_run(){
+	docker run --name biserver -d --link postgres:postgres -e PGHOST=$DW_HOSTNAME -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
+}
+
+_docker(){
+	docker ps | grep pentaho
+	[ "$?" != 0 ] && docker $cmd $@ pentaho
+	docker ps | grep biserver
+	[ "$?" != 0 ] && docker $cmd $@ biserver
+}
 main(){
 
 	source "$(get_dir)/config"
 	#
 	[ -z "$1" ] && usage && return 0
+
 	for img; do true; done
+
 	local cmd; cmd="$1"; shift
+
 	[ "$cmd" = "init" ] && { init; return $?; }
+	
 	[ ! -e "$PENTAHO_CONF" ] && echo "You need to run: './pentaho init'" && return 1
+		
 	source $PENTAHO_CONF
+	
 	ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
          -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
          -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
 
 	[ "$img" = "etl" ] && { _etl $@; return $?; }
-	[ "$img" = "server" ] && { _server; return $?; }
+	[ "$img" = "server" ] && { _server $@; return $?; }
 	#
 	[ "$cmd" = "run" ] && { _run $@; return $?; }
 	[ "$cmd" = "build" ] && { _build; return $?; }
 	[ "$cmd" = "import" ] && { _import; return $?; }
+	
+	docker $@
 }
 
 main "$@"
