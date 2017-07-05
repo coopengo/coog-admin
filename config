@@ -28,9 +28,6 @@ NETWORK_NAME=$USER
 [ -z "$DOCKER_PIPED_OPTS" ] && DOCKER_PIPED_OPTS="--rm"
 [ -z "$DOCKER_INTERACTIVE_OPTS" ] && DOCKER_INTERACTIVE_OPTS="-it --rm"
 
-[ ! -d "$BACKUP_DIRECTORY" ] && BACKUP_DIRECTORY="/mnt/coog_backup"
-mkdir -p "$BACKUP_DIRECTORY"
-
 #-------------------------------------------------------------------------------#
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#
@@ -119,13 +116,6 @@ API_IMAGE=coog/api:master               # docker image
 APP_IMAGE=coog/app:master               # docker image
 
 #-------------------------------------------------------------------------------#
-# APP CONFIG
-#-------------------------------------------------------------------------------#
-
-APP_IMAGE=coog/app:master               # docker image
-APP_CONTAINER=$USER-app                 # docker container
-
-#-------------------------------------------------------------------------------#
 # PAYBOX CONFIG
 #-------------------------------------------------------------------------------#
 
@@ -148,7 +138,13 @@ NGINX_PUB_PORT=80                       # host mapped port
 
 SYNC_IMAGE=coog/sync:latest             # docker image
 SYNC_SRC=$COOG_VOLUME                   # source volume
-SYNC_DEST=/mnt/coog                     # destination volume
+SYNC_DEST=/home/$USER/.sync             # destination volume
+
+#-------------------------------------------------------------------------------#
+# BACKUP CONFIG
+#-------------------------------------------------------------------------------#
+
+BACKUP_DIRECTORY=/mnt/coog_backup
 
 #-------------------------------------------------------------------------------#
 # PENTAHO CONFIG
