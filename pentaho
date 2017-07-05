@@ -38,7 +38,7 @@ usage() {
         echo "  <images> <command>	-> (s,e)   launch commands for specific pentaho image"
 	echo "  import			-> (s)     import default dashboard and cube"
 	echo 
-	echo Available images put it at then end ofdd command line
+	echo Available images put it at the then end of the command line
 	echo
 	echo "  etl			-> datawarehouse construction image"
 	echo "  server			-> reporting server image"
@@ -47,7 +47,7 @@ usage() {
 
 launch() {
 	echo 
-	echo Running docker should need 5 more arguments for datawarehouse connection
+	echo Running docker needs 5 more arguments for datawarehouse connection
 	echo
 	echo "run <DW_HOSTNAME> <DW_DB> <DW_PORT> <DW_USER> <DW_PASSWORD> \"<etl>\"" 
 	echo
@@ -74,7 +74,7 @@ _etl_run(){
 
 _import(){
 	docker ps | grep bi_server
-	[ "$?" != 0 ] && echo "Server need to run, ./pentaho run server OR ./pentaho run" && return 1
+	[ "$?" != 0 ] && echo "Server needs to run, ./pentaho run server OR ./pentaho run" && return 1
 	docker run --rm --name biserver_import --link biserver:biserver --entrypoint "/opt/pentaho/scripts/import_file.sh" bi_server:latest
 }
 
