@@ -48,13 +48,16 @@ save() {
 }
 
 clean() {
-    while [[ $(ls -d $BACKUP_DIRECTORY/*daily-db*) -gt 7 ]]; do
-        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-db" | tail -1)
-    done
+    stock_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
+    stock_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
 
-    while [[ $(ls -d $BACKUP_DIRECTORY/*daily-attachments*) -gt 7 ]]; do
-        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-attachments" | tail -1)
-    done
+    if [[ $stock_db -gt 0 ]]; then
+        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-db" | tail -$stock_db)
+    fi
+
+    if [[ $stock_attach -gt 0 ]]; then
+        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-attachments" | tail -$stock_attach)
+    fi
 }
 
 main() {
