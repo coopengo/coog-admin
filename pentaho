@@ -18,12 +18,23 @@ init() {
 	# /usr/lib/coog/bi ? 
 }
 
+edit() {
+        $EDITOR "$PENTAHO_CONF"
+}
+
 _build(){
 #	(cd $(get_dir)/images/bi/ && docker-compose build)
-	# TODO changer avec le git folder
-	docker build -t bi_pentaho ./images/bi/pentaho/
-	docker build -t bi_server ./images/bi/biserver/
+	mkdir $wd || return 1
+
+	git clone http://github.com/coopengo/coog-bi.git $wd
+	docker build -t bi_pentaho $wd/bi/pentaho/
+	docker build -t bi_server $wd/bi/biserver/
+	
+	rm -R $wd
+
 	docker system prune
+	
+	
 }
 
 
@@ -45,24 +56,16 @@ usage() {
 	echo
 }
 
-launch() {
-	echo 
-	echo Running docker needs 5 more arguments for datawarehouse connection
-	echo
-	echo "run <DW_HOSTNAME> <DW_DB> <DW_PORT> <DW_USER> <DW_PASSWORD> \"<etl>\"" 
-	echo
-}
 _server(){
-	# TODO changer avec le git folder
-	[ "$cmd" = "build" ] && docker build -t bi_server ./images/bi/biserver/ && return 0;
+	[ "$cmd" = "server" ] && usage && return 0
+	[ "$cmd" = "build" ] && docker build -t bi_server $wd/bi/biserver/ && return 0;
 	[ "$cmd" = "run" ] && { _server_run; return $?; } 
 	set -- "${@:1:$(($#-1))}" 
 	docker $cmd $@ biserver
 }
 _etl(){
-	# TODO changer avec le git folder
 	[ "$cmd" = "etl" ] && usage && return 0
-	[ "$cmd" = "build" ] && docker build -t bi_pentaho ./images/bi/pentaho/ && return 0;
+	[ "$cmd" = "build" ] && docker build -t bi_pentaho .$wd/bi/pentaho/ && return 0;
 	[ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
 	set -- "${@:1:$(($#-1))}" 
 	docker $cmd $@ pentaho	
@@ -79,7 +82,7 @@ _import(){
 }
 
 _run() {
-	_etl_run & _server_run && _import
+	_etl_run & _server_run
 }
 
 _server_run(){
@@ -99,13 +102,17 @@ main(){
 	[ -z "$1" ] && usage && return 0
 
 	for img; do true; done
-
+	
 	local cmd; cmd="$1"; shift
+
+	local wd; wd="$(get_dir)/workspace"
 
 	[ "$cmd" = "init" ] && { init; return $?; }
 	
 	[ ! -e "$PENTAHO_CONF" ] && echo "You need to run: './pentaho init'" && return 1
-		
+	
+	[ "$cmd" = "edit" ] && { edit; return $?; }	
+	
 	source $PENTAHO_CONF
 	
 	ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
