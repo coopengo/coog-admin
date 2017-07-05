@@ -13,25 +13,30 @@ init() {
 	[ -e "$PENTAHO_CONF" ] && echo backup old config before && return 1
 	cp "$(get_dir)/defaults/pentaho.conf" "$PENTAHO_CONF"
 	echo Change datawarehouse connection settings in $PENTAHO_CONF
-	# git pull $ADDRESS pull x version
-	# Ou mettre le git folder ?? deux git (etl et server) ou unique taille(-5 Mo)
-	# /usr/lib/coog/bi ? 
 }
 
 edit() {
         $EDITOR "$PENTAHO_CONF"
 }
 
-_build(){
-#	(cd $(get_dir)/images/bi/ && docker-compose build)
+_get_clone(){
 	mkdir $wd || return 1
 
-	git clone http://github.com/coopengo/coog-bi.git $wd
-	docker build -t bi_pentaho $wd/bi/pentaho/
-	docker build -t bi_server $wd/bi/biserver/
-	
-	rm -R $wd
+	git clone -b bi git@github.com:coopengo/coog-bi.git $wd
 
+}
+
+_del_clone(){
+	rm -R $wd
+}
+
+_build(){
+#	(cd $(get_dir)/images/bi/ && docker-compose build)
+	_get_clone
+	docker build -t bi_pentaho $wd/pentaho/
+	docker build -t bi_server $wd/biserver/
+	
+	_del_clone
 	docker system prune
 	
 	
@@ -49,7 +54,7 @@ usage() {
         echo "  <images> <command>	-> (s,e)   launch commands for specific pentaho image"
 	echo "  import			-> (s)     import default dashboard and cube"
 	echo 
-	echo Available images put it at the then end of the command line
+	echo Available images, put it at the end of the command line
 	echo
 	echo "  etl			-> datawarehouse construction image"
 	echo "  server			-> reporting server image"
@@ -58,14 +63,14 @@ usage() {
 
 _server(){
 	[ "$cmd" = "server" ] && usage && return 0
-	[ "$cmd" = "build" ] && docker build -t bi_server $wd/bi/biserver/ && return 0;
+	[ "$cmd" = "build" ] && _get_clone && docker build -t bi_server $wd/biserver/ && _del_clone && return 0;
 	[ "$cmd" = "run" ] && { _server_run; return $?; } 
 	set -- "${@:1:$(($#-1))}" 
 	docker $cmd $@ biserver
 }
 _etl(){
 	[ "$cmd" = "etl" ] && usage && return 0
-	[ "$cmd" = "build" ] && docker build -t bi_pentaho .$wd/bi/pentaho/ && return 0;
+	[ "$cmd" = "build" ] && _get_clone && docker build -t bi_pentaho .$wd/pentaho/ && _del_clone && return 0;
 	[ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
 	set -- "${@:1:$(($#-1))}" 
 	docker $cmd $@ pentaho	
