@@ -22,7 +22,7 @@ edit() {
 _get_clone(){
 	mkdir $wd || return 1
 
-	git clone -b bi git@github.com:coopengo/coog-bi.git $wd
+	git clone -b bi https://github.com/coopengo/coog-bi.git $wd
 
 }
 
@@ -42,6 +42,20 @@ _build(){
 	
 }
 
+set_postgres_args(){
+	if [ -z $COOG_DB_HOSTNAME ]
+	then
+		coog_h="--link ${NETWORK_NAME}-postgres"
+	else
+		coog_h="--link ${COOG_DB_HOSTNAME}"
+	fi
+	if [ -z $DW_HOSTNAME ]
+	then
+		dtw="--link ${NETWORK_NAME}-postgres"
+	else
+		dtw="--link ${DW_HOSTNAME}"
+	fi
+}
 
 usage() {
         echo
@@ -77,7 +91,7 @@ _etl(){
 }
 
 _etl_run(){
-	docker run --rm $ETL_ENV bi_pentaho 
+	docker run --rm $coog_h:postgres $dtw:dataw $ETL_ENV bi_pentaho && return 1 
 }
 
 _import(){
@@ -87,11 +101,11 @@ _import(){
 }
 
 _run() {
-	_etl_run & _server_run
+	_etl_run & _server_run && return $?
 }
 
 _server_run(){
-	docker run --name biserver -d --link postgres:postgres -e PGHOST=$DW_HOSTNAME -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
+	docker run --name biserver -d $dtw:dataw -e PGHOST=dataw -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
 }
 
 _docker(){
@@ -109,7 +123,7 @@ main(){
 	for img; do true; done
 	
 	local cmd; cmd="$1"; shift
-
+	local dtw; local coog_h;
 	local wd; wd="$(get_dir)/workspace"
 
 	[ "$cmd" = "init" ] && { init; return $?; }
@@ -117,10 +131,12 @@ main(){
 	[ ! -e "$PENTAHO_CONF" ] && echo "You need to run: './pentaho init'" && return 1
 	
 	[ "$cmd" = "edit" ] && { edit; return $?; }	
-	
+
 	source $PENTAHO_CONF
+		
+	set_postgres_args	
 	
-	ETL_ENV="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
+	ETL_ENV="-e COOG_HOSTNAME=$COOG_DB_HOSTNAME -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
          -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
          -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
 
