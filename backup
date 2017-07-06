@@ -11,8 +11,8 @@ dump_database() {
 }
 
 dump_attachments() {
-    (cd $COOG_DATA/coog/edm/ && 
-        tar -cz -f "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
+    (cd $COOG_DATA/coog/edm/ && [ "$(ls -A)" ] &&
+        tar czf "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
 }
 
 usage() {
@@ -48,6 +48,9 @@ save() {
 }
 
 clean() {
+    source "$(get_dir)/config"
+    [[ $# -ne 0 ]] && usage && exit 1
+
     stock_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
     stock_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
 
