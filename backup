@@ -55,11 +55,11 @@ clean() {
     stock_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
 
     if [[ $stock_db -gt 0 ]]; then
-        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-db" | tail -$stock_db)
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY | grep "daily-db" | tail -$stock_db)
     fi
 
     if [[ $stock_attach -gt 0 ]]; then
-        rm $BACKUP_DIRECTORY/$(ls -t $BACKUP_DIRECTORY | grep "daily-attachments" | tail -$stock_attach)
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY | grep "daily-attachments" | tail -$stock_attach)
     fi
 }
 
