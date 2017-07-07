@@ -140,7 +140,7 @@ main(){
 		
 	ETL_ENV="-e COOG_DB=$COOG_DB_NAME \
          -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD \
-         -e DW_DB=$DW_DB -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
+         -e DW_DB=$DW_DB_NAME -e DW_USER=$DW_DB_USER -e DW_PASSWORD=$DW_DB_PASSWORD "
 
 	[ "$img" = "etl" ] && { _etl $@; return $?; }
 	[ "$img" = "server" ] && { _server $@; return $?; }
