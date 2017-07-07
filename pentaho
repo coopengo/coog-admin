@@ -46,7 +46,8 @@ set_postgres_args(){
         if [ ! -z "$COOG_POSTGRES_HOST" ]
         then
                 args="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST"
-                [ ! -z "$COOG_POSTGRES_PORT" ] && args="$args -e COOG_PORT=$COOG_POSTGRES_PORT"
+                [ ! -z "$COOG_POSTGRES_PORT" ] \
+                    && args="$args -e COOG_PORT=$COOG_POSTGRES_PORT"
         else
                 args="$args -e COOG_HOSTNAME=${NETWORK_NAME}-postgres -e COOG_PORT=5432"
         fi
@@ -100,7 +101,9 @@ _etl(){
 
 _etl_run(){
     docker run --rm \
-        --net ${NETWORK_NAME} $ETL_ENV $(set_postgres_args) \
+        --net ${NETWORK_NAME} $ETL_ENV \
+        -e "PGPASSWORD=postgres" \
+        $(set_postgres_args) \
         bi_pentaho && return 1
 }
 
