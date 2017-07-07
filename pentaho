@@ -4,15 +4,15 @@
 
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 init() {
-	[ -e "$PENTAHO_CONF" ] && echo backup old config before && return 1
-	cp "$(get_dir)/defaults/pentaho.conf" "$PENTAHO_CONF"
-	echo Change datawarehouse connection settings in $PENTAHO_CONF
+    [ -e "$PENTAHO_CONF" ] && echo backup old config before && return 1
+    cp "$(get_dir)/defaults/pentaho.conf" "$PENTAHO_CONF"
+    echo Change datawarehouse connection settings in $PENTAHO_CONF
 }
 
 edit() {
@@ -20,29 +20,29 @@ edit() {
 }
 
 _get_clone(){
-	mkdir $wd || return 1
+    mkdir $wd || return 1
 
-	git clone -b bi https://github.com/coopengo/coog-bi.git $wd
+    git clone -b bi https://github.com/coopengo/coog-bi.git $wd
 
 }
 
 _del_clone(){
-	rm -R $wd
+    rm -R $wd
 }
 
 _build(){
-#	(cd $(get_dir)/images/bi/ && docker-compose build)
-	_get_clone
-	docker build -t bi_pentaho $wd/pentaho/
-	docker build -t bi_server $wd/biserver/
-	
-	_del_clone
-	
-	
+#    (cd $(get_dir)/images/bi/ && docker-compose build)
+    _get_clone
+    docker build -t bi_pentaho $wd/pentaho/
+    docker build -t bi_server $wd/biserver/
+    
+    _del_clone
+    
+    
 }
 
 set_postgres_args(){
-	local args
+    local args
         if [ ! -z "$COOG_POSTGRES_HOST" ]
         then
                 args="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST"
@@ -62,94 +62,117 @@ set_postgres_args(){
 }
 
 usage() {
-        echo
-        echo "  Available commands Global(g), Server(s), Etl(e)"
-        echo
-	echo "  build			-> (g,s,e) build pentaho images"
-	echo "  init			-> (g)     init pentaho.conf"
-	echo "  run			-> (g,s,e) run server and etl image"
-	echo "  <action>		-> (g,s,e) calls docker action on pentaho container"
-        echo "  <images> <command>	-> (s,e)   launch commands for specific pentaho image"
-	echo "  import			-> (s)     import default dashboard and cube"
-	echo 
-	echo Available images, put it at the end of the command line
-	echo
-	echo "  etl			-> datawarehouse construction image"
-	echo "  server			-> reporting server image"
-	echo
+    echo
+    echo "  Available commands Global(g), Server(s), Etl(e)"
+    echo
+    echo "  build               -> (g,s,e) build pentaho images"
+    echo "  init                -> (g)     init pentaho.conf"
+    echo "  run                 -> (g,s,e) run server and etl image"
+    echo "  <action>            -> (g,s,e) calls docker action on pentaho container"
+    echo "  <images> <command>  -> (s,e)   launch commands for specific pentaho image"
+    echo "  import              -> (s)     import default dashboard and cube"
+    echo 
+    echo Available images, put it at the end of the command line
+    echo
+    echo "  etl                 -> datawarehouse construction image"
+    echo "  server              -> reporting server image"
+    echo
 }
 
 _server(){
-	[ "$cmd" = "server" ] && usage && return 0
-	[ "$cmd" = "build" ] && _get_clone && docker build -t bi_server $wd/biserver/ && _del_clone && return 0;
-	[ "$cmd" = "run" ] && { _server_run; return $?; } 
-	set -- "${@:1:$(($#-1))}" 
-	docker $cmd $@ biserver
+    [ "$cmd" = "server" ] && usage && return 0
+    [ "$cmd" = "build" ] && _get_clone \
+        && docker build -t bi_server $wd/biserver/ \
+        && _del_clone && return 0;
+    [ "$cmd" = "run" ] && { _server_run; return $?; }
+    set -- "${@:1:$(($#-1))}"
+    docker $cmd $@ biserver
 }
 _etl(){
-	[ "$cmd" = "etl" ] && usage && return 0
-	[ "$cmd" = "build" ] && _get_clone && docker build -t bi_pentaho .$wd/pentaho/ && _del_clone && return 0;
-	[ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
-	set -- "${@:1:$(($#-1))}" 
-	docker $cmd $@ pentaho	
+    [ "$cmd" = "etl" ] && usage && return 0
+    [ "$cmd" = "build" ] && _get_clone \
+        && docker build -t bi_pentaho .$wd/pentaho/ \
+        && _del_clone && return 0;
+    [ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
+    set -- "${@:1:$(($#-1))}" 
+    docker $cmd $@ pentaho    
 }
 
 _etl_run(){
-	docker run --rm --net ${NETWORK_NAME} $ETL_ENV $(set_postgres_args) bi_pentaho && return 1 
+    docker run --rm \
+        --net ${NETWORK_NAME} $ETL_ENV $(set_postgres_args) \
+        bi_pentaho && return 1
 }
 
 _import(){
-	docker ps | grep bi_server
-	[ "$?" != 0 ] && echo "Server needs to run, ./pentaho run server OR ./pentaho run" && return 1
-	docker run --rm --name biserver_import --link biserver:biserver --entrypoint "/opt/pentaho/scripts/import_file.sh" bi_server:latest
+    docker ps | grep bi_server
+    [ "$?" != 0 ] \
+        && echo "Server needs to run, ./pentaho run server OR ./pentaho run" \
+        && return 1
+    docker run --rm \
+        --name biserver_import \
+        --network ${NETWORK_NAME} \
+        --entrypoint "/opt/pentaho/scripts/import_file.sh" \
+        bi_server:latest
 }
 
 _run() {
-	_etl_run & _server_run && return $?
+    _etl_run & _server_run && return $?
 }
 
 _server_run(){
-	docker run --name biserver -d --net ${NETWORK_NAME} -e PGHOST=${NETWORK_NAME}-postgres-dw -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
+    docker run \
+        --name biserver \
+        -d --net ${NETWORK_NAME} \
+        -e PGHOST=${NETWORK_NAME}-postgres-dw \
+        -e PGUSER=$DW_USER \
+        -e PG_PASSWORD=$DW_PASSWORD \
+        -p 8080:8080 bi_server
 }
 
 _docker(){
-	docker ps | grep pentaho
-	[ "$?" != 0 ] && docker $cmd $@ pentaho
-	docker ps | grep biserver
-	[ "$?" != 0 ] && docker $cmd $@ biserver
+    docker ps | grep pentaho
+    [ "$?" != 0 ] && docker $cmd $@ pentaho
+    docker ps | grep biserver
+    [ "$?" != 0 ] && docker $cmd $@ biserver
 }
 main(){
 
-	source "$(get_dir)/config"
-	#
-	[ -z "$1" ] && usage && return 0
+    source "$(get_dir)/config"
+    #
+    [ -z "$1" ] && usage && return 0
 
-	for img; do true; done
-	
-	local cmd; cmd="$1"; shift
-	local dtw; local coog_h;
-	local wd; wd="$(get_dir)/workspace"
+    for img; do true; done
 
-	[ "$cmd" = "init" ] && { init; return $?; }
-	
-	[ ! -e "$PENTAHO_CONF" ] && echo "You need to run: './pentaho init'" && return 1
-	
-	[ "$cmd" = "edit" ] && { edit; return $?; }	
+    local cmd; cmd="$1"; shift
+    local dtw; local coog_h;
+    local wd; wd="$(get_dir)/workspace"
 
-	source $PENTAHO_CONF
-		
-	ETL_ENV="-e COOG_DB=$COOG_DB_NAME \
-         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD \
-         -e DW_DB=$DW_DB_NAME -e DW_USER=$DW_DB_USER -e DW_PASSWORD=$DW_DB_PASSWORD "
+    [ "$cmd" = "init" ] && { init; return $?; }
 
-	[ "$img" = "etl" ] && { _etl $@; return $?; }
-	[ "$img" = "server" ] && { _server $@; return $?; }
-	#
-	[ "$cmd" = "run" ] && { _run $@; return $?; }
-	[ "$cmd" = "build" ] && { _build; return $?; }
-	[ "$cmd" = "import" ] && { _import; return $?; }
-	
-	docker $@
+    [ ! -e "$PENTAHO_CONF" ] \
+        && echo "You need to run: './pentaho init'" \
+        && return 1
+
+    [ "$cmd" = "edit" ] && { edit; return $?; }
+
+    source $PENTAHO_CONF
+
+    ETL_ENV="-e COOG_DB=$COOG_DB_NAME \
+         -e COOG_USER=$COOG_DB_USER \
+         -e COOG_PASSWORD=$COOG_DB_PASSWORD \
+         -e DW_DB=$DW_DB_NAME \
+         -e DW_USER=$DW_DB_USER \
+         -e DW_PASSWORD=$DW_DB_PASSWORD"
+
+    [ "$img" = "etl" ] && { _etl $@; return $?; }
+    [ "$img" = "server" ] && { _server $@; return $?; }
+    #
+    [ "$cmd" = "run" ] && { _run $@; return $?; }
+    [ "$cmd" = "build" ] && { _build; return $?; }
+    [ "$cmd" = "import" ] && { _import; return $?; }
+
+    docker $@
 }
 
 main "$@"
