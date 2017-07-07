@@ -35,10 +35,7 @@ _build(){
     _get_clone
     docker build -t bi_pentaho $wd/pentaho/
     docker build -t bi_server $wd/biserver/
-    
     _del_clone
-    
-    
 }
 
 set_postgres_args(){
@@ -92,7 +89,7 @@ _server(){
 _etl(){
     [ "$cmd" = "etl" ] && usage && return 0
     [ "$cmd" = "build" ] && _get_clone \
-        && docker build -t bi_pentaho .$wd/pentaho/ \
+        && docker build -t bi_pentaho $wd/pentaho/ \
         && _del_clone && return 0;
     [ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
     set -- "${@:1:$(($#-1))}" 
