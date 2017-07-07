@@ -43,18 +43,23 @@ _build(){
 }
 
 set_postgres_args(){
-	if [ -z $COOG_DB_HOSTNAME ]
-	then
-		coog_h="--link ${NETWORK_NAME}-postgres"
-	else
-		coog_h="--link ${COOG_DB_HOSTNAME}"
-	fi
-	if [ -z $DW_HOSTNAME ]
-	then
-		dtw="--link ${NETWORK_NAME}-postgres"
-	else
-		dtw="--link ${DW_HOSTNAME}"
-	fi
+	local args
+        if [ ! -z "$COOG_POSTGRES_HOST" ]
+        then
+                args="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST"
+                [ ! -z "$COOG_POSTGRES_PORT" ] && args="$args -e COOG_PORT=$COOG_POSTGRES_PORT"
+        else
+                args="$args -e COOG_HOSTNAME=${NETWORK_NAME}-postgres -e COOG_PORT=5432"
+        fi
+        if [ ! -z "$DW_HOSTNAME" ]
+        then
+                args="$args -e DW_HOSTNAME=$DW_HOSTNAME"
+                [ ! -z "$DW_PORT" ] && args="$args -e DW_PORT=$DW_PORT"
+        else
+                args="$args -e DW_HOSTNAME=${NETWORK_NAME}-postgres-dw -e DW_PORT=5432"
+        fi
+        echo "$args"
+
 }
 
 usage() {
@@ -91,7 +96,7 @@ _etl(){
 }
 
 _etl_run(){
-	docker run --rm $coog_h:postgres $dtw:dataw $ETL_ENV bi_pentaho && return 1 
+	docker run --rm --net ${NETWORK_NAME} $ETL_ENV bi_pentaho && return 1 
 }
 
 _import(){
@@ -105,7 +110,7 @@ _run() {
 }
 
 _server_run(){
-	docker run --name biserver -d $dtw:dataw -e PGHOST=dataw -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
+	docker run --name biserver -d --net ${NETWORK_NAME} -e PGHOST=${NETWORK_NAME}-postgres-dw -e PGUSER=$DW_USER -e PG_PASSWORD=$DW_PASSWORD -p 8080:8080 bi_server 
 }
 
 _docker(){
