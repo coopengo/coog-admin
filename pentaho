@@ -95,7 +95,7 @@ _etl(){
 }
 
 _etl_run(){
-	docker run --rm --net ${NETWORK_NAME} $ETL_ENV bi_pentaho && return 1 
+	docker run --rm --net ${NETWORK_NAME} $ETL_ENV $(set_postgres_args) bi_pentaho && return 1 
 }
 
 _import(){
@@ -138,11 +138,9 @@ main(){
 
 	source $PENTAHO_CONF
 		
-	set_postgres_args	
-	
-	ETL_ENV="-e COOG_HOSTNAME=$COOG_DB_HOSTNAME -e COOG_DB=$COOG_DB_NAME -e COOG_PORT=$COOG_POSTGRES_PORT \
-         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD -e DW_HOSTNAME=$DW_HOSTNAME \
-         -e DW_DB=$DW_DB -e DW_PORT=$DW_PORT -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
+	ETL_ENV="-e COOG_DB=$COOG_DB_NAME \
+         -e COOG_USER=$COOG_DB_USER -e COOG_PASSWORD=$COOG_DB_PASSWORD \
+         -e DW_DB=$DW_DB -e DW_USER=$DW_USER -e DW_PASSWORD=$DW_PASSWORD "
 
 	[ "$img" = "etl" ] && { _etl $@; return $?; }
 	[ "$img" = "server" ] && { _server $@; return $?; }
