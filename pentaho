@@ -37,7 +37,6 @@ _build(){
 	docker build -t bi_server $wd/biserver/
 	
 	_del_clone
-	docker system prune
 	
 	
 }
