@@ -70,7 +70,10 @@ All commands print commands list when called without arguments
 - `nginx`: launches nginx as a reverse proxy and load balancer for Coog
     - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/defaults/nginx.conf)
     - this could be overridden using `./nginx edit`
-
+- `dwh` : launches postgres datawarehouse (client and server) from a docker image
+- `pentaho` : run pentaho datawarehouse build and/or server
+    - you can change database and shared files configuration with `./pentaho edit`
+    - independant docker _How to_ is availablle [here](https://github.com/coopengo/coog-bi/)
 ## Use case
 
 ### Situation
