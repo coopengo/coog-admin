@@ -125,9 +125,9 @@ _server_run(){
         --name biserver \
         -d --net ${NETWORK_NAME} \
         -e PGHOST=${NETWORK_NAME}-postgres-dw \
-        -e PGUSER=$DW_USER \
-        -e PG_PASSWORD=$DW_PASSWORD \
-        -p 8080:8080 bi_server
+        -e PGUSER=$DW_DB_USER \
+        -e PGPASSWORD=$DW_DB_PASSWORD \
+        -p ${BI_SERVER_PORT}:8080 bi_server
 }
 
 _docker(){
