@@ -116,13 +116,6 @@ API_IMAGE=coog/api:master               # docker image
 APP_IMAGE=coog/app:master               # docker image
 
 #-------------------------------------------------------------------------------#
-# APP CONFIG
-#-------------------------------------------------------------------------------#
-
-APP_IMAGE=coog/app:master               # docker image
-APP_CONTAINER=$USER-app                 # docker container
-
-#-------------------------------------------------------------------------------#
 # PAYBOX CONFIG
 #-------------------------------------------------------------------------------#
 
@@ -138,6 +131,20 @@ PAYBOX_COOG_PASS=admin
 NGINX_IMAGE=nginx:1-alpine              # docker image
 NGINX_CONF=$PREFIX/nginx.conf           # nginx conf path
 NGINX_PUB_PORT=80                       # host mapped port
+
+#-------------------------------------------------------------------------------#
+# SYNC CONFIG
+#-------------------------------------------------------------------------------#
+
+SYNC_IMAGE=coog/sync:latest             # docker image
+SYNC_SRC=$COOG_VOLUME                   # source volume
+SYNC_DEST=/home/$USER/.sync             # destination volume
+
+#-------------------------------------------------------------------------------#
+# BACKUP CONFIG
+#-------------------------------------------------------------------------------#
+
+BACKUP_DIRECTORY=/mnt/coog_backup
 
 #-------------------------------------------------------------------------------#
 # CUSTOMS

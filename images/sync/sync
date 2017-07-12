@@ -1,0 +1,31 @@
+#!/bin/sh
+
+log() {
+    echo "$(date +'%D %T')" "$1"
+}
+
+main() {
+    [ -z "$1" ] && echo missing src folder >&2 && return 1
+    local src; src="$1"; shift
+    [ ! -d "$src" ] && sleep 3 && echo "$src is not a directory" >&2 && return 1
+
+    [ -z "$1" ] && echo missing dest folder >&2 && return 1
+    local dest; dest="$1"; shift
+    [ ! -d "$dest" ] && sleep 3 && echo "$dest is not a directory" >&2 && return 1
+
+    rsync -art --exclude='~*' --exclude='.*.sw[a-p]' "$src" "$dest"
+    log "$src => $dest (startup)"
+
+    inotifywait -q -m -r \
+        --event create --event modify --event delete \
+        "$src" | while read -r line
+    do
+        local f; f=$(echo "$line" | cut -d " " -f 1)
+        local t; t=$(echo "$f" | sed "s+$src+$dest+g")
+        local p; p=$(echo "$line" | cut -d " " -f 3)
+        log "$f => $t ($p)"
+        rsync -art --exclude='~*' --exclude='.*.sw[a-p]' "$f" "$t"
+    done
+}
+
+main "$@"
