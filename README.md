@@ -169,11 +169,11 @@ like pentaho parameter `DW_DW_NAME`
 
 Now you have to build the docker images, just run `./pentaho build`
 
-When it ends, run `./pentaho run' then datawarehouse will build itself, and the
+When it ends, run `./pentaho run` then datawarehouse will build itself, and the
 server is now running.
 
 After that if you want only one service running, run `./pentaho <commands>
-<images>, it will run the command for the docker images and build only this
+<images>`, it will run the command for the docker images and build only this
 one.
 
 We recommend you to run the etl image at least.
