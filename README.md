@@ -71,7 +71,8 @@ All commands print commands list when called without arguments
     - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/defaults/nginx.conf)
     - this could be overridden using `./nginx edit`
 - `dwh` : launches postgres datawarehouse (client and server) from a docker image
-- `pentaho` : run pentaho datawarehouse build and/or server
+- `pentaho` : run pentaho datawarehouse build and/or server, recquire a different 
+  server running for the datawarehouse different of 
     - you can change database and shared files configuration with `./pentaho edit`
     - independant docker _How to_ is availablle [here](https://github.com/coopengo/coog-bi/)
 ## Use case
@@ -153,3 +154,44 @@ better (as in 'closer to your needs') configuration:
 
 Please refer to [config](https://github.com/coopengo/coog-admin/blob/master/config)
 script to acquire a better understanding of those possibilities.
+
+### BI
+
+First of all, you have to set up a running server to host your datawarehouse.
+
+Initiate configuration file with `./pentaho init`
+
+If you own your own server, just set up database configuration and shared
+folder : `./pentaho edit`
+
+If not follow the same step as `postgres` but with `dwh` and name your database
+like pentaho parameter `DW_DW_NAME`
+
+Now you have to build the docker images, just run `./pentaho build`
+
+When it ends, run `./pentaho run' then datawarehouse will build itself, and the
+server is now running.
+
+After that if you want only one service running, run `./pentaho <commands>
+<images>, it will run the command for the docker images and build only this
+one.
+
+We recommend you to run the etl image at least.
+
+If you have the server running, you'll maybe want to import defaults reports
+and OLAP cubes.
+
+/!\ You have to add your datawarehouse connection to the server. Follow this
+step:
+ - Connect to your server within your browser : `ip:port`
+ - Connect as an admin login : `admin`, password : `password`
+ - Wait, then click on `manage datasource`
+ - Click on the wheel then `new connection`
+ - Select postgresql then add your parameters :
+    - Hostname : `<NETWORK_NAME>-postgres-dw`
+    - Database : `<DW_DB_NAME>`
+    - Port : `<DW_DB_PORT>`
+    - User : `<DW_DB_USER>'
+    - Password : `<DW_DB_PASSWORD>'
+
+Now if you want to learn more about the bi server just follow this wiki
