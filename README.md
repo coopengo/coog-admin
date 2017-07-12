@@ -165,7 +165,7 @@ If you own your own server, just set up database configuration and shared
 folder : `./pentaho edit`
 
 If not follow the same step as `postgres` but with `dwh` and name your database
-like pentaho parameter `DW_DW_NAME`
+like pentaho parameter `DW_DB_NAME`
 
 Now you have to build the docker images, just run `./pentaho build`
 
@@ -179,7 +179,7 @@ one.
 We recommend you to run the etl image at least.
 
 If you have the server running, you'll maybe want to import defaults reports
-and OLAP cubes.
+and OLAP cubes : `./pentaho import`
 
 /!\ You have to add your datawarehouse connection to the server. Follow this
 step:
@@ -191,7 +191,7 @@ step:
     - Hostname : `<NETWORK_NAME>-postgres-dw`
     - Database : `<DW_DB_NAME>`
     - Port : `<DW_DB_PORT>`
-    - User : `<DW_DB_USER>'
-    - Password : `<DW_DB_PASSWORD>'
+    - User : `<DW_DB_USER>`
+    - Password : `<DW_DB_PASSWORD>`
 
 Now if you want to learn more about the bi server just follow this wiki
