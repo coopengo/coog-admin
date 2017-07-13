@@ -30,8 +30,9 @@ run() {
     docker run                              \
            $DOCKER_DAEMON_OPTS              \
            -e "DB_NAME=$COOG_DB_NAME"       \
+           -e "WEBAT_COOG_URL=http://$NETWORK_NAME-nginx:80"\
            --name $CONTAINER_NAME           \
-           --link $NGINX_CONTAINER:nginx    \
+           --network "$NETWORK_NAME"        \
            -p $WEB_PORT:3000                \
            $WEB_IMAGE $*
 }
@@ -64,7 +65,7 @@ main() {
     [ -z $1 ] && usage && return 1
     local cmd; cmd=$1; shift
 
-    CONTAINER_NAME="$USER-web"
+    CONTAINER_NAME="$USER-webat"
 
     [ $cmd = "start" ] && { run $CONTAINER_NAME $*; return $?; }
     [ $cmd = "stop" ] && { stop $CONTAINER_NAME $*; return $?; }
