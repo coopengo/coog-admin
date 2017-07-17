@@ -53,100 +53,65 @@ it works:
 - [postgres](https://github.com/coopengo/coog-admin/blob/master/postgres):
   typical launcher
 
-### Content description
+## Commands
 
-All commands print commands list when called without arguments
+It is recommended to launch the command without any argument to see possible actions
+Commands wrap docker commandline to make it easy to call docker without giving the container name
 
-- `edit-config`: edits custom config script
-- `pull`: pulls all needed images for Coog
-- `config`: all configuration variables
-- `redis`: launches redis (client and server) from a docker image
-- `postgres`: launches postgres (client and server) from a docker images
-- `sentry`: runs sentry (server and workers) from a docker images. This could link
-  to redis and postgres docker container or points to other servers (depending
-  on configuration). Default is link to Docker
-- `coog`: runs coog (workers, batch). It links to redis and postgres based on
-  configuration
-- `nginx`: launches nginx as a reverse proxy and load balancer for Coog
-    - a commented configuration example is provided [here](https://github.com/coopengo/coog-admin/blob/master/defaults/nginx.conf)
-    - this could be overridden using `./nginx edit`
+### edit-config
 
-## Use case
+It customizes the environment by setting images tags, database name, or any other runtime parameter
 
-### Situation
+### net (create)
 
-- You start working on Coog
-- You have an archive with the Coog image (coog.tar)
-- You have no initial dataset
+Creates a network where all containers will live: `./net create`
 
-### Steps
+### redis (server, client)
 
-- First you need a hosting Linux server (dedicated or virtual)
-    - Install Git, Docker
-    - create a dedicated system user for Coog IT operations (not root and no sudo)
-    - add this user to `docker group` (it needs to launch containers)
-    - set `COOG_DATA` value for the user (on `~/.bashrc` or `~/.profile`). This is the path for the exchange volumes (typically: `~/.local/share/coog`)
-    - `(cd ~ && git clone https://github.com/coopengo/coog-admin)` to install coog-admin
-    - all latter commands will suppose that you are on `~/coog-admin` folder
+- `./redis server`: launches redis server
+- `./redis client`: launches a redis client connected to the server
 
-- You need to load your image [load command](https://docs.docker.com/engine/reference/commandline/load/)
-    - load: `docker load -i coog.tar`
-    - check that your image is there: `docker images`
-    - `./edit-config` to set Coog image name (example below)
+### postgres (server, client, dump)
 
-    ```
-    COOG_IMAGE=coog/coog:X.Y
-    ```
+- `./postgres server`: launches postgres server
+- `./postgres client`: launches postgres client
+- `./postgres dump`: dumps couurent database (to be piped to a file)
 
-- Pull images: `./pull` to get all needed images to run Coog, requires internet
-    connection to [DockerHub](https://hub.docker.com/)
+### coog (build, init, server, celery, etc.)
 
-- Start redis: be careful, redis supports and keeps his data on host server
-  (persistent even after container restarting)
-    - `./redis server` to start redis server
-    - `./redis client` lets you connect to your server to check this step
+Coog image contains all resources to run Coog backend and Sao Web client
 
-- Start postgres: be careful, postgres keeps its data on a host server
-  (persistent even after containers restarting)
-    - `./postgres server` to start postgres server
-    - `./postgres client` let you connect to your server (default password is `postgres`)
-    - if this is the first time, you need to create your database:
-      `create database coog owner postgres encoding 'utf8';`
+Environment variables to customize process exec (`DB_NAME` and `LOG_LEVEL`)
 
-- Start sentry: [sentry](https://getsentry.com/welcome/) is connected natively to Coog.
-  It makes it easy to live troubleshoot the application.
-    - `./sentry set_key`: generates a secret key for sentry deployment (used to
-      recognise different workers)
-    - `./postgres client`: creates a database for sentry (default name is sentry)
-    - `./sentry upgrade`: populates sentry database (create tables and minimal dataset)
-    - `./sentry worker`: starts a celery worker for sentry (async treatments)
-    - `./sentry cron`: starts sentry cron
-    - `./sentry server`: starts sentry server
+- `./coog build coog/coog:master trytond:master trytond-modules:master coog:master coog-bench:master sao:master`: builds a coog image
+- `./coog init`: inits coog volume
+- `./coog server 4`: launches a coog server with 4 uwsgi workers
+- `./coog celery 4`: launches a coog set of 4 celery workers
+- `./coog admin`: launches trytond admin utilities on current database
+- `./coog batch ir.ui.view.validate`: executes a batch
+- `./coog chain coog_core.check`: executes a batch chain
+- `./coog redis celery qlist ir.ui.view.validate`: list queue jobs
 
-    ![sentry-dsn](./png/sentry.png)
+### web (build, run)
 
-- Start Coog
-    - `./edit-config` to set sentry dsn keys (example below)
+Web image contains all resources to run Coog api and Coog App web application
 
-    ```
-    COOG_SENTRY_PROJECT=1
-    COOG_SENTRY_PUB=123456789abcdef123456789abcdef12
-    COOG_SENTRY_SEC=123456789abcdef123456789abcdef12
-    ```
+Environment variables to customize process exec (`DEBUG`)
 
-    - if you start on a new database, you should initialize it (create tables
-      and minimal dataset) by calling `./coog upgrade`
-    - start Coog workers: `./coog workers`: (workers number could be set via `./edit-config`)
+- `./web build coog/web:master coog-api:master coog-app:master`: builds a web image
+- `./web run`
 
-- Start nginx
-    - `./nginx init`: generates a default nginx config file
-    - `./nginx run`: starts nginx to load balance on coog workers
-    - now nginx is listening on port 80 (of the host machine). You can connect your client.
+### nginx (init, run)
 
-This example is a basic one. Keep in mind that you can customize it to have a
-better (as in 'closer to your needs') configuration:
-- database on a dedicated server (no docker for postgres)
-- sentry and Coog on different database servers
+- `./nginx init`: initializes configuration folder for nginx (depending on WEB_IMAGE value)
+- `./nginx run`: runs nginx server
 
-Please refer to [config](https://github.com/coopengo/coog-admin/blob/master/config)
-script to acquire a better understanding of those possibilities.
+Once running, the url mapping is:
+- `/`: Coog RPC and Sao client
+- `/bench`: Bench Web app (when present)
+- `/web/svc`: Coog API
+- `/web`: Coog App
+
+### upgrade
+
+This command updates a running environment. It stops and drops running containers, mount new ones and launches `./coog admin -u ir` on current database to migrate database.

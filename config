@@ -2,16 +2,16 @@
 # This script sets coog administration environment
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 ip() {
-        local exists
-        exists=$(docker ps --format '{{.Names}}' | grep -cP ^"$1"\$)
-        [ "$exists" -eq 0 ] && return 1
-        docker inspect --format '{{.NetworkSettings.IPAddress}}' "$1"
+    local exists
+    exists=$(docker ps --format '{{.Names}}' | grep -cP ^"$1"\$)
+    [ "$exists" -eq 0 ] && return 1
+    docker inspect --format '{{.NetworkSettings.IPAddress}}' "$1"
 }
 
 #-------------------------------------------------------------------------------#
@@ -57,7 +57,7 @@ COOG_CACHE_DB=0                         # coog cache db name
 COOG_CELERY_DB=1                        # coog celery db name
 COOG_RQ_DB=2                            # coog rq db name
 SENTRY_REDIS_DB=5                       # sentry db name
-API_REDIS_DB=7                          # api db name
+WEB_REDIS_DB=7                          # web db name
 
 #-------------------------------------------------------------------------------#
 # SENTRY CONFIG
@@ -77,7 +77,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:master             # docker image
+COOG_IMAGE=coog/coog                    # docker image
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
@@ -104,16 +104,18 @@ COOG_LOG_LEVEL=                         # python levels
 COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 
 #-------------------------------------------------------------------------------#
-# API CONFIG
+# WEB CONFIG
 #-------------------------------------------------------------------------------#
 
-API_IMAGE=coog/api:master               # docker image
+WEB_IMAGE=coog/web                      # docker image
 
 #-------------------------------------------------------------------------------#
-# APP CONFIG
+# NGINX CONFIG
 #-------------------------------------------------------------------------------#
 
-APP_IMAGE=coog/app:master               # docker image
+NGINX_IMAGE=nginx:1-alpine              # docker image
+NGINX_VOLUME=$PREFIX/nginx              # nginx conf folder
+NGINX_PUB_PORT=80                       # host mapped port
 
 #-------------------------------------------------------------------------------#
 # PAYBOX CONFIG
@@ -125,18 +127,10 @@ PAYBOX_COOG_USER=admin
 PAYBOX_COOG_PASS=admin
 
 #-------------------------------------------------------------------------------#
-# NGINX CONFIG
-#-------------------------------------------------------------------------------#
-
-NGINX_IMAGE=nginx:1-alpine              # docker image
-NGINX_CONF=$PREFIX/nginx.conf           # nginx conf path
-NGINX_PUB_PORT=80                       # host mapped port
-
-#-------------------------------------------------------------------------------#
 # SYNC CONFIG
 #-------------------------------------------------------------------------------#
 
-SYNC_IMAGE=coog/sync:latest             # docker image
+SYNC_IMAGE=coog/sync                    # docker image
 SYNC_SRC=$COOG_VOLUME                   # source volume
 SYNC_DEST=/home/$USER/.sync             # destination volume
 
@@ -151,7 +145,7 @@ BACKUP_DIRECTORY=/mnt/coog_backup
 #-------------------------------------------------------------------------------#
 
 [ ! -e "$PREFIX/config" ] &&
-        cp "$(get_dir)/defaults/config" "$PREFIX/config" &&
-        echo "# For an exhaustive variables list, checkout base config on $(get_dir)/config" >> "$PREFIX/config"
+    cp "$(get_dir)/defaults/config" "$PREFIX/config" &&
+    echo "# For an exhaustive variables list, checkout base config on $(get_dir)/config" >> "$PREFIX/config"
 [ ! -e "$PREFIX/config" ] && exit 1
 source "$PREFIX/config"

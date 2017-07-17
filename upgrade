@@ -12,208 +12,203 @@ COOG_DB_BACKUP=n
 COOG_DB_UPDATE=n
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 docker_image() {
-        [ -z "$1" ] && return 1
-        docker images --format '{{.Repository}}:{{.Tag}}' --filter "reference=$1"
+    [ -z "$1" ] && return 1
+    docker images --format '{{.Repository}}:{{.Tag}}' --filter "reference=$1"
 }
 
 docker_last_image() {
-        docker images --format '{{.Repository}}:{{.Tag}}' | head -1
+    docker images --format '{{.Repository}}:{{.Tag}}' | head -1
 }
 
 docker_container() {
-        [ -z "$1" ] && return 1
-        docker ps --format '{{.Names}}' --filter "name=$NETWORK_NAME-$1"
+    [ -z "$1" ] && return 1
+    docker ps --format '{{.Names}}' --filter "name=$NETWORK_NAME-$1"
 }
 
 cache_clear() {
-        [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
+    [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
 }
 
 database_backup() {
-        local file_name
-        file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
-        "$(get_dir)/postgres" dump -F c > "/tmp/$file_name"
+    local file_name
+    file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
+    "$(get_dir)/postgres" dump -F c > "/tmp/$file_name"
 }
 
 database_update() {
-        "$(get_dir)/coog" admin -u ir "$@"
+    "$(get_dir)/coog" admin -u ir "$@"
 }
 
 print_help() {
-        echo "This command upgrades Coog installation"
-        echo
-        echo "Command options:"
-        echo "  -t <image-tag>"
-        echo "  -a <image-archive>"
-        echo "  -s <server-workers-number>"
-        echo "  -c <celery-workers-number>"
-        echo "  -b : backup database"
-        echo "  -u : update database"
-        echo "  -h : print this help"
-        echo
-        echo "Extra parameters will be forwarded to the database update command"
+    echo "This command upgrades Coog installation"
+    echo
+    echo "Command options:"
+    echo "  -t <image-tag>"
+    echo "  -a <image-archive>"
+    echo "  -s <server-workers-number>"
+    echo "  -c <celery-workers-number>"
+    echo "  -b : backup database"
+    echo "  -u : update database"
+    echo "  -h : print this help"
+    echo
+    echo "Extra parameters will be forwarded to the database update command"
 }
 
 while getopts "t:a:s:c:buh" opt
 do
-        case "$opt" in
-                t) COOG_IMAGE_TAG="$OPTARG"
-                        ;;
-                a) COOG_IMAGE_ARCHIVE="$OPTARG"
-                        ;;
-                s) COOG_SERVER_WORKERS="$OPTARG"
-                        ;;
-                c) COOG_CELERY_WORKERS="$OPTARG"
-                        ;;
-                b) COOG_DB_BACKUP=y
-                        ;;
-                u) COOG_DB_UPDATE=y
-                        ;;
-                h) print_help && exit 0
-                        ;;
-        esac
+    case "$opt" in
+        t) COOG_IMAGE_TAG="$OPTARG"
+            ;;
+        a) COOG_IMAGE_ARCHIVE="$OPTARG"
+            ;;
+        s) COOG_SERVER_WORKERS="$OPTARG"
+            ;;
+        c) COOG_CELERY_WORKERS="$OPTARG"
+            ;;
+        b) COOG_DB_BACKUP=y
+            ;;
+        u) COOG_DB_UPDATE=y
+            ;;
+        h) print_help && exit 0
+            ;;
+    esac
 done
 shift $((OPTIND-1))
 
 main() {
-        local dir
-        dir=$(get_dir)
-        source "$dir/config"
-        [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
-        if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
-        then
-                echo
-                echo "loading image from $COOG_IMAGE_ARCHIVE"
-                docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
-                COOG_IMAGE_TAG="$(docker_last_image)"
-        fi
-        if [ "$COOG_IMAGE_TAG" != "-" ]
-        then
-                local img
-                img=$(docker_image "$COOG_IMAGE_TAG")
-                echo
-                if [ ! -z "$img" ]
-                then
-                        echo "adding $COOG_IMAGE_TAG image to config"
-                        echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
-                else
-                        echo "$COOG_IMAGE_TAG image not found"
-                        return 1
-                fi
-        fi
-        local paybox_container
-        paybox_container=$(docker_container paybox)
+    local dir
+    dir=$(get_dir)
+    source "$dir/config"
+    [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+    if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
+    then
         echo
-        if [ ! -z "$paybox_container" ]
+        echo "loading image from $COOG_IMAGE_ARCHIVE"
+        docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
+        COOG_IMAGE_TAG="$(docker_last_image)"
+    fi
+    if [ "$COOG_IMAGE_TAG" != "-" ]
+    then
+        local img
+        img=$(docker_image "$COOG_IMAGE_TAG")
+        echo
+        if [ ! -z "$img" ]
         then
-                echo "removing paybox container"
-                "$dir/paybox" rm -f
+            echo "adding $COOG_IMAGE_TAG image to config"
+            echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
         else
-                echo "no paybox container running"
+            echo "$COOG_IMAGE_TAG image not found"
+            return 1
         fi
-        local app_container
-        app_container=$(docker_container app)
-        echo
-        if [ ! -z "$app_container" ]
-        then
-                echo "removing app container"
-                "$dir/app" rm -f
-        else
-                echo "no app container running"
-        fi
-        local api_container
-        api_container=$(docker_container api)
-        echo
-        if [ ! -z "$api_container" ]
-        then
-                echo "removing api container"
-                "$dir/api" rm -f
-        else
-                echo "no api container running"
-        fi
-        local nginx_container
-        nginx_container=$(docker_container nginx)
-        echo
-        if [ ! -z "$nginx_container" ]
-        then
-                echo "removing nginx container"
-                "$dir/nginx" rm -f
-        else
-                echo "no nginx container running"
-        fi
-        local server_container
-        server_container=$(docker_container coog-server)
-        echo
-        if [ ! -z "$server_container" ]
-        then
-                echo "removing server container"
-                "$dir/coog" -- server rm -f
-        else
-                echo "no server container running"
-        fi
-        local celery_container
-        celery_container=$(docker_container coog-celery)
-        echo
-        if [ ! -z "$celery_container" ]
-        then
-                echo "removing celery container"
-                "$dir/coog" -- celery rm -f
-        else
-                echo "no celery container running"
-        fi
-        echo
+    fi
+
+    local paybox_container
+    paybox_container=$(docker_container paybox)
+    echo
+    if [ ! -z "$paybox_container" ]
+    then
+        echo "removing paybox container"
+        "$dir/paybox" rm -f
+    else
+        echo "no paybox container running"
+    fi
+
+    local nginx_container
+    nginx_container=$(docker_container nginx)
+    echo
+    if [ ! -z "$nginx_container" ]
+    then
+        echo "removing nginx container"
+        "$dir/nginx" rm -f
+    else
+        echo "no nginx container running"
+    fi
+
+    local web_container
+    web_container=$(docker_container web)
+    echo
+    if [ ! -z "$web_container" ]
+    then
+        echo "removing web container"
+        "$dir/web" rm -f
+    else
+        echo "no web container running"
+    fi
+
+    local server_container
+    server_container=$(docker_container coog-server)
+    echo
+    if [ ! -z "$server_container" ]
+    then
+        echo "removing server container"
+        "$dir/coog" -- server rm -f
+    else
+        echo "no server container running"
+    fi
+
+    local celery_container
+    celery_container=$(docker_container coog-celery)
+    echo
+    if [ ! -z "$celery_container" ]
+    then
+        echo "removing celery container"
+        "$dir/coog" -- celery rm -f
+    else
+        echo "no celery container running"
+    fi
+
+    echo
+    echo "clearing cache" && { cache_clear || return $?; }
+    if [ "$COOG_DB_BACKUP" = y ]
+    then
+        echo "backup database" && { database_backup || return $?; }
+    fi
+    if [ "$COOG_DB_UPDATE" = y ]
+    then
+        echo "updating database" && { database_update "$@" || return $?; }
         echo "clearing cache" && { cache_clear || return $?; }
-        if [ "$COOG_DB_BACKUP" = y ]
-        then
-                echo "backup database" && { database_backup || return $?; }
-        fi
-        if [ "$COOG_DB_UPDATE" = y ]
-        then
-                echo "updating database" && { database_update "$@" || return $?; }
-                echo "clearing cache" && { cache_clear || return $?; }
-        fi
-        if [ ! -z "$celery_container" ]
-        then
-                echo
-                echo "starting celery container"
-                "$dir/coog" celery "$COOG_CELERY_WORKERS"
-        fi
-        if [ ! -z "$server_container" ]
-        then
-                echo
-                echo "starting server container"
-                "$dir/coog" server "$COOG_SERVER_WORKERS"
-        fi
-        if [ ! -z "$nginx_container" ]
-        then
-                echo
-                echo "starting nginx container"
-                "$dir/nginx" run
-        fi
-        if [ ! -z "$api_container" ]
-        then
-                echo
-                echo "starting api container"
-                "$dir/api" run
-        fi
-        if [ ! -z "$app_container" ]
-        then
-                echo
-                echo "starting app container"
-                "$dir/app" run
-        fi
-        if [ ! -z "$paybox_container" ]
-        then
-                echo
-                echo "starting paybox container"
-                "$dir/paybox" run
-        fi
+    fi
+
+    if [ ! -z "$celery_container" ]
+    then
+        echo
+        echo "starting celery container"
+        "$dir/coog" celery "$COOG_CELERY_WORKERS"
+    fi
+
+    if [ ! -z "$server_container" ]
+    then
+        echo
+        echo "starting server container"
+        "$dir/coog" server "$COOG_SERVER_WORKERS"
+    fi
+
+    if [ ! -z "$web_container" ]
+    then
+        echo
+        echo "starting web container"
+        "$dir/web" run
+    fi
+
+    if [ ! -z "$nginx_container" ]
+    then
+        echo
+        echo "starting nginx container"
+        "$dir/nginx" run
+    fi
+
+    if [ ! -z "$paybox_container" ]
+    then
+        echo
+        echo "starting paybox container"
+        "$dir/paybox" run
+    fi
 }
 
 echo "This command is about to **upgrade** your Coog installation!"
@@ -229,10 +224,10 @@ echo
 
 read -p "Confirm upgrading? [y/N] " choice
 case "$choice" in
-        y|Y) main "$@"
-                ;;
-        n|N) echo "leaving" && exit 1
-                ;;
-        *) echo "leaving" && exit 1
-                ;;
+    y|Y) main "$@"
+        ;;
+    n|N) echo "leaving" && exit 1
+        ;;
+    *) echo "leaving" && exit 1
+        ;;
 esac

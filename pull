@@ -3,16 +3,19 @@
 # This script pulls all needed images to run Coog on Docker
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 main() {
-        source "$(get_dir)/config"
-        [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
-        [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
-        [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
+    source "$(get_dir)/config"
+    docker pull alpine:3.6
+    docker pull node:8-alpine
+    docker pull python:2-slim
+    [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
+    [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
+    [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
 }
 
 main

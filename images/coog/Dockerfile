@@ -46,9 +46,7 @@ RUN pip install \
     && rm -rf /root/.cache
 
 RUN mkdir /workspace && mkdir /workspace/data
-# coog-related repositories
 COPY ./workspace /workspace
-# entrypoint
 COPY ./ep /workspace/
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
@@ -58,6 +56,5 @@ RUN ln -s /workspace/ep /usr/local/bin/ep
 RUN ep link
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench"]
-
 ENTRYPOINT ["ep"]
 EXPOSE 8000
