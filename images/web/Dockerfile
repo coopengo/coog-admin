@@ -1,7 +1,7 @@
 from node:8-alpine
 
 RUN mkdir /web
-COPY ./web /web
+COPY ./dist /web
 WORKDIR /web/coog-api
 
 RUN apk add --no-cache --virtual .build-deps wget ca-certificates make gcc g++ python linux-headers musl-dev \

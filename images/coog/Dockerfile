@@ -45,8 +45,8 @@ RUN pip install \
         rq \
     && rm -rf /root/.cache
 
-RUN mkdir /workspace && mkdir /workspace/data
-COPY ./workspace /workspace
+RUN mkdir /workspace
+COPY ./dist /workspace
 COPY ./ep /workspace/
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
