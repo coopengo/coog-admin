@@ -61,7 +61,7 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
         local repo; repo=$(echo "$1" | cut -d ":" -f 1)
         local branch; branch=$(echo "$1" | cut -d ":" -f 2)
         local remote; remote=$(repo_remote "$wd" "$repo")
-        echo "workon $repo"
+        echo "workon $repo:$branch from $remote"
         [ -z "$remote" ] \
             && echo "repo $repo unknown" >&2 \
             && return 1
