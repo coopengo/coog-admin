@@ -1,6 +1,6 @@
 #!/bin/bash
 # vim: set ft=sh:
-# This script helps doing with coog paybox image
+# This script helps doing with coog web image
 
 get_dir() {
     local script_path; script_path=$(readlink -f "$0")
@@ -8,34 +8,37 @@ get_dir() {
     echo "$script_dir"
 }
 
+_build() {
+    (cd "$(get_dir)/images/web" && ./build "$@")
+}
+
 _args() {
     local args
-    args="$args -e COOG_PAYBOX_COOG_URL=http://$NETWORK_NAME-nginx:80 -e COOG_PAYBOX_COOG_DB=$COOG_DB_NAME"
-    args="$args -e COOG_PAYBOX_COOG_USER=$PAYBOX_COOG_USER -e COOG_PAYBOX_COOG_PASS=$PAYBOX_COOG_PASS"
-    args="$args -p $PAYBOX_PUB_PORT:3000"
+    args="$args -e COOG_API_REDIS_URL=//$NETWORK_NAME-redis:6379 -e COOG_API_REDIS_DB=$WEB_REDIS_DB"
+    args="$args -e COOG_API_COOG_URL=http://$NETWORK_NAME-nginx:80 -e COOG_API_COOG_DB=$COOG_DB_NAME"
     [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
     echo "$args"
-
 }
 
 _run() {
     docker run \
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
-        --name "$NETWORK_NAME-paybox" \
-        $(_args) "$PAYBOX_IMAGE" "$@"
+        --name "$NETWORK_NAME-web" \
+        $(_args) "$WEB_IMAGE" "$@"
 }
 
 _docker() {
-    docker "$@" "$NETWORK_NAME-paybox"
+    docker "$@" "$NETWORK_NAME-web"
 }
 
 usage() {
     echo
     echo Available commands
     echo
-    echo "  run       -> runs a paybox docker image"
-    echo "  <action>  -> calls docker action on paybox container"
+    echo "  build     -> build web image: <tag> <repo:branch>+"
+    echo "  run       -> runs a web docker image"
+    echo "  <action>  -> calls docker action on web container"
     echo
 }
 
@@ -45,6 +48,7 @@ main() {
     [ -z "$1" ] && usage && return 0
     local cmd; cmd="$1"; shift
     #
+    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "run" ] && { _run "$@"; return $?; }
     _docker "$cmd" "$@"
 }

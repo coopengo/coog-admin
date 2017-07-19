@@ -2,63 +2,81 @@
 # This script helps doing with nginx docker image.
 # More informations: https://hub.docker.com/_/nginx/
 
-
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
-init() {
-        [ -e "$NGINX_CONF" ] && echo backup old config before && return 1
-        cp "$(get_dir)/defaults/nginx.conf" "$NGINX_CONF"
-        sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$NGINX_CONF"
-}
-
-edit() {
-        $EDITOR "$NGINX_CONF"
+_init() {
+    local d; d="$(get_dir)/defaults/nginx"
+    mkdir -p "$NGINX_VOLUME"
+    cp -f "$d/nginx.conf" "$NGINX_VOLUME/nginx.conf"
+    if [ -z "$COOG_IMAGE" ]
+    then
+        rm -rf "$NGINX_VOLUME/http-coog.conf" && touch "$NGINX_VOLUME/http-coog.conf"
+        rm -rf "$NGINX_VOLUME/server-coog.conf" && touch "$NGINX_VOLUME/server-coog.conf"
+    else
+        cp -f "$d/http-coog.conf" "$NGINX_VOLUME/http-coog.conf"
+        cp -f "$d/server-coog.conf" "$NGINX_VOLUME/server-coog.conf"
+    fi
+    if [ -z "$WEB_IMAGE" ]
+    then
+        rm -rf "$NGINX_VOLUME/http-web.conf" && touch "$NGINX_VOLUME/http-web.conf"
+        rm -rf "$NGINX_VOLUME/server-web.conf" && touch "$NGINX_VOLUME/server-web.conf"
+    else
+        cp -f "$d/http-web.conf" "$NGINX_VOLUME/http-web.conf"
+        cp -f "$d/server-web.conf" "$NGINX_VOLUME/server-web.conf"
+    fi
+    touch "$NGINX_VOLUME/main-custom.conf"
+    touch "$NGINX_VOLUME/events-custom.conf"
+    touch "$NGINX_VOLUME/http-custom.conf"
+    touch "$NGINX_VOLUME/server-custom.conf"
+    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$NGINX_VOLUME/"*
 }
 
 run() {
-        docker run \
-                $DOCKER_DAEMON_OPTS \
-                --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-nginx" \
-                -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
-                -v /etc/timezone:/etc/timezone:ro \
-                -v "$NGINX_CONF:/etc/nginx/nginx.conf:ro" \
-                -v "/tmp:/tmp" \
-                --volumes-from "$NETWORK_NAME-coog-server" \
-                -p "$NGINX_PUB_PORT:80" \
-                "$NGINX_IMAGE"
+    local volumes
+    [ ! -z "$COOG_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-coog-server"
+    [ ! -z "$WEB_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-web"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-nginx" \
+        -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+        -v /etc/timezone:/etc/timezone:ro \
+        -v "$NGINX_VOLUME/nginx.conf:/etc/nginx/nginx.conf:ro" \
+        -v "$NGINX_VOLUME:/etc/nginx/coog/:ro" \
+        -v "/tmp:/tmp" \
+        $volumes \
+        -p "$NGINX_PUB_PORT:80" \
+        "$NGINX_IMAGE"
 }
 
 action() {
-        docker "$@" "$NETWORK_NAME-nginx"
+    docker "$@" "$NETWORK_NAME-nginx"
 }
 
 usage() {
-        echo
-        echo Available commands
-        echo
-        echo "  init      -> inits nginx.conf"
-        echo "  edit      -> edits nginx.conf"
-        echo "  run       -> runs an nginx docker image"
-        echo "  <action>  -> calls docker action on server container"
-        echo
+    echo
+    echo Available commands
+    echo
+    echo "  init      -> init nginx config"
+    echo "  run       -> run an nginx docker image"
+    echo "  <action>  -> call docker action on server container"
+    echo
 }
 
 main() {
-        source "$(get_dir)/config"
-        #
-        [ -z "$1" ] && usage && return 0
-        local cmd; cmd="$1"; shift
-        #
-        [ "$cmd" = "init" ] && { init; return $?; }
-        [ ! -e "$NGINX_CONF" ] && echo "You need to run: './nginx init'" && return 1
-        [ "$cmd" = "edit" ] && { edit; return $?; }
-        [ "$cmd" = "run" ] && { run; return $?; }
-        action "$cmd" "$@"
+    source "$(get_dir)/config"
+    #
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd="$1"; shift
+    #
+    [ "$cmd" = "init" ] && { _init; return $?; }
+    [ ! -f "$NGINX_VOLUME/nginx.conf" ] && echo "You need to run: './nginx init'" && return 1
+    [ "$cmd" = "run" ] && { run; return $?; }
+    action "$cmd" "$@"
 }
 
 main "$@"

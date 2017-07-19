@@ -53,6 +53,7 @@ it works:
 - [postgres](https://github.com/coopengo/coog-admin/blob/master/postgres):
   typical launcher
 
+<<<<<<< HEAD
 ### Content description
 
 All commands print commands list when called without arguments
@@ -195,3 +196,67 @@ step:
     - Password : `<DW_DB_PASSWORD>`
 
 Now if you want to learn more about the bi server just follow this wiki
+=======
+## Commands
+
+It is recommended to launch the command without any argument to see possible actions
+Commands wrap docker commandline to make it easy to call docker without giving the container name
+
+### edit-config
+
+It customizes the environment by setting images tags, database name, or any other runtime parameter
+
+### net (create)
+
+Creates a network where all containers will live: `./net create`
+
+### redis (server, client)
+
+- `./redis server`: launches redis server
+- `./redis client`: launches a redis client connected to the server
+
+### postgres (server, client, dump)
+
+- `./postgres server`: launches postgres server
+- `./postgres client`: launches postgres client
+- `./postgres dump`: dumps couurent database (to be piped to a file)
+
+### coog (build, init, server, celery, etc.)
+
+Coog image contains all resources to run Coog backend and Sao Web client
+
+Environment variables to customize process exec (`DB_NAME` and `LOG_LEVEL`)
+
+- `./coog build coog/coog:master trytond:master trytond-modules:master coog:master coog-bench:master sao:master`: builds a coog image
+- `./coog init`: inits coog volume
+- `./coog server 4`: launches a coog server with 4 uwsgi workers
+- `./coog celery 4`: launches a coog set of 4 celery workers
+- `./coog admin`: launches trytond admin utilities on current database
+- `./coog batch ir.ui.view.validate`: executes a batch
+- `./coog chain coog_core.check`: executes a batch chain
+- `./coog redis celery qlist ir.ui.view.validate`: list queue jobs
+
+### web (build, run)
+
+Web image contains all resources to run Coog api and Coog App web application
+
+Environment variables to customize process exec (`DEBUG`)
+
+- `./web build coog/web:master coog-api:master coog-app:master`: builds a web image
+- `./web run`
+
+### nginx (init, run)
+
+- `./nginx init`: initializes configuration folder for nginx (depending on WEB_IMAGE value)
+- `./nginx run`: runs nginx server
+
+Once running, the url mapping is:
+- `/`: Coog RPC and Sao client
+- `/bench`: Bench Web app (when present)
+- `/web/svc`: Coog API
+- `/web`: Coog App
+
+### upgrade
+
+This command updates a running environment. It stops and drops running containers, mount new ones and launches `./coog admin -u ir` on current database to migrate database.
+>>>>>>> master

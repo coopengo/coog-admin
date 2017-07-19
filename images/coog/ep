@@ -182,6 +182,12 @@ _admin() {
         trytond-admin -v -c "$COOG_CONF_SRV" -d "$COOG_DB_NAME" "$@"
 }
 
+_cron() {
+        _init || return $?
+        [ -z "$COOG_DB_NAME" ] && echo missing db name && return 1
+        trytond-cron -c "$COOG_CONF_SRV" -d "$COOG_DB_NAME" "$@"
+}
+
 _server() {
         [ -z "$1" ] && echo "missing concurrency" && return 1
         echo Welcome on board, Coog Server is preparing to start
@@ -292,6 +298,7 @@ usage() {
         echo "  chain         -> executes batch chain - <module> <chain> [args *]"
         echo "  redis         -> executes redis script - <context> [args *]"
         echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
+        echo "  cron          -> execute coog-cron"
         echo
 }
 
@@ -312,6 +319,7 @@ main() {
         [ "$cmd" = chain ] && { _chain "$@"; return $?; }
         [ "$cmd" = redis ] && { _redis "$@"; return $?; }
         [ "$cmd" = daily ] && { _daily "$@"; return $?; }
+        [ "$cmd" = cron ] && { _cron "$@"; return $?; }
         echo "Not supported command" && return 1
 }
 

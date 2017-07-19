@@ -4,55 +4,55 @@
 # More informations: https://hub.docker.com/_/redis/
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 server() {
-        docker run \
-                $DOCKER_DAEMON_OPTS \
-                --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-redis" \
-                -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
-                -v /etc/timezone:/etc/timezone:ro \
-                -v "$REDIS_VOLUME:/data" \
-                -v "/tmp:/tmp" \
-                "$REDIS_IMAGE" "$@"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-redis" \
+        -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+        -v /etc/timezone:/etc/timezone:ro \
+        -v "$REDIS_VOLUME:/data" \
+        -v "/tmp:/tmp" \
+        "$REDIS_IMAGE" "$@"
 }
 
 client() {
-        docker run \
-                $DOCKER_INTERACTIVE_OPTS \
-                --network "$NETWORK_NAME" \
-                -v "/tmp:/tmp" \
-                "$REDIS_IMAGE" \
-                redis-cli -h "$NETWORK_NAME-redis" "$@"
+    docker run \
+        $DOCKER_INTERACTIVE_OPTS \
+        --network "$NETWORK_NAME" \
+        -v "/tmp:/tmp" \
+        "$REDIS_IMAGE" \
+        redis-cli -h "$NETWORK_NAME-redis" "$@"
 }
 
 action() {
-        docker "$@" "$NETWORK_NAME-redis"
+    docker "$@" "$NETWORK_NAME-redis"
 }
 
 usage() {
-        echo
-        echo Available commands
-        echo
-        echo "  server    -> runs a redis docker image as a server"
-        echo "  client    -> runs a redis docker image as a client"
-        echo "  <action>  -> calls docker action on server container"
-        echo
+    echo
+    echo Available commands
+    echo
+    echo "  server    -> runs a redis docker image as a server"
+    echo "  client    -> runs a redis docker image as a client"
+    echo "  <action>  -> calls docker action on server container"
+    echo
 }
 
 main() {
-        source "$(get_dir)/config"
-        #
-        [ -z "$1" ] && usage && return 0
-        local cmd; cmd=$1; shift
-        #
-        [ "$cmd" = "server" ] && { server "$@"; return $?; }
-        [ "$cmd" = "client" ] && { client "$@"; return $?; }
-        action "$cmd" "$@"
+    source "$(get_dir)/config"
+    #
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd=$1; shift
+    #
+    [ "$cmd" = "server" ] && { server "$@"; return $?; }
+    [ "$cmd" = "client" ] && { client "$@"; return $?; }
+    action "$cmd" "$@"
 }
 
 main "$@"

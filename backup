@@ -11,38 +11,71 @@ dump_database() {
 }
 
 dump_attachments() {
-    (cd $COOG_DATA/coog/edm/ && 
-        tar -cz -f "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
+    docker run -it --rm \
+        -v /tmp:/tmp \
+        --volumes-from "$USER"-coog-server \
+        alpine:3.6 \
+        tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
+        cp /tmp/"$1" "$BACKUP_DIRECTORY/"
 }
 
 usage() {
     echo
-    echo "Backup command:"
+    echo "Available command:"
     echo
-    echo "  Backup database and attachments in $BACKUP_DIRECTORY/"
+    echo "  save    -> Backup database and attachments in $BACKUP_DIRECTORY/"
+    echo "  clean   -> Remove old backups "
     echo
 }
 
-main() {
+save() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
     if [[ $(date '+%m%d') == 0101 ]]; then
-        dump_database "db-$COOG_DB_NAME-$(date '+%Y').dump.gz"
+        dump_database "$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%d') == 01 ]]; then
-        dump_database "db-$COOG_DB_NAME-$(date '+%B').dump.gz"
+        dump_database "$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%u') == 0 ]]; then
-        dump_database "db-$COOG_DB_NAME-week-$(date '+%V').dump.gz"
+        dump_database "week-$(date '+%V')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "$week-(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
-    dump_database "db-$COOG_DB_NAME-$(date '+%A').dump.gz"
-    dump_attachments "attachments-$COOG_DB_NAME-$(date '+%A').tar.gz"
+    dump_database "$(date '+%Y%m%d')-daily-db-$USER-$COOG_DB_NAME.dump.gz"
+    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$USER-$COOG_DB_NAME.tar.gz"
+}
+
+clean() {
+    source "$(get_dir)/config"
+    [[ $# -ne 0 ]] && usage && exit 1
+
+    stock_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
+    stock_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
+
+    if [[ $stock_db -gt 0 ]]; then
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-db* | tail -$stock_db)
+    fi
+
+    if [[ $stock_attach -gt 0 ]]; then
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_attach)
+    fi
+}
+
+main() {
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd=$1; shift
+    #
+    [ "$cmd" = "save" ] && { save "$@"; return $?; }
+    [ "$cmd" = "clean" ] && { clean "$@"; return $?; }
+    action "$cmd" "$@"
 }
 
 main "$@"
