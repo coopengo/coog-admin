@@ -4,9 +4,9 @@
 # More informations: https://hub.docker.com/_/sentry/
 
 get_dir() {
-        local script_path; script_path=$(readlink -f "$0")
-        local script_dir; script_dir=$(dirname "$script_path")
-        echo "$script_dir"
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
 }
 
 ########
@@ -14,55 +14,55 @@ get_dir() {
 ########
 
 postgres_args() {
-        local args
-        if [ ! -z "$SENTRY_POSTGRES_HOST" ]
-        then
-                args="-e SENTRY_POSTGRES_HOST=$SENTRY_POSTGRES_HOST"
-                [ ! -z "$SENTRY_POSTGRES_PORT" ] && args="$args -e SENTRY_POSTGRES_PORT=$SENTRY_POSTGRES_PORT"
-        else
-                args="$args -e SENTRY_POSTGRES_HOST=$NETWORK_NAME-postgres"
-        fi
-        echo "$args"
+    local args
+    if [ ! -z "$SENTRY_POSTGRES_HOST" ]
+    then
+        args="-e SENTRY_POSTGRES_HOST=$SENTRY_POSTGRES_HOST"
+        [ ! -z "$SENTRY_POSTGRES_PORT" ] && args="$args -e SENTRY_POSTGRES_PORT=$SENTRY_POSTGRES_PORT"
+    else
+        args="$args -e SENTRY_POSTGRES_HOST=$NETWORK_NAME-postgres"
+    fi
+    echo "$args"
 }
 
 redis_args() {
-        local args
-        if [ ! -z "$SENTRY_REDIS_HOST" ]
-        then
-                args="-e SENTRY_REDIS_HOST=$SENTRY_REDIS_HOST"
-                [ ! -z "$SENTRY_REDIS_PORT" ] && args="$args -e SENTRY_REDIS_PORT=$SENTRY_REDIS_PORT"
-        else
-                args="$args -e SENTRY_REDIS_HOST=$NETWORK_NAME-redis"
-        fi
-        echo "$args"
+    local args
+    if [ ! -z "$SENTRY_REDIS_HOST" ]
+    then
+        args="-e SENTRY_REDIS_HOST=$SENTRY_REDIS_HOST"
+        [ ! -z "$SENTRY_REDIS_PORT" ] && args="$args -e SENTRY_REDIS_PORT=$SENTRY_REDIS_PORT"
+    else
+        args="$args -e SENTRY_REDIS_HOST=$NETWORK_NAME-redis"
+    fi
+    echo "$args"
 }
 
 db_args() {
-        local args
-        [ ! -z "$SENTRY_DB_USER" ] && args="$args -e SENTRY_DB_USER=$SENTRY_DB_USER"
-        [ ! -z "$SENTRY_DB_PASSWORD" ] && args="$args -e SENTRY_DB_PASSWORD=$SENTRY_DB_PASSWORD"
-        [ ! -z "$SENTRY_DB_NAME" ] && args="$args -e SENTRY_DB_NAME=$SENTRY_DB_NAME"
-        echo "$args"
+    local args
+    [ ! -z "$SENTRY_DB_USER" ] && args="$args -e SENTRY_DB_USER=$SENTRY_DB_USER"
+    [ ! -z "$SENTRY_DB_PASSWORD" ] && args="$args -e SENTRY_DB_PASSWORD=$SENTRY_DB_PASSWORD"
+    [ ! -z "$SENTRY_DB_NAME" ] && args="$args -e SENTRY_DB_NAME=$SENTRY_DB_NAME"
+    echo "$args"
 }
 
 cache_args() {
-        local args
-        [ ! -z "$SENTRY_REDIS_DB" ] && args="$args -e SENTRY_CACHE_DB=$SENTRY_CACHE_DB"
-        echo "$args"
+    local args
+    [ ! -z "$SENTRY_REDIS_DB" ] && args="$args -e SENTRY_CACHE_DB=$SENTRY_CACHE_DB"
+    echo "$args"
 }
 
 args() {
-        local args
-        check_key || return 1
-        args="-v $SENTRY_VOLUME:/var/lib/sentry/files -e SENTRY_SECRET_KEY=$(get_key)"
-        echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args)"
+    local args
+    check_key || return 1
+    args="-v $SENTRY_VOLUME:/var/lib/sentry/files -e SENTRY_SECRET_KEY=$(get_key)"
+    echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args)"
 }
 
 check_key() {
-        local secret_key
-        secret_key=$(get_key)
-        [ $? -ne 0 ] && echo "set key before starting" >&2 && return 1
-        return 0
+    local secret_key
+    secret_key=$(get_key)
+    [ $? -ne 0 ] && echo "set key before starting" >&2 && return 1
+    return 0
 }
 
 ###############
@@ -70,79 +70,79 @@ check_key() {
 ###############
 
 get_key() {
-        [ ! -f "$SENTRY_KEY" ] && return 1
-        cat "$SENTRY_KEY"
+    [ ! -f "$SENTRY_KEY" ] && return 1
+    cat "$SENTRY_KEY"
 }
 
 set_key() {
-        docker run \
-                $DOCKER_PIPED_OPTS \
-                "$SENTRY_IMAGE" config generate-secret-key > "$SENTRY_KEY"
+    docker run \
+        $DOCKER_PIPED_OPTS \
+        "$SENTRY_IMAGE" config generate-secret-key > "$SENTRY_KEY"
 }
 
 upgrade() {
-        docker run \
-                $DOCKER_INTERACTIVE_OPTS \
-                --network "$NETWORK_NAME" \
-                $(args) "$SENTRY_IMAGE" upgrade "$@"
+    docker run \
+        $DOCKER_INTERACTIVE_OPTS \
+        --network "$NETWORK_NAME" \
+        $(args) "$SENTRY_IMAGE" upgrade "$@"
 }
 
 server() {
-        docker run \
-                $DOCKER_DAEMON_OPTS \
-                --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-sentry" \
-                -p "9000:9000" \
-                $(args) "$SENTRY_IMAGE" "$@"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-sentry" \
+        -p "9000:9000" \
+        $(args) "$SENTRY_IMAGE" "$@"
 }
 
 cron() {
-        docker run \
-                $DOCKER_DAEMON_OPTS \
-                --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-sentry-cron" \
-                $(args) "$SENTRY_IMAGE" run cron "$@"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-sentry-cron" \
+        $(args) "$SENTRY_IMAGE" run cron "$@"
 }
 
 worker() {
-        docker run \
-                $DOCKER_DAEMON_OPTS \
-                --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-sentry-worker" \
-                $(args) "$SENTRY_IMAGE" run worker "$@"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-sentry-worker" \
+        $(args) "$SENTRY_IMAGE" run worker "$@"
 }
 
 action() {
-        docker "$@" "$NETWORK_NAME-sentry"
+    docker "$@" "$NETWORK_NAME-sentry"
 }
 
 usage() {
-        echo
-        echo Available commands
-        echo
-        echo "  get-key   -> gets secret key (to link workers)"
-        echo "  set-key   -> generates secret key"
-        echo "  upgrade   -> upgrades sentry database"
-        echo "  server    -> launches sentry server"
-        echo "  cron      -> launches sentry cron"
-        echo "  worker    -> launches sentry worker"
-        echo "  <action>  -> calls docker action on server container"
-        echo
+    echo
+    echo Available commands
+    echo
+    echo "  get-key   -> gets secret key (to link workers)"
+    echo "  set-key   -> generates secret key"
+    echo "  upgrade   -> upgrades sentry database"
+    echo "  server    -> launches sentry server"
+    echo "  cron      -> launches sentry cron"
+    echo "  worker    -> launches sentry worker"
+    echo "  <action>  -> calls docker action on server container"
+    echo
 }
 
 main() {
-        source "$(get_dir)/config"
-        #
-        [ -z "$1" ] && usage && return 0
-        local cmd; cmd="$1"; shift
-        #
-        [ "$cmd" = "get-key" ] && { get_key; return $?; }
-        [ "$cmd" = "set-key" ] && { set_key; return $?; }
-        [ "$cmd" = "upgrade" ] && { upgrade "$@"; return $?; }
-        [ "$cmd" = "server" ] && { server "$@"; return $?; }
-        [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
-        [ "$cmd" = "worker" ] && { worker "$@"; return $?; }
-        action "$cmd" "$@"
+    source "$(get_dir)/config"
+    #
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd="$1"; shift
+    #
+    [ "$cmd" = "get-key" ] && { get_key; return $?; }
+    [ "$cmd" = "set-key" ] && { set_key; return $?; }
+    [ "$cmd" = "upgrade" ] && { upgrade "$@"; return $?; }
+    [ "$cmd" = "server" ] && { server "$@"; return $?; }
+    [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
+    [ "$cmd" = "worker" ] && { worker "$@"; return $?; }
+    action "$cmd" "$@"
 }
 
 main "$@"

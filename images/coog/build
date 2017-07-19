@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. ../build-utils.sh
+[ $# -lt 4 ] && echo missing args >&2 && return 1
+build "$@"
