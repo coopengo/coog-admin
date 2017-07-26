@@ -94,7 +94,7 @@ COOG_SENTRY_SEC=
 COOG_SENTRY_PROJECT=
 
 COOG_SESSION_SUPERPWD=super             # coog super password (not a user)
-COOG_DB_LANG=fr_FR                      # database locale - eg. fr_FR
+COOG_DB_LANG=fr                         # database locale - eg. fr_FR
 COOG_CACHE_MODEL=                       # models cache size
 COOG_CACHE_RECORD=                      # records cache size
 COOG_CACHE_FIELD=                       # fields cache size
