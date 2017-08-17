@@ -1,0 +1,6 @@
+#!/bin/bash
+# vim: set ft=sh:
+
+[ -z "$1" ] && echo "missing tag <name>" >&2 && exit 1
+
+docker build -t "$1" .

@@ -19,23 +19,9 @@ edit() {
         $EDITOR "$PENTAHO_CONF"
 }
 
-_get_clone(){
-    mkdir $wd || return 1
-
-    git clone -b bi https://github.com/coopengo/coog-bi.git $wd
-
-}
-
-_del_clone(){
-    rm -R $wd
-}
-
 _build(){
-#    (cd $(get_dir)/images/bi/ && docker-compose build)
-    _get_clone
-    docker build -t bi_pentaho $wd/pentaho/
-    docker build -t bi_server $wd/biserver/
-    _del_clone
+    _etl_build bi_pentaho etl:master "$@"
+    _server_build bi_server "$@"
 }
 
 set_postgres_args(){
@@ -78,26 +64,46 @@ usage() {
 }
 
 _server(){
-    [ "$cmd" = "server" ] && usage && return 0
-    [ "$cmd" = "build" ] && _get_clone \
-        && docker build -t bi_server $wd/biserver/ \
-        && _del_clone && return 0;
-    [ "$cmd" = "run" ] && { _server_run; return $?; }
+    echo "$@"
     set -- "${@:1:$(($#-1))}"
+    [ "$cmd" = "server" ] && usage && return 0
+    [ "$cmd" = "build" ] && _server_build "$@" && return 0;
+    [ "$cmd" = "run" ] && { _server_run; return $?; }
     docker $cmd $@ biserver
 }
-_etl(){
+
+_server_build(){
+    echo "$@"
+    (cd "$(get_dir)/images/bi_server" && ./build "$@")
+}
+
+__server_run(){
+    docker run \
+        --name biserver \
+        -d --net ${NETWORK_NAME} \
+        -e PGHOST=${NETWORK_NAME}-postgres-dw \
+        -e PGUSER=$DW_DB_USER \
+        -e PGPASSWORD=$DW_DB_PASSWORD \
+        -p ${BI_SERVER_PORT}:8080 bi_server
+}
+
+etl(){
+    echo "$@"
+    set -- "${@:1:$(($#-1))}"
     [ "$cmd" = "etl" ] && usage && return 0
-    [ "$cmd" = "build" ] && _get_clone \
-        && docker build -t bi_pentaho $wd/pentaho/ \
-        && _del_clone && return 0;
+    [ "$cmd" = "build" ] && _etl_build "$@" && return 0;
     [ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
-    set -- "${@:1:$(($#-1))}" 
-    docker $cmd $@ pentaho    
+    docker $cmd $@ pentaho
+}
+
+_etl_build(){
+    echo "$@"
+    (cd "$(get_dir)/images/bi_etl" && ./build "$@")
 }
 
 _etl_run(){
     docker run --rm \
+        --name pentaho \
         --net ${NETWORK_NAME} $ETL_ENV \
         -e "PGPASSWORD=postgres" \
         $(set_postgres_args) \
@@ -120,16 +126,6 @@ _run() {
     _etl_run & _server_run && return $?
 }
 
-_server_run(){
-    docker run \
-        --name biserver \
-        -d --net ${NETWORK_NAME} \
-        -e PGHOST=${NETWORK_NAME}-postgres-dw \
-        -e PGUSER=$DW_DB_USER \
-        -e PGPASSWORD=$DW_DB_PASSWORD \
-        -p ${BI_SERVER_PORT}:8080 bi_server
-}
-
 _docker(){
     docker ps | grep pentaho
     [ "$?" != 0 ] && docker $cmd $@ pentaho
@@ -145,8 +141,6 @@ main(){
     for img; do true; done
 
     local cmd; cmd="$1"; shift
-    local dtw; local coog_h;
-    local wd; wd="$(get_dir)/workspace"
 
     [ "$cmd" = "init" ] && { init; return $?; }
 

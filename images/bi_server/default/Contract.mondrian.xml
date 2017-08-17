@@ -1,0 +1,110 @@
+<Schema name="Contract">
+  <Dimension visible="true" highCardinality="false" name="Contract dw history">
+    <Hierarchy name="Bic" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Bic" visible="true" column="bic" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Billing code" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Billing code" visible="true" column="billing_mode" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Contract number" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Contract number" visible="true" column="contract_number" type="Numeric" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Mandate identification" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Mandate identification" visible="true" column="mandate_identification" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Payer code" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Payer code" visible="true" column="payer_code" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Payment term" visible="true" hasAll="true" primaryKey="contract_number">
+      <Table name="contract_dw_history" schema="public">
+      </Table>
+      <Level name="Payment term" visible="true" column="payment_term" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Date_Dim">
+    <Hierarchy name="Year" visible="true" hasAll="true" primaryKey="date_actual">
+      <Table name="d_date" schema="public">
+      </Table>
+      <Level name="Year actual" visible="true" column="year_actual" type="Numeric" uniqueMembers="true" levelType="TimeYears" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Month" visible="true" hasAll="true" primaryKey="date_actual">
+      <Table name="d_date" schema="public">
+      </Table>
+      <Level name="Month" visible="true" column="month_actual" nameColumn="month_name_abbreviated" type="Numeric" uniqueMembers="true" levelType="TimeMonths" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Quarter" visible="true" hasAll="true" primaryKey="date_actual">
+      <Table name="d_date" schema="public">
+      </Table>
+      <Level name="Quarter" visible="true" column="quarter_actual" nameColumn="quarter_name" type="Numeric" uniqueMembers="true" levelType="TimeQuarters" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension visible="true" highCardinality="false" name="Product">
+    <Hierarchy name="Company" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Company" visible="true" column="company" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Agency" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Agency" visible="true" column="agency" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Agent" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Agent" visible="true" column="agent" type="String" internalType="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Dist network" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Dist network" visible="true" column="dist_network" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Status" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Status" visible="true" column="status" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+    <Hierarchy name="Code" visible="true" hasAll="true" primaryKey="dw_id">
+      <Table name="contract_dw" schema="public">
+      </Table>
+      <Level name="Code" visible="true" column="product" type="String" internalType="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Contract" visible="true" cache="true" enabled="true">
+    <Table name="contract_dw" schema="public">
+    </Table>
+    <DimensionUsage source="Contract dw history" name="Contract dw history" visible="true" foreignKey="dw_id" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Date_Dim" name="Date_Dim" visible="true" foreignKey="start_date" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Product" name="Product" visible="true" foreignKey="contract_number" highCardinality="false">
+    </DimensionUsage>
+    <Measure name="Dw id" column="dw_id" aggregator="count">
+    </Measure>
+  </Cube>
+</Schema>
