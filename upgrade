@@ -103,8 +103,12 @@ main() {
             echo "adding $COOG_IMAGE_TAG image to config"
             echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
         else
-            echo "$COOG_IMAGE_TAG image not found"
-            return 1
+            docker login
+            docker pull "$COOG_IMAGE_TAG"
+            if [ "$?" -ne 0 ]; then
+                echo "$COOG_IMAGE_TAG image not found"
+                return 1
+            fi
         fi
     fi
 
