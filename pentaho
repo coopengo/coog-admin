@@ -74,10 +74,10 @@ _server(){
 
 _server_build(){
     echo "$@"
-    (cd "$(get_dir)/images/bi_server" && ./build "$@")
+    (cd "$(get_dir)/images/bi_server" && ./build bi_server "$@")
 }
 
-__server_run(){
+_server_run(){
     docker run \
         --name biserver \
         -d --net ${NETWORK_NAME} \
@@ -98,7 +98,7 @@ etl(){
 
 _etl_build(){
     echo "$@"
-    (cd "$(get_dir)/images/bi_etl" && ./build "$@")
+    (cd "$(get_dir)/images/bi_etl" && ./build bi_pentaho "$@")
 }
 
 _etl_run(){

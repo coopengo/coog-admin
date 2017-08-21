@@ -26,6 +26,8 @@ EXPOSE 8080
 COPY scripts ${PENTAHO_HOME}/scripts
 COPY config ${PENTAHO_HOME}/config
 
+RUN sed -i -e "s/PLACEHOLDER/$PGHOST" ${PENTAHO_HOME}/config/*
+
 VOLUME ["/usr/local/coog/default","/opt/pentaho/default"]
 
 ADD default ${PENTAHO_HOME}/default

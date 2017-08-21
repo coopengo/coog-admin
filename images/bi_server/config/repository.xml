@@ -32,7 +32,7 @@
 
   <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
     <param name="driver" value="org.postgresql.Driver"/>
-    <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+    <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
     <param name="user" value="jcr_user"/>
     <param name="password" value="postgres"/>
     <param name="schema" value="postgresql"/>
@@ -52,7 +52,7 @@
   -->
 
   <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
-    <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+    <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
     <param name="driver" value="org.postgresql.Driver"/>
     <param name="user" value="jcr_user"/>
     <param name="password" value="postgres"/>
@@ -132,7 +132,7 @@
     -->
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
       <param name="driver" value="org.postgresql.Driver"/>
-      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
       <param name="user" value="jcr_user"/>
       <param name="password" value="postgres"/>
       <param name="schema" value="postgresql"/>
@@ -153,7 +153,7 @@
           documentation for further explanation.
         -->
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
-      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
       <param name="driver" value="org.postgresql.Driver"/>
       <param name="user" value="jcr_user"/>
       <param name="password" value="postgres"/>
@@ -196,7 +196,7 @@
 
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
       <param name="driver" value="org.postgresql.Driver"/>
-      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
       <param name="user" value="jcr_user"/>
       <param name="password" value="postgres"/>
       <param name="schema" value="postgresql"/>
@@ -217,7 +217,7 @@
           documentation for further explanation.
         -->
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
-      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="url" value="jdbc:postgresql://PLACEHOLDER:5432/jackrabbit"/>
       <param name="driver" value="org.postgresql.Driver"/>
       <param name="user" value="jcr_user"/>
       <param name="password" value="postgres"/>

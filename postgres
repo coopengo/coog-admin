@@ -13,7 +13,7 @@ server() {
     docker run \
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
-        --name "$NETWORK_NAME-postgres" \
+        --name "$PG_DOCKER_NAME" \
         -e "POSTGRES_USER=$POSTGRES_USER" \
         -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
         -e "PGDATA=/var/lib/postgresql/data/pgdata" \
@@ -30,7 +30,7 @@ client() {
         --network "$NETWORK_NAME" \
         -v "/tmp:/tmp" \
         "$POSTGRES_IMAGE" \
-        psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
+        psql -h "$PG_DOCKER_NAME" -U "$POSTGRES_USER" "$@"
 }
 
 dump() {
@@ -39,7 +39,7 @@ dump() {
         docker run \
             $DOCKER_PIPED_OPTS \
             --network "$NETWORK_NAME" \
-            -e PGHOST="$NETWORK_NAME-postgres" \
+            -e PGHOST="$PG_DOCKER_NAME" \
             -e PGUSER="$COOG_DB_USER" \
             -e PGPASSWORD="$COOG_DB_PASSWORD" \
             -e PGDATABASE="$COOG_DB_NAME" \
@@ -58,7 +58,7 @@ dump() {
 }
 
 action() {
-    docker "$@" "$NETWORK_NAME-postgres"
+    docker "$@" "$PG_DOCKER_NAME"
 }
 
 usage() {
@@ -72,6 +72,15 @@ usage() {
     echo
 }
 
+_set_dw_var(){
+    source "$(get_dir)/defaults/pentaho.conf"
+    POSTGRES_VOLUME="$DW_VOLUME"
+    PG_DOCKER_NAME="$PG_DOCKER_NAME-dw"
+    COOG_DB_NAME="$DW_DB_NAME"
+    COOG_DB_USER="$DW_DB_USER"
+    COOG_DB_PASSWORD="$COOG_DB_PASSWORD"
+}
+
 main() {
     source "$(get_dir)/config"
     [ ! -z "$PGUSER" ] && COOG_DB_USER="$PGUSER"
@@ -80,6 +89,11 @@ main() {
     #
     [ -z "$1" ] && usage && return 0
     local cmd; cmd=$1; shift
+    #
+    PG_DOCKER_NAME="$NETWORK_NAME-postgres"
+    for img; do true; done
+
+    [ "$img" = "dwh" ] &&  _set_dw_var && set -- "${@:1:$(($#-1))}"
     #
     [ "$cmd" = "server" ] && { server "$@"; return $?; }
     [ "$cmd" = "client" ] && { client "$@"; return $?; }
