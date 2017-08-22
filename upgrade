@@ -65,6 +65,8 @@ do
     case "$opt" in
         t) COOG_IMAGE_TAG="$OPTARG"
             ;;
+        p) COOG_IMAGE_TAG="$OPTARG"
+            ;;
         a) COOG_IMAGE_ARCHIVE="$OPTARG"
             ;;
         s) COOG_SERVER_WORKERS="$OPTARG"
@@ -103,7 +105,9 @@ main() {
             echo "adding $COOG_IMAGE_TAG image to config"
             echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
         else
-            docker login
+            if [ ! -f "$HOME/.docker/config.json" ]; then
+                docker login
+            fi
             docker pull "$COOG_IMAGE_TAG"
             if [ "$?" -ne 0 ]; then
                 echo "$COOG_IMAGE_TAG image not found"
