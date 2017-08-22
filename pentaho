@@ -64,16 +64,14 @@ usage() {
 }
 
 _server(){
-    echo "$@"
     set -- "${@:1:$(($#-1))}"
     [ "$cmd" = "server" ] && usage && return 0
     [ "$cmd" = "build" ] && _server_build "$@" && return 0;
-    [ "$cmd" = "run" ] && { _server_run; return $?; }
+    [ "$cmd" = "run" ] && { _server_run "$@"; return $?; }
     docker $cmd $@ biserver
 }
 
 _server_build(){
-    echo "$@"
     (cd "$(get_dir)/images/bi_server" && ./build bi_server "$@")
 }
 
@@ -84,20 +82,19 @@ _server_run(){
         -e PGHOST=${NETWORK_NAME}-postgres-dw \
         -e PGUSER=$DW_DB_USER \
         -e PGPASSWORD=$DW_DB_PASSWORD \
+        --privileged=true \
         -p ${BI_SERVER_PORT}:8080 bi_server
 }
 
-etl(){
-    echo "$@"
+_etl(){
     set -- "${@:1:$(($#-1))}"
     [ "$cmd" = "etl" ] && usage && return 0
     [ "$cmd" = "build" ] && _etl_build "$@" && return 0;
-    [ "$cmd" = "run" ] && { _etl_run $@ ; return $?; }
+    [ "$cmd" = "run" ] && { _etl_run "$@"; return $?; }
     docker $cmd $@ pentaho
 }
 
 _etl_build(){
-    echo "$@"
     (cd "$(get_dir)/images/bi_etl" && ./build bi_pentaho "$@")
 }
 

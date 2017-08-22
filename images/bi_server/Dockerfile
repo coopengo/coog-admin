@@ -23,12 +23,10 @@ RUN sed -i -e 's/\(exec ".*"\) start/\1 run/' ${PENTAHO_SERVER}/tomcat/bin/start
 
 EXPOSE 8080
 
-COPY scripts ${PENTAHO_HOME}/scripts
-COPY config ${PENTAHO_HOME}/config
-
-RUN sed -i -e "s/PLACEHOLDER/$PGHOST" ${PENTAHO_HOME}/config/*
+COPY dist/server/server/scripts ${PENTAHO_HOME}/scripts
+COPY dist/server/server/config ${PENTAHO_HOME}/config
 
 VOLUME ["/usr/local/coog/default","/opt/pentaho/default"]
 
-ADD default ${PENTAHO_HOME}/default
+ADD dist/server/server/default ${PENTAHO_HOME}/default
 ENTRYPOINT ["sh", "-c", "$PENTAHO_HOME/scripts/run.sh"]
