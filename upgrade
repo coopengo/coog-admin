@@ -4,6 +4,7 @@
 OPTIND=1
 COOG_IMAGE_TAG="-"
 COOG_IMAGE_ARCHIVE="-"
+COOG_IMAGE_REPO="-"
 DEFAULT_WORKERS=$(nproc)
 [ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
 COOG_SERVER_WORKERS=$DEFAULT_WORKERS
@@ -51,6 +52,7 @@ print_help() {
         echo "Command options:"
         echo "  -t <image-tag>"
         echo "  -a <image-archive>"
+        echo "  -p <image-repository>"
         echo "  -s <server-workers-number>"
         echo "  -c <celery-workers-number>"
         echo "  -b : backup database"
@@ -60,12 +62,14 @@ print_help() {
         echo "Extra parameters will be forwarded to the database update command"
 }
 
-while getopts "t:a:s:c:buh" opt
+while getopts "t:a:p:s:c:buh" opt
 do
         case "$opt" in
                 t) COOG_IMAGE_TAG="$OPTARG"
                         ;;
                 a) COOG_IMAGE_ARCHIVE="$OPTARG"
+                        ;;
+                p) COOG_IMAGE_REPO="$OPTARG"
                         ;;
                 s) COOG_SERVER_WORKERS="$OPTARG"
                         ;;
@@ -81,6 +85,9 @@ do
 done
 shift $((OPTIND-1))
 
+[ "$COOG_IMAGE_ARCHIVE" != "-" ] && [ "$COOG_IMAGE_REPO" != "-" ] && \
+    echo "Archive (-a) and repository (-p) parameters are mutually exclusive" && exit 1
+
 main() {
         local dir
         dir=$(get_dir)
@@ -92,6 +99,13 @@ main() {
                 echo "loading image from $COOG_IMAGE_ARCHIVE"
                 docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
                 COOG_IMAGE_TAG="$(docker_last_image)"
+        fi
+        if [ "$COOG_IMAGE_REPO" != "-" ]
+        then
+            echo
+            echo "pulling image from $COOG_IMAGE_REPO"
+            docker pull "$COOG_IMAGE_REPO" || return $?
+            COOG_IMAGE_TAG="$(docker_last_image)"
         fi
         if [ "$COOG_IMAGE_TAG" != "-" ]
         then
@@ -107,6 +121,7 @@ main() {
                         return 1
                 fi
         fi
+
         local paybox_container
         paybox_container=$(docker_container paybox)
         echo
@@ -221,6 +236,7 @@ echo "Please make sure this is what you want to do and check parameters below be
 echo
 echo "- Image tag: $COOG_IMAGE_TAG (-t)"
 echo "- Image archive: $COOG_IMAGE_ARCHIVE (-a)"
+echo "- Image repository: $COOG_IMAGE_REPO (-p)"
 echo "- Server workers: $COOG_SERVER_WORKERS (-s)"
 echo "- Celery workers: $COOG_CELERY_WORKERS (-c)"
 echo "- Backup database: $COOG_DB_BACKUP (-b)"
