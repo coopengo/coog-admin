@@ -26,7 +26,7 @@ RUN apt-get -y install postgresql-client-9.4
 ENV PATH=$PDI_HOME/data-integration:$PATH
 
 COPY ./dist/etl/ETL $KETTLE_HOME/ETL
-COPY ./dist/etl/.kettle $KETTLE_HOME/.kettle
+COPY ./dist/etl/kettle $KETTLE_HOME/.kettle
 
 COPY ./ep /ep
 
