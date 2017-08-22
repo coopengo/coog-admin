@@ -85,7 +85,7 @@ do
 done
 shift $((OPTIND-1))
 
-[ "$COOG_IMAGE_ARCHIVE" != "-" ] && [ "$COOG_IMAGE_REPO" != "" ] && \
+[ "$COOG_IMAGE_ARCHIVE" != "-" ] && [ "$COOG_IMAGE_REPO" != "-" ] && \
     echo "Archive (-a) and repository (-p) parameters are mutually exclusive" && exit 1
 
 main() {
@@ -102,11 +102,6 @@ main() {
     fi
     if [ "$COOG_IMAGE_REPO" != "-" ]
     then
-        if [ ! -f "$HOME/.docker/config.json" ]
-        then
-            echo "You must login to docker hub (docker login)"
-            exit 1
-        fi
         echo
         echo "pulling image from $COOG_IMAGE_REPO"
         docker pull "$COOG_IMAGE_REPO" || return $?
@@ -121,6 +116,9 @@ main() {
         then
             echo "adding $COOG_IMAGE_TAG image to config"
             echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
+        else
+            echo "$COOG_IMAGE_TAG image not found"
+            return 1
         fi
     fi
 
