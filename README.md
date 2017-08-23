@@ -153,7 +153,7 @@ All commands print commands list when called without arguments
     - now nginx is listening on port 80 (of the host machine). You can connect your client.
 
 - Start Webat Server
-    - `./web start`: starts webat server link to NGINX
+    - `./webat start`: starts webat server link to NGINX
 
 This example is a basic one. Keep in mind that you can customize it to have a
 better (as in 'closer to your needs') configuration:
