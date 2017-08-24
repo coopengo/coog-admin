@@ -12,7 +12,7 @@ run() {
     CONTAINER_NAME=$1
     [ -z "$WEBAT_PORT" ] && WEBAT_PORT=9500
     docker run                                              \
-           "$DOCKER_DAEMON_OPTS"                            \
+           $DOCKER_DAEMON_OPTS                              \
            -e "WEBAT_COOG_API=http://$NETWORK_NAME-api:3000"\
            -e "WEBAT_ADDR=$WEBAT_ADDR:$WEBAT_PORT"          \
            --name "$CONTAINER_NAME"                         \
