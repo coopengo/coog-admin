@@ -44,6 +44,7 @@ RUN pip install \
         uwsgi \
         "celery<4" \
         rq \
+        zeep \
     && rm -rf /root/.cache
 
 RUN mkdir /workspace && mkdir /workspace/data
