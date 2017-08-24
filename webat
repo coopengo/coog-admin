@@ -10,13 +10,14 @@ get_dir() {
 
 run() {
     CONTAINER_NAME=$1
-    [ -z "$WEBAT_PORT" ] && WEBAT_PORT=3081
-    docker run                              \
-           "$DOCKER_DAEMON_OPTS"            \
+    [ -z "$WEBAT_PORT" ] && WEBAT_PORT=9500
+    docker run                                              \
+           "$DOCKER_DAEMON_OPTS"                            \
            -e "WEBAT_COOG_API=http://$NETWORK_NAME-api:3000"\
-           --name "$CONTAINER_NAME"         \
-           --network "$NETWORK_NAME"        \
-           -p $WEBAT_PORT:3000              \
+           -e "WEBAT_ADDR=$WEBAT_ADDR:$WEBAT_PORT"          \
+           --name "$CONTAINER_NAME"                         \
+           --network "$NETWORK_NAME"                        \
+           -p $WEBAT_PORT:3000                              \
            "$WEBAT_IMAGE" "$@"
 }
 
