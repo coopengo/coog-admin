@@ -82,6 +82,7 @@ usage() {
     echo Available commands
     echo
     echo "  server    -> runs a postgres docker image as a server"
+    echo "  dwh       -> runs a postgres docker image as a datawarehouse server"
     echo "  client    -> runs a postgres docker image as a client"
     echo "  dump      -> creates a dump of coog database"
     echo "  <action>  -> calls docker action on server container"
