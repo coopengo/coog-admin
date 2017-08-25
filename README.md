@@ -118,7 +118,7 @@ This command updates a running environment. It stops and drops running container
 
 ### BI
 
-First of all, you have to set up a running server to host your datawarehouse.
+First of all, you have to set up a running databse server to host your datawarehouse.
 
 Initiate configuration file with `./pentaho init`
 
