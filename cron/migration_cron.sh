@@ -6,7 +6,7 @@
 USER=root
 COOG_ADMIN="$HOME/coog-admin"
 MIGRATION_DIR="/usr/local/coog/coog/as400"
-DOCKER_MIGRATION_DIR="/coog/io/as400"
+DOCKER_MIGRATION_DIR="/workspace/io/as400"
 BACKUP="backup_$(date "+%d-%m-%y").tar.gz"
 JOB_SIZE=100
 UPDATE=true
