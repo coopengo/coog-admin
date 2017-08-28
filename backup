@@ -11,8 +11,12 @@ dump_database() {
 }
 
 dump_attachments() {
-    (cd $COOG_DATA/coog/edm/ && [ -d "$COOG_DB_NAME" ] &&
-        tar czf "$BACKUP_DIRECTORY/$1" "$COOG_DB_NAME")
+    docker run -it --rm \
+        -v /tmp:/tmp \
+        --volumes-from "$USER"-coog-server \
+        alpine:3.6 \
+        tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME"
+    cp /tmp/"$1" "$BACKUP_DIRECTORY/"
 }
 
 usage() {
