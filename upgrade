@@ -5,10 +5,6 @@ OPTIND=1
 COOG_IMAGE_TAG="-"
 COOG_IMAGE_ARCHIVE="-"
 COOG_IMAGE_REPO="-"
-DEFAULT_WORKERS=$(nproc)
-[ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
-COOG_SERVER_WORKERS=$DEFAULT_WORKERS
-COOG_CELERY_WORKERS=$DEFAULT_WORKERS
 COOG_DB_BACKUP=n
 COOG_DB_UPDATE=n
 
@@ -70,10 +66,6 @@ do
         p) COOG_IMAGE_REPO="$OPTARG"
             ;;
         a) COOG_IMAGE_ARCHIVE="$OPTARG"
-            ;;
-        s) COOG_SERVER_WORKERS="$OPTARG"
-            ;;
-        c) COOG_CELERY_WORKERS="$OPTARG"
             ;;
         b) COOG_DB_BACKUP=y
             ;;
@@ -204,7 +196,7 @@ main() {
     then
         echo
         echo "starting celery container"
-        "$dir/coog" celery "$COOG_CELERY_WORKERS"
+        "$dir/coog" celery
     fi
 
     if [ ! -z "$cron_container" ]
@@ -218,7 +210,7 @@ main() {
     then
         echo
         echo "starting server container"
-        "$dir/coog" server "$COOG_SERVER_WORKERS"
+        "$dir/coog" server
     fi
 
     if [ ! -z "$web_container" ]
@@ -249,8 +241,6 @@ echo
 echo "- Image tag: $COOG_IMAGE_TAG (-t)"
 echo "- Image archive: $COOG_IMAGE_ARCHIVE (-a)"
 echo "- Image repository: $COOG_IMAGE_REPO (-p)"
-echo "- Server workers: $COOG_SERVER_WORKERS (-s)"
-echo "- Celery workers: $COOG_CELERY_WORKERS (-c)"
 echo "- Backup database: $COOG_DB_BACKUP (-b)"
 echo "- Update database: $COOG_DB_UPDATE (-u)"
 echo

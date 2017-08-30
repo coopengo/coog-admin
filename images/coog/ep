@@ -189,21 +189,29 @@ _cron() {
 }
 
 _server() {
-        [ -z "$1" ] && echo "missing concurrency" && return 1
+        local n; n="$1"
+        [ -z "$n" ] && n="$COOG_SERVER_WORKERS"
+        [ -z "$n" ] && echo "missing concurrency" && return 1
         echo Welcome on board, Coog Server is preparing to start
         _init || return $?
         _uno
         local out
         out=/tmp/coog-docker-$HOSTNAME
-        WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$1"
+        WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$n"
 }
 
 _celery() {
-        [ -z "$1" ] && echo "missing concurrency" && return 1
+        local n; n="$1"
+        if [ "$n" -eq "$n" ]
+        then
+            shift
+        else
+            n="$COOG_CELERY_WORKERS"
+            [ -z "$n" ] && echo "missing concurrency" && return 1
+        fi
         echo Welcome on board, Coog Celery is preparing to start
         _init || return $?
         _uno
-        local n; n="$1"; shift
         local q
         if [ ! -z "$1" ]
         then
