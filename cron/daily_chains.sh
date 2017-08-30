@@ -3,9 +3,8 @@
 
 # 0 3 * * * /home/root/coog-admin/cron/daily_chains.sh
 
-USER=root
+USER=coog-adm
 COOG_ADMIN="$HOME/coog-admin"
-
 
 export USER=$USER
 

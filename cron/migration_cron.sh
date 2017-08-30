@@ -3,10 +3,10 @@
 
 # 30 21 * * * /home/root/coog-admin/cron/migration_cron.sh
 
-USER=root
+USER=coog-adm
 COOG_ADMIN="$HOME/coog-admin"
-MIGRATION_DIR="/usr/local/coog/coog/as400"
 DOCKER_MIGRATION_DIR="/workspace/io/as400"
+MIGRATION_DIR="$HOME/.local/share/coog/coog/as400"
 BACKUP="backup_$(date "+%d-%m-%y").tar.gz"
 JOB_SIZE=100
 UPDATE=true
