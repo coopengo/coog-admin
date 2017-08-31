@@ -88,6 +88,8 @@ _args() {
     args="-v /tmp:/tmp -v $COOG_VOLUME:/workspace/io"
     [ ! -z "$COOG_LOG_LEVEL" ] && args="$args -e LOG_LEVEL=$COOG_LOG_LEVEL"
     [ ! -z "$COOG_ADMIN_EMAIL" ] && args="$args -e COOG_ADMIN_EMAIL=$COOG_ADMIN_EMAIL"
+    [ ! -z "$COOG_SERVER_WORKERS" ] && args="$args -e COOG_SERVER_WORKERS=$COOG_SERVER_WORKERS"
+    [ ! -z "$COOG_CELERY_WORKERS" ] && args="$args -e COOG_CELERY_WORKERS=$COOG_CELERY_WORKERS"
     echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
