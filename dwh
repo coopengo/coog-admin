@@ -13,7 +13,7 @@ server() {
         docker run \
                 $DOCKER_DAEMON_OPTS \
                 --network "$NETWORK_NAME" \
-                --name "$NETWORK_NAME-postgres-dw" \
+                --name "$NETWORK_NAME-dwh" \
                 -e "POSTGRES_USER=$DW_DB_USER" \
                 -e "POSTGRES_PASSWORD=$DW_DB_PASSWORD" \
                 -e "PGDATA=/var/lib/postgresql/data/pgdata" \
@@ -30,7 +30,7 @@ client() {
                 --network "$NETWORK_NAME" \
                 -v "/tmp:/tmp" \
                 "$DW_IMAGE" \
-                psql -h "$NETWORK_NAME-postgres-dw" -U "$DW_DB_USER" "$@"
+                psql -h "$NETWORK_NAME-dwh" -U "$DW_DB_USER" "$@"
 }
 
 dump() {
@@ -39,7 +39,7 @@ dump() {
                 docker run \
                         $DOCKER_PIPED_OPTS \
                         --network "$NETWORK_NAME" \
-                        -e PGHOST="$NETWORK_NAME-postgres-dw" \
+                        -e PGHOST="$NETWORK_NAME-dwh" \
                         -e PGUSER="$DW_DB_USER" \
                         -e PGPASSWORD="$DW_DB_PASSWORD" \
                         "$DW_IMAGE" \
@@ -56,7 +56,7 @@ dump() {
 }
 
 action() {
-        docker "$@" "$NETWORK_NAME-postgres-dw"
+        docker "$@" "$NETWORK_NAME-dw"
 }
 
 usage() {

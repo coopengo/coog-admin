@@ -22,7 +22,7 @@ set_postgres_args(){
                 args="$args -e DW_HOSTNAME=$DW_HOSTNAME"
                 [ ! -z "$DW_PORT" ] && args="$args -e DW_PORT=$DW_PORT"
         else
-                args="$args -e DW_HOSTNAME=${NETWORK_NAME}-postgres-dw -e DW_PORT=5432"
+                args="$args -e DW_HOSTNAME=${NETWORK_NAME}-dw -e DW_PORT=5432"
         fi
         echo "$args"
 
@@ -36,16 +36,16 @@ _run(){
     docker run --rm \
         --name pentaho \
         --net ${NETWORK_NAME} \
-        -e COOG_HOSTNAME=$DW_ORIGIN_DB_HOSTNAME \
-        -e COOG_PORT=$DW_ORIGIN_DB_PORT \
-        -e COOG_DB=$DW_ORIGIN_DB_NAME \
-        -e COOG_USER=$DW_ORIGIN_DB_USER \
-        -e COOG_PASSWORD=$DW_ORIGIN_DB_PASSWORD \
-        -e DW_HOSTNAME=$DW_TARGET_DB_HOSTNAME \
-        -e DW_PORT=$DW_TARGET_DB_PORT \
-        -e DW_DB=$DW_TARGET_DB_NAME \
-        -e DW_USER=$DW_TARGET_DB_USER \
-        -e DW_PASSWORD=$DW_TARGET_DB_PASSWORD \
+        -e COOG_HOSTNAME=$DWH_ORIGIN_DB_HOSTNAME \
+        -e COOG_PORT=$ETL_ORIGIN_DB_PORT \
+        -e COOG_DB=$ETL_ORIGIN_DB_NAME \
+        -e COOG_USER=$ETL_ORIGIN_DB_USER \
+        -e COOG_PASSWORD=$ETL_ORIGIN_DB_PASSWORD \
+        -e DW_HOSTNAME=$DW_ORIGIN_DB_HOSTNAME \
+        -e DW_PORT=$DW_ORIGIN_DB_PORT \
+        -e DW_DB=$DW_ORIGIN_DB_NAME \
+        -e DW_USER=$DW_ORIGIN_DB_USER \
+        -e DW_PASSWORD=$DW_ORIGIN_DB_PASSWORD \
         -e "PGPASSWORD=postgres" \
         $(set_postgres_args) \
         bi_pentaho && return 1
