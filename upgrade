@@ -105,7 +105,7 @@ main() {
             echo
             echo "pulling image from $COOG_IMAGE_REPO"
             docker pull "$COOG_IMAGE_REPO" || return $?
-            COOG_IMAGE_TAG="$(docker_last_image)"
+            COOG_IMAGE_TAG="$COOG_IMAGE_REPO"
         fi
         if [ "$COOG_IMAGE_TAG" != "-" ]
         then
