@@ -7,16 +7,25 @@ get_dir() {
 }
 
 dump_database() {
-    "$(get_dir)"/postgres dump -Fc > "$BACKUP_DIRECTORY/$1"
+    if $(get_dir)/postgres dump -Fc > "$BACKUP_DIRECTORY/$1"; then
+        echo "dump db -> OK"
+    else
+        echo "dump db -> KO"
+    fi
 }
 
 dump_attachments() {
-    docker run -it --rm \
+    SECONDS=0
+    docker run -i --rm \
         -v /tmp:/tmp \
         --volumes-from "$USER"-coog-server \
         alpine:3.6 \
-        tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME"
-    cp /tmp/"$1" "$BACKUP_DIRECTORY/"
+        tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
+        cp /tmp/"$1" "$BACKUP_DIRECTORY/" &&
+    echo "dump attachments -> OK" ||
+    echo "dump attachments -> KO"
+    duration=$SECONDS
+    echo "job time :$(($duration / 60)) min $(($duration % 60)) s"
 }
 
 usage() {
@@ -35,20 +44,24 @@ save() {
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
     if [[ $(date '+%m%d') == 0101 ]]; then
-        dump_database "$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        echo "saving yearly db and attachments"
+        dump_database "year-$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "year-$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%d') == 01 ]]; then
-        dump_database "$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        echo "saving monthly db and attachments"
+        dump_database "month-$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "month-$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     if [[ $(date '+%u') == 0 ]]; then
+        echo "saving weekly db and attachments"
         dump_database "week-$(date '+%V')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "$week-(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_attachments "week-$(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
+    echo "saving daily db and attachments"
     dump_database "$(date '+%Y%m%d')-daily-db-$USER-$COOG_DB_NAME.dump.gz"
     dump_attachments "$(date '+%Y%m%d')-daily-attachments-$USER-$COOG_DB_NAME.tar.gz"
 }
@@ -57,15 +70,54 @@ clean() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
-    stock_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
-    stock_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
+    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
+    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*week*db* | wc -l) - 4)"
+    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*month*db* | wc -l) - 3)"
+    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*year*db* | wc -l) - 2)"
 
-    if [[ $stock_db -gt 0 ]]; then
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-db* | tail -$stock_db)
+    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
+    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*week*attachments* | wc -l) - 4)"
+    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*month*attachments* | wc -l) - 3)"
+    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*year*attachments* | wc -l) - 2)"
+
+    if [[ $stock_daily_db -gt 0 ]]; then
+        echo "cleaning daily db"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*daily-db* | tail -$stock_daily_db)"
     fi
 
-    if [[ $stock_attach -gt 0 ]]; then
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_attach)
+    if [[ $stock_weekly_db -gt 0 ]]; then
+        echo "cleaning weekly db"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*week*db* | tail -$stock_weekly_db)"
+    fi
+
+    if [[ $stock_monthly_db -gt 0 ]]; then
+        echo "cleaning monthly db"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*month*db* | tail -$stock_monthly_db)"
+    fi
+
+    if [[ $stock_yearly_db -gt 0 ]]; then
+        echo "cleaning yearly db"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*year*db* | tail -$stock_yearly_db)"
+    fi
+
+    if [[ $stock_daily_attach -gt 0 ]]; then
+        echo "clean daily attachments"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_daily_attach)"
+    fi
+
+    if [[ $stock_weekly_attach -gt 0 ]]; then
+        echo "cleaning weekly attachments"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_db)"
+    fi
+
+    if [[ $stock_monthly_attach -gt 0 ]]; then
+        echo "cleaning monthly attachments"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_db)"
+    fi
+
+    if [[ $stock_yearly_attach -gt 0 ]]; then
+        echo "cleaning yearly attachments"
+        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_db)"
     fi
 }
 
