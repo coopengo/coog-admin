@@ -70,15 +70,15 @@ clean() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
-    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
-    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*week*db* | wc -l) - 4)"
-    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*month*db* | wc -l) - 3)"
-    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*year*db* | wc -l) - 2)"
+    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* 2>/dev/null | wc -l) - 7)"
+    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*week*db* 2>/dev/null | wc -l) - 4)"
+    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*month*db* 2>/dev/null | wc -l) - 3)"
+    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*year*db* 2>/dev/null | wc -l) - 2)"
 
-    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
-    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*week*attachments* | wc -l) - 4)"
-    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*month*attachments* | wc -l) - 3)"
-    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*year*attachments* | wc -l) - 2)"
+    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* 2>/dev/null | wc -l) - 7)"
+    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*week*attachments* 2>/dev/null | wc -l) - 4)"
+    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*month*attachments* 2>/dev/null | wc -l) - 3)"
+    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*year*attachments* 2>/dev/null | wc -l) - 2)"
 
     if [[ $stock_daily_db -gt 0 ]]; then
         echo "cleaning daily db"
