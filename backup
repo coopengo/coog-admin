@@ -43,19 +43,26 @@ save() {
 
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
-    if [[ $(date '+%m%d') == 0101 ]]; then
+    # check if today is the 1st weekday of the year
+    if $($(echo '0101 0102 0103' | grep -q $(date '+%m%d')) && [[ $(date '+%u') == 1 ]]) || \
+        $($(echo '2 3 4 5' | grep -q $(date '+%u')) && [[ $(date '+%m%d') == 0101 ]]);
+    then
         echo "saving yearly db and attachments"
         dump_database "year-$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
         dump_attachments "year-$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
-    if [[ $(date '+%d') == 01 ]]; then
+    # check if today is the 1st weekday of the month
+    if $(echo '01 02 03' | grep -q $(date '+%d')) && [[ $(date '+%u') == 1 ]] || \
+        $(echo '2 3 4 5' | grep -q $(date '+%u')) && [[ $(date +'%d') == 01 ]];
+    then
         echo "saving monthly db and attachments"
         dump_database "month-$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
         dump_attachments "month-$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
-    if [[ $(date '+%u') == 0 ]]; then
+    # weekly backup on Friday
+    if [[ $(date '+%u') == 5 ]]; then
         echo "saving weekly db and attachments"
         dump_database "week-$(date '+%V')-db-$USER-$COOG_DB_NAME.dump.gz"
         dump_attachments "week-$(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
