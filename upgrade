@@ -182,6 +182,16 @@ main() {
         else
                 echo "no celery container running"
         fi
+        local cron_container
+        cron_container=$(docker_container coog-cron)
+        echo
+        if [ ! -z "$cron_container" ]
+        then
+            echo "removing cron container"
+            "$dir/coog" -- cron rm -f
+        else
+            echo "no cron container running"
+        fi
         echo
         echo "clearing cache" && { cache_clear || return $?; }
         if [ "$COOG_DB_BACKUP" = y ]
@@ -198,6 +208,12 @@ main() {
                 echo
                 echo "starting celery container"
                 "$dir/coog" celery "$COOG_CELERY_WORKERS"
+        fi
+        if [ ! -z "$cron_container" ]
+        then
+            echo
+            echo "starting cron container"
+            "$dir/coog" cron
         fi
         if [ ! -z "$server_container" ]
         then
