@@ -43,18 +43,16 @@ save() {
 
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
-    # check if today is the 1st weekday of the year
-    if $($(echo '0101 0102 0103' | grep -q $(date '+%m%d')) && [[ $(date '+%u') == 1 ]]) || \
-        $($(echo '2 3 4 5' | grep -q $(date '+%u')) && [[ $(date '+%m%d') == 0101 ]]);
+    # check if there is a yearly backup
+    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$(date '+%Y')-db") -eq 0 ];
     then
         echo "saving yearly db and attachments"
         dump_database "year-$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
         dump_attachments "year-$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
-    # check if today is the 1st weekday of the month
-    if $(echo '01 02 03' | grep -q $(date '+%d')) && [[ $(date '+%u') == 1 ]] || \
-        $(echo '2 3 4 5' | grep -q $(date '+%u')) && [[ $(date +'%d') == 01 ]];
+    # check if there is a monthly backup
+    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$(date '+%Y%m')-db") -eq 0 ];
     then
         echo "saving monthly db and attachments"
         dump_database "month-$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
