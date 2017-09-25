@@ -90,6 +90,7 @@ _args() {
     [ ! -z "$COOG_ADMIN_EMAIL" ] && args="$args -e COOG_ADMIN_EMAIL=$COOG_ADMIN_EMAIL"
     [ ! -z "$COOG_SERVER_WORKERS" ] && args="$args -e COOG_SERVER_WORKERS=$COOG_SERVER_WORKERS"
     [ ! -z "$COOG_CELERY_WORKERS" ] && args="$args -e COOG_CELERY_WORKERS=$COOG_CELERY_WORKERS"
+    [ ! -z "$MOUNT" ] && args="$args -e MOUNT=$MOUNT --privileged"
     echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
