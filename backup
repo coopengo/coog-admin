@@ -70,54 +70,54 @@ clean() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
-    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-db* | wc -l) - 7)"
-    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*week*db* | wc -l) - 4)"
-    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*month*db* | wc -l) - 3)"
-    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/*year*db* | wc -l) - 2)"
+    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'daily\-db') - 7)"
+    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'week.*db') - 4)"
+    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'month.*db') - 3)"
+    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'year.*db') - 2)"
 
-    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*daily-attachments* | wc -l) - 7)"
-    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*week*attachments* | wc -l) - 4)"
-    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*month*attachments* | wc -l) - 3)"
-    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/*year*attachments* | wc -l) - 2)"
+    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'daily\-attachments') - 7)"
+    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'week.*attachments') - 4)"
+    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'month.*attachments') - 3)"
+    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'year.*attachments') - 2)"
 
     if [[ $stock_daily_db -gt 0 ]]; then
         echo "cleaning daily db"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*daily-db* | tail -$stock_daily_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-db* | tail -$stock_daily_db)
     fi
 
     if [[ $stock_weekly_db -gt 0 ]]; then
         echo "cleaning weekly db"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*week*db* | tail -$stock_weekly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*week*db* | tail -$stock_weekly_db)
     fi
 
     if [[ $stock_monthly_db -gt 0 ]]; then
         echo "cleaning monthly db"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*month*db* | tail -$stock_monthly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*month*db* | tail -$stock_monthly_db)
     fi
 
     if [[ $stock_yearly_db -gt 0 ]]; then
         echo "cleaning yearly db"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*year*db* | tail -$stock_yearly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*year*db* | tail -$stock_yearly_db)
     fi
 
     if [[ $stock_daily_attach -gt 0 ]]; then
         echo "clean daily attachments"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_daily_attach)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_daily_attach)
     fi
 
     if [[ $stock_weekly_attach -gt 0 ]]; then
         echo "cleaning weekly attachments"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_db)
     fi
 
     if [[ $stock_monthly_attach -gt 0 ]]; then
         echo "cleaning monthly attachments"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_db)
     fi
 
     if [[ $stock_yearly_attach -gt 0 ]]; then
         echo "cleaning yearly attachments"
-        cd $BACKUP_DIRECTORY && rm "$(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_db)"
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_db)
     fi
 }
 
