@@ -143,14 +143,21 @@ _uno() {
 
 _mount() {
         [ -z "$MOUNT" ] && return
+        echo "########## MOUNTING ##########"
         while IFS=';' read -ra MOUNTPOINTS; do
             for i in "${MOUNTPOINTS[@]}"; do
                 unset OPTIONS
                 ARGS=(${i//:/ })
                 [ ! -z "${ARGS[2]}" ] && OPTIONS="-o ${ARGS[2]}"
                 mount -t cifs "${ARGS[0]}" "${ARGS[1]}" $OPTIONS
+                if [ "$?" -ne 0 ]; then
+                    echo "WARNING: failed to mount ${ARGS[0]} to ${ARGS[1]}"
+                else
+                    echo "Successfully mounted ${ARGS[0]} to ${ARGS[1]}"
+                fi
             done
         done <<< "$MOUNT"
+        echo "########## ######## ##########"
 }
 
 ###############
