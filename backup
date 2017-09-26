@@ -44,26 +44,29 @@ save() {
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
     # check if there is a yearly backup
-    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$(date '+%Y')-db") -eq 0 ];
+    YEAR=$(date '+%Y')
+    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$YEAR-db") -eq 0 ];
     then
         echo "saving yearly db and attachments"
-        dump_database "year-$(date '+%Y')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "year-$(date '+%Y')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "year-$YEAR-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "year-$YEAR-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     # check if there is a monthly backup
-    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$(date '+%Y%m')-db") -eq 0 ];
+    MONTH=$(date '+%Y%m')
+    if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$MONTH-db") -eq 0 ];
     then
         echo "saving monthly db and attachments"
-        dump_database "month-$(date '+%Y%m')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "month-$(date '+%Y%m')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "month-$MONTH-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "month-$MONTH-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     # weekly backup on Friday
+    WEEK=$(date '+%V')
     if [[ $(date '+%u') == 5 ]]; then
         echo "saving weekly db and attachments"
-        dump_database "week-$(date '+%V')-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "week-$(date '+%V')-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "week-$WEEK-db-$USER-$COOG_DB_NAME.dump.gz"
+        dump_attachments "week-$WEEK-attachments-$USER-$COOG_DB_NAME.tar.gz"
     fi
 
     echo "saving daily db and attachments"
