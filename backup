@@ -78,15 +78,15 @@ clean() {
     source "$(get_dir)/config"
     [[ $# -ne 0 ]] && usage && exit 1
 
-    stock_daily_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'daily\-db') - 7)"
-    stock_weekly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'week.*db') - 4)"
-    stock_monthly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'month.*db') - 3)"
-    stock_yearly_db="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'year.*db') - 2)"
+    stock_daily_db="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'daily\-db') - 7)"
+    stock_weekly_db="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'week.*db') - 4)"
+    stock_monthly_db="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'month.*db') - 3)"
+    stock_yearly_db="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'year.*db') - 2)"
 
-    stock_daily_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'daily\-attachments') - 7)"
-    stock_weekly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'week.*attachments') - 4)"
-    stock_monthly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'month.*attachments') - 3)"
-    stock_yearly_attach="$(expr $(ls -d $BACKUP_DIRECTORY/ | grep -c 'year.*attachments') - 2)"
+    stock_daily_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'daily\-attachments') - 7)"
+    stock_weekly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'week.*attachments') - 4)"
+    stock_monthly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'month.*attachments') - 3)"
+    stock_yearly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'year.*attachments') - 2)"
 
     if [[ $stock_daily_db -gt 0 ]]; then
         echo "cleaning daily db"
