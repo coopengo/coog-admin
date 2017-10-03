@@ -7,7 +7,7 @@ NGINX_SERVER_CONF=nginx_server_letsencrypt.conf
 
 
 init_ssl() {
-    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$NGINX_VOLUME/"*
+    :
 }
 
 

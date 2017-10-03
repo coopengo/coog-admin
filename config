@@ -127,6 +127,7 @@ NGINX_PUB_PORT_SSL=443                  # ssl host mapped port
 # NGINX_SSL_METHOD=CUSTOM_KEYS
 # CERTIFICATE=/etc/nginx/certs/nginx.crt
 # SERVER_KEY=/etc/nginx/certs/nginx.key
+# NGINX_SSL_SERVER_NAME=127.0.0.1
 
 #-------------------------------------------------------------------------------#
 # NGINX LETSENCRYPT SSL EXAMPLE

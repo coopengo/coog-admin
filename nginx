@@ -8,6 +8,7 @@ get_dir() {
 }
 
 _init() {
+    NGINX_SERVER_CONF=nginx_server.conf
     local d; d="$(get_dir)/defaults/nginx"
     mkdir -p "$NGINX_VOLUME"
     cp -f "$d/nginx.conf" "$NGINX_VOLUME/nginx.conf"
@@ -35,10 +36,11 @@ _init() {
     if [ ! -z "$NGINX_SSL_METHOD" ]
     then
         source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
-        cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
         init_ssl
-        sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$NGINX_VOLUME/"*
     fi
+    cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
+    sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$NGINX_VOLUME/"*
+    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$NGINX_VOLUME/"*
 }
 
 run() {
@@ -47,7 +49,7 @@ run() {
     [ ! -z "$COOG_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-coog-server"
     [ ! -z "$WEB_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-web"
     [ ! -z "$NGINX_SSL_METHOD" ] && source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
-    [ ! -z "NGINX_SSL_METHOD" ] && prepare_ssl
+    [ ! -z "$NGINX_SSL_METHOD" ] && prepare_ssl
 
     docker run \
         $DOCKER_DAEMON_OPTS \
