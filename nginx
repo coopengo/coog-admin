@@ -42,13 +42,17 @@ _init() {
     sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$NGINX_VOLUME/"*
 }
 
+_ssl() {
+    [ ! -z "$NGINX_SSL_METHOD" ] && source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
+    [ ! -z "$NGINX_SSL_METHOD" ] && prepare_ssl
+}
+
 run() {
     local volumes
     SSL_VOLUMES=
     [ ! -z "$COOG_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-coog-server"
     [ ! -z "$WEB_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-web"
     [ ! -z "$NGINX_SSL_METHOD" ] && source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
-    [ ! -z "$NGINX_SSL_METHOD" ] && prepare_ssl
 
     docker run \
         $DOCKER_DAEMON_OPTS \
@@ -75,6 +79,7 @@ usage() {
     echo Available commands
     echo
     echo "  init      -> init nginx config"
+    echo "  ssl       -> generate prepare SSL certificate"
     echo "  run       -> run an nginx docker image"
     echo "  <action>  -> call docker action on server container"
     echo
@@ -88,6 +93,7 @@ main() {
     #
     [ "$cmd" = "init" ] && { _init; return $?; }
     [ ! -f "$NGINX_VOLUME/nginx.conf" ] && echo "You need to run: './nginx init'" && return 1
+    [ "$cmd" = "ssl" ] && { _ssl; return $?; }
     [ "$cmd" = "run" ] && { run; return $?; }
     action "$cmd" "$@"
 }
