@@ -5,12 +5,6 @@ SSL_VOLUMES="-v $NGINX_ACME_CHALLENGE_PATH:/usr/share/nginx/html"
 SSL_VOLUMES="$SSL_VOLUMES -v /etc/letsencrypt:/etc/nginx/certs"
 NGINX_SERVER_CONF=nginx_server_letsencrypt.conf
 
-
-init_ssl() {
-    :
-}
-
-
 prepare_ssl() {
     local CERT_PATH=/etc/letsencrypt/live/$NGINX_SSL_SERVER_NAME/fullchain.pem
     if [ ! -L ${CERT_PATH}  ]

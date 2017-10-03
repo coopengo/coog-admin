@@ -36,7 +36,6 @@ _init() {
     if [ ! -z "$NGINX_SSL_METHOD" ]
     then
         source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
-        init_ssl
     fi
     cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
     sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$NGINX_VOLUME/"*
