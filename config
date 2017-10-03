@@ -119,6 +119,16 @@ WEB_IMAGE=coog/web                      # docker image
 NGINX_IMAGE=nginx:1-alpine              # docker image
 NGINX_VOLUME=$PREFIX/nginx              # nginx conf folder
 NGINX_PUB_PORT=80                       # host mapped port
+NGINX_PUB_PORT_SSL=443                  # ssl host mapped port
+# Possible varlues are:
+# - CUSTOM_KEYS
+# - LETSENCRYPT
+NGINX_SSL_METHOD=LETSENCRYPT            # LETSENCRYPT certificates
+# NGINX_SSL_METHOD=CUSTOM_KEYS            # CUSTOM_KEYS certificates
+# CERTIFICATE=/tmp/cert/nginx.crt
+# SERVER_KEY=/tmp/cert/nginx.key
+NGINX_SSL_SERVER_NAME=fba748ce.ngrok.io          # SERVER NAME
+NGINX_ACME_CHALLENGE_PATH=/home/adrien/workspace/santiane/workspace/coog-admin/ssl/LETSENCRYPT/html # Web Root Directory Directory
 
 #-------------------------------------------------------------------------------#
 # PAYBOX CONFIG

@@ -1,0 +1,27 @@
+#!/bin/bash
+# This script helps doing with nginx docker image.
+
+SSL_VOLUMES="-v $NGINX_ACME_CHALLENGE_PATH:/usr/share/nginx/html"
+SSL_VOLUMES="$SSL_VOLUMES -v /etc/letsencrypt:/etc/nginx/certs"
+NGINX_SERVER_CONF=nginx_server_letsencrypt.conf
+
+
+init_ssl() {
+    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$NGINX_VOLUME/"*
+}
+
+
+prepare_ssl() {
+    local CERT_PATH=/etc/letsencrypt/live/$NGINX_SSL_SERVER_NAME/fullchain.pem
+    if [ ! -L ${CERT_PATH}  ]
+    then
+        sudo certbot certonly --webroot -w $(get_dir)/ssl/$NGINX_SSL_METHOD/html -d \
+        $NGINX_SSL_SERVER_NAME
+    else
+        if [ ! -e ${CERT_PATH} ]
+        then
+            sudo certbot certonly --webroot -w $(get_dir)/ssl/$NGINX_SSL_METHOD/html -d \
+                $NGINX_SSL_SERVER_NAME
+        fi
+    fi
+}
