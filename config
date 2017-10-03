@@ -133,8 +133,7 @@ NGINX_PUB_PORT_SSL=443                  # ssl host mapped port
 # NGINX LETSENCRYPT SSL EXAMPLE
 #-------------------------------------------------------------------------------#
 # NGINX_SSL_METHOD=LETSENCRYPT            # LETSENCRYPT certificates
-# NGINX_SSL_SERVER_NAME=example.com
-# NGINX_ACME_CHALLENGE_PATH=/var/www/html # For letsencrypt ACME Challenge
+# NGINX_SSL_SERVER_NAME=example.localdomain
 
 #-------------------------------------------------------------------------------#
 # PAYBOX CONFIG
