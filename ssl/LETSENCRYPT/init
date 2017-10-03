@@ -9,12 +9,12 @@ prepare_ssl() {
     local CERT_PATH=/etc/letsencrypt/live/$NGINX_SSL_SERVER_NAME/fullchain.pem
     if [ ! -L ${CERT_PATH}  ]
     then
-        sudo certbot certonly --webroot -w $(get_dir)/ssl/$NGINX_SSL_METHOD/html -d \
-        $NGINX_SSL_SERVER_NAME
+        sudo certbot certonly --webroot -w $NGINX_ACME_CHALLENGE_PATH -d \
+            $NGINX_SSL_SERVER_NAME
     else
         if [ ! -e ${CERT_PATH} ]
         then
-            sudo certbot certonly --webroot -w $(get_dir)/ssl/$NGINX_SSL_METHOD/html -d \
+            sudo certbot certonly --webroot -w $NGINX_ACME_CHALLENGE_PATH -d \
                 $NGINX_SSL_SERVER_NAME
         fi
     fi
