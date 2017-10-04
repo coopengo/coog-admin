@@ -16,9 +16,11 @@ _init() {
     then
         rm -rf "$NGINX_VOLUME/http-coog.conf" && touch "$NGINX_VOLUME/http-coog.conf"
         rm -rf "$NGINX_VOLUME/server-coog.conf" && touch "$NGINX_VOLUME/server-coog.conf"
+        rm -rf "$NGINX_VOLUME/server-coog-ssl.conf" && touch "$NGINX_VOLUME/server-coog-ssl.conf"
     else
         cp -f "$d/http-coog.conf" "$NGINX_VOLUME/http-coog.conf"
         cp -f "$d/server-coog.conf" "$NGINX_VOLUME/server-coog.conf"
+        cp -f "$d/server-coog-ssl.conf" "$NGINX_VOLUME/server-coog-ssl.conf"
     fi
     if [ -z "$WEB_IMAGE" ]
     then
@@ -32,14 +34,14 @@ _init() {
     touch "$NGINX_VOLUME/events-custom.conf"
     touch "$NGINX_VOLUME/http-custom.conf"
     touch "$NGINX_VOLUME/server-custom.conf"
-    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$NGINX_VOLUME/"*
+    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
     if [ ! -z "$NGINX_SSL_METHOD" ]
     then
         source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
     fi
     cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
-    sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$NGINX_VOLUME/"*
-    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$NGINX_VOLUME/"*
+    sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
+    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
 }
 
 _ssl() {

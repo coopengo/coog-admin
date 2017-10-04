@@ -1,8 +1,8 @@
 #!/bin/bash
 # This script helps doing with nginx docker image.
 
-SSL_VOLUMES="-v $CERTIFICATE:/etc/nginx/certs/certificate.crt:ro"
-SSL_VOLUMES="$SSL_VOLUMES -v $SERVER_KEY:/etc/nginx/certs/server.key:ro"
+SSL_VOLUMES="-v $COOG_DATA/certs/$NGINX_SSL_SERVER_NAME.crt:/etc/nginx/certs/$NGINX_SSL_SERVER_NAME.crt:ro"
+SSL_VOLUMES="$SSL_VOLUMES -v $COOG_DATA/certs/$NGINX_SSL_SERVER_NAME.key:/etc/nginx/certs/$NGINX_SSL_SERVER_NAME.key:ro"
 NGINX_SERVER_CONF=nginx_server_ssl.conf
 
 prepare_ssl() {
