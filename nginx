@@ -1,6 +1,5 @@
 #!/bin/bash
 # This script helps doing with nginx docker image.
-# More informations: https://hub.docker.com/_/nginx/
 
 get_dir() {
     local script_path; script_path=$(readlink -f "$0")
@@ -9,6 +8,7 @@ get_dir() {
 }
 
 _init() {
+    NGINX_SERVER_CONF=nginx_server.conf
     local d; d="$(get_dir)/defaults/nginx"
     mkdir -p "$NGINX_VOLUME"
     cp -f "$d/nginx.conf" "$NGINX_VOLUME/nginx.conf"
@@ -16,9 +16,11 @@ _init() {
     then
         rm -rf "$NGINX_VOLUME/http-coog.conf" && touch "$NGINX_VOLUME/http-coog.conf"
         rm -rf "$NGINX_VOLUME/server-coog.conf" && touch "$NGINX_VOLUME/server-coog.conf"
+        rm -rf "$NGINX_VOLUME/server-coog-ssl.conf" && touch "$NGINX_VOLUME/server-coog-ssl.conf"
     else
         cp -f "$d/http-coog.conf" "$NGINX_VOLUME/http-coog.conf"
         cp -f "$d/server-coog.conf" "$NGINX_VOLUME/server-coog.conf"
+        cp -f "$d/server-coog-ssl.conf" "$NGINX_VOLUME/server-coog-ssl.conf"
     fi
     if [ -z "$WEB_IMAGE" ]
     then
@@ -32,13 +34,28 @@ _init() {
     touch "$NGINX_VOLUME/events-custom.conf"
     touch "$NGINX_VOLUME/http-custom.conf"
     touch "$NGINX_VOLUME/server-custom.conf"
-    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$NGINX_VOLUME/"*
+    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
+    if [ ! -z "$NGINX_SSL_METHOD" ]
+    then
+        source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
+    fi
+    cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
+    sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
+    sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
+}
+
+_ssl() {
+    [ ! -z "$NGINX_SSL_METHOD" ] && source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
+    [ ! -z "$NGINX_SSL_METHOD" ] && prepare_ssl
 }
 
 run() {
     local volumes
+    SSL_VOLUMES=
     [ ! -z "$COOG_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-coog-server"
     [ ! -z "$WEB_IMAGE" ] && volumes="$volumes --volumes-from $NETWORK_NAME-web"
+    [ ! -z "$NGINX_SSL_METHOD" ] && source "$(get_dir)/ssl/$NGINX_SSL_METHOD/init"
+
     docker run \
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
@@ -48,7 +65,9 @@ run() {
         -v "$NGINX_VOLUME/nginx.conf:/etc/nginx/nginx.conf:ro" \
         -v "$NGINX_VOLUME:/etc/nginx/coog/:ro" \
         -v "/tmp:/tmp" \
+        $SSL_VOLUMES \
         $volumes \
+        -p "$NGINX_PUB_PORT_SSL:443" \
         -p "$NGINX_PUB_PORT:80" \
         "$NGINX_IMAGE"
 }
@@ -62,6 +81,7 @@ usage() {
     echo Available commands
     echo
     echo "  init      -> init nginx config"
+    echo "  ssl       -> prepare SSL certificate"
     echo "  run       -> run an nginx docker image"
     echo "  <action>  -> call docker action on server container"
     echo
@@ -75,6 +95,7 @@ main() {
     #
     [ "$cmd" = "init" ] && { _init; return $?; }
     [ ! -f "$NGINX_VOLUME/nginx.conf" ] && echo "You need to run: './nginx init'" && return 1
+    [ "$cmd" = "ssl" ] && { _ssl; return $?; }
     [ "$cmd" = "run" ] && { run; return $?; }
     action "$cmd" "$@"
 }
