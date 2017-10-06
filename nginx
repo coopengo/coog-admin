@@ -81,7 +81,7 @@ usage() {
     echo Available commands
     echo
     echo "  init      -> init nginx config"
-    echo "  ssl       -> generate prepare SSL certificate"
+    echo "  ssl       -> prepare SSL certificate"
     echo "  run       -> run an nginx docker image"
     echo "  <action>  -> call docker action on server container"
     echo
