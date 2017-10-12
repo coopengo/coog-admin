@@ -224,6 +224,7 @@ _celery() {
         _init || return $?
         _uno
         _mount
+        local n; n="$1"; shift
         local q
         if [ ! -z "$1" ]
         then
