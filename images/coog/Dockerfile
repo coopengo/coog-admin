@@ -57,6 +57,6 @@ RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
 RUN ln -s /workspace/ep /usr/local/bin/ep
 RUN ep link
 
-VOLUME ["/workspace/sao", "/workspace/coog-bench"]
+VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
 EXPOSE 8000
