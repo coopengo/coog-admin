@@ -42,6 +42,7 @@ _init() {
     cp -f "$(get_dir)/defaults/nginx/$NGINX_SERVER_CONF" "$NGINX_VOLUME/$NGINX_SERVER_CONF"
     sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
     sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
+    sed -i "s/COOG_DB_NAME/$COOG_DB_NAME/g" `find $NGINX_VOLUME -maxdepth 1 -type f`
 }
 
 _ssl() {
