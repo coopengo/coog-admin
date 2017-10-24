@@ -17,7 +17,7 @@ server() {
         -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
         -v /etc/timezone:/etc/timezone:ro \
         -v "$REDIS_VOLUME:/data" \
-        -v "/tmp:/tmp" \
+        -v "/tmp/$NETWORK_NAME-redis:/tmp" \
         "$REDIS_IMAGE" "$@"
 }
 
@@ -25,7 +25,7 @@ client() {
     docker run \
         $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
-        -v "/tmp:/tmp" \
+        -v "/tmp/$NETWORK_NAME-redis:/tmp" \
         "$REDIS_IMAGE" \
         redis-cli -h "$NETWORK_NAME-redis" "$@"
 }

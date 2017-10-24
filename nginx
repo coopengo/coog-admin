@@ -65,7 +65,7 @@ run() {
         -v /etc/timezone:/etc/timezone:ro \
         -v "$NGINX_VOLUME/nginx.conf:/etc/nginx/nginx.conf:ro" \
         -v "$NGINX_VOLUME:/etc/nginx/coog/:ro" \
-        -v "/tmp:/tmp" \
+        -v "/tmp/$NETWORK_NAME-nginx:/tmp" \
         $SSL_VOLUMES \
         $volumes \
         -p "$NGINX_PUB_PORT_SSL:443" \
