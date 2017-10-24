@@ -1,0 +1,31 @@
+#!/bin/bash
+# This script helps doing with nginx docker image.
+
+SSL_VOLUMES="$SSL_VOLUMES -v /etc/letsencrypt:/etc/nginx/certs"
+NGINX_SERVER_CONF=nginx_server_letsencrypt.conf
+NGINX_ACME_CHALLENGE_PATH=$(get_dir)/ssl/LETSENCRYPT/nginx_min/html
+
+
+run_docker_ssl() {
+    echo "Creating temporary nginx docker to generate certificates"
+     docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-nginx-min" \
+        -v "$NGINX_ACME_CHALLENGE_PATH:/usr/share/nginx/html" \
+        -v "$(get_dir)/ssl/LETSENCRYPT/nginx_min/:/etc/nginx/:ro" \
+        -p "$NGINX_PUB_PORT:80" \
+        "$NGINX_IMAGE"
+}
+
+rm_docker_ssl() {
+    echo "Removing temporary nginx docker"
+    docker rm  -f "$NETWORK_NAME-nginx-min"
+}
+
+prepare_ssl() {
+    run_docker_ssl
+    sudo certbot certonly --webroot -w $NGINX_ACME_CHALLENGE_PATH -d \
+        $NGINX_SSL_SERVER_NAME
+    rm_docker_ssl
+}

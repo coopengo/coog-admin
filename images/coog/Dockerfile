@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libreoffice-calc \
         unoconv \
         redis-tools \
+        GraphViz \
+        cifs-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
@@ -55,6 +57,6 @@ RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
 RUN ln -s /workspace/ep /usr/local/bin/ep
 RUN ep link
 
-VOLUME ["/workspace/sao", "/workspace/coog-bench"]
+VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
 EXPOSE 8000

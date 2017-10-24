@@ -40,6 +40,11 @@ repo_cp() { # <dd> <repo> <branch>
         echo "  copy"
         cp -R ./* "$1/$2/" || return 1
     fi
+    if [ -d doc ] && [ -f doc/build ]
+    then
+        echo "build and copy doc"
+        ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
+    fi
 }
 
 build() { # <image-tag> <repositories> -- [docker-build-arg*]

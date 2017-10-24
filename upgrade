@@ -4,10 +4,7 @@
 OPTIND=1
 COOG_IMAGE_TAG="-"
 COOG_IMAGE_ARCHIVE="-"
-DEFAULT_WORKERS=$(nproc)
-[ -z "$DEFAULT_WORKERS" ] && DEFAULT_WORKERS=2
-COOG_SERVER_WORKERS=$DEFAULT_WORKERS
-COOG_CELERY_WORKERS=$DEFAULT_WORKERS
+COOG_IMAGE_REPO="-"
 COOG_DB_BACKUP=n
 COOG_DB_UPDATE=n
 
@@ -51,6 +48,7 @@ print_help() {
     echo "Command options:"
     echo "  -t <image-tag>"
     echo "  -a <image-archive>"
+    echo "  -p <image-repository>"
     echo "  -s <server-workers-number>"
     echo "  -c <celery-workers-number>"
     echo "  -b : backup database"
@@ -60,16 +58,14 @@ print_help() {
     echo "Extra parameters will be forwarded to the database update command"
 }
 
-while getopts "t:a:s:c:buh" opt
+while getopts "t:a:p:s:c:buh" opt
 do
     case "$opt" in
         t) COOG_IMAGE_TAG="$OPTARG"
             ;;
+        p) COOG_IMAGE_REPO="$OPTARG"
+            ;;
         a) COOG_IMAGE_ARCHIVE="$OPTARG"
-            ;;
-        s) COOG_SERVER_WORKERS="$OPTARG"
-            ;;
-        c) COOG_CELERY_WORKERS="$OPTARG"
             ;;
         b) COOG_DB_BACKUP=y
             ;;
@@ -80,6 +76,9 @@ do
     esac
 done
 shift $((OPTIND-1))
+
+[ "$COOG_IMAGE_ARCHIVE" != "-" ] && [ "$COOG_IMAGE_REPO" != "-" ] && \
+    echo "Archive (-a) and repository (-p) parameters are mutually exclusive" && exit 1
 
 main() {
     local dir
@@ -92,6 +91,13 @@ main() {
         echo "loading image from $COOG_IMAGE_ARCHIVE"
         docker load -i "$COOG_IMAGE_ARCHIVE" || return $?
         COOG_IMAGE_TAG="$(docker_last_image)"
+    fi
+    if [ "$COOG_IMAGE_REPO" != "-" ]
+    then
+        echo
+        echo "pulling image from $COOG_IMAGE_REPO"
+        docker pull "$COOG_IMAGE_REPO" || return $?
+        COOG_IMAGE_TAG="$COOG_IMAGE_REPO"
     fi
     if [ "$COOG_IMAGE_TAG" != "-" ]
     then
@@ -163,6 +169,17 @@ main() {
         echo "no celery container running"
     fi
 
+    local cron_container
+    cron_container=$(docker_container coog-cron)
+    echo
+    if [ ! -z "$cron_container" ]
+    then
+        echo "removing cron container"
+        "$dir/coog" -- cron rm -f
+    else
+        echo "no cron container running"
+    fi
+
     echo
     echo "clearing cache" && { cache_clear || return $?; }
     if [ "$COOG_DB_BACKUP" = y ]
@@ -179,14 +196,21 @@ main() {
     then
         echo
         echo "starting celery container"
-        "$dir/coog" celery "$COOG_CELERY_WORKERS"
+        "$dir/coog" celery
+    fi
+
+    if [ ! -z "$cron_container" ]
+    then
+        echo
+        echo "starting cron container"
+        "$dir/coog" cron
     fi
 
     if [ ! -z "$server_container" ]
     then
         echo
         echo "starting server container"
-        "$dir/coog" server "$COOG_SERVER_WORKERS"
+        "$dir/coog" server
     fi
 
     if [ ! -z "$web_container" ]
@@ -216,8 +240,7 @@ echo "Please make sure this is what you want to do and check parameters below be
 echo
 echo "- Image tag: $COOG_IMAGE_TAG (-t)"
 echo "- Image archive: $COOG_IMAGE_ARCHIVE (-a)"
-echo "- Server workers: $COOG_SERVER_WORKERS (-s)"
-echo "- Celery workers: $COOG_CELERY_WORKERS (-c)"
+echo "- Image repository: $COOG_IMAGE_REPO (-p)"
 echo "- Backup database: $COOG_DB_BACKUP (-b)"
 echo "- Update database: $COOG_DB_UPDATE (-u)"
 echo

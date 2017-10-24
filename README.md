@@ -75,7 +75,7 @@ Creates a network where all containers will live: `./net create`
 
 - `./postgres server`: launches postgres server
 - `./postgres client`: launches postgres client
-- `./postgres dump`: dumps couurent database (to be piped to a file)
+- `./postgres dump`: dumps current database (to be piped to a file)
 
 ### coog (build, init, server, celery, etc.)
 

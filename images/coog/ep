@@ -141,6 +141,25 @@ _uno() {
         unoconv --listener -c "pipe,name=trytond;urp;StarOffice.ComponentContext" &
 }
 
+_mount() {
+        [ -z "$MOUNT" ] && return
+        echo "########## MOUNTING ##########"
+        while IFS=';' read -ra MOUNTPOINTS; do
+            for i in "${MOUNTPOINTS[@]}"; do
+                unset OPTIONS
+                ARGS=(${i//:/ })
+                [ ! -z "${ARGS[2]}" ] && OPTIONS="-o ${ARGS[2]}"
+                mount -t cifs "${ARGS[0]}" "${ARGS[1]}" $OPTIONS
+                if [ "$?" -ne 0 ]; then
+                    echo "WARNING: failed to mount ${ARGS[0]} to ${ARGS[1]}"
+                else
+                    echo "Successfully mounted ${ARGS[0]} to ${ARGS[1]}"
+                fi
+            done
+        done <<< "$MOUNT"
+        echo "########## ######## ##########"
+}
+
 ###############
 # entrypoints #
 ###############
@@ -189,21 +208,31 @@ _cron() {
 }
 
 _server() {
-        [ -z "$1" ] && echo "missing concurrency" && return 1
+        local n; n="$1"
+        [ -z "$n" ] && n="$COOG_SERVER_WORKERS"
+        [ -z "$n" ] && echo "missing concurrency" && return 1
         echo Welcome on board, Coog Server is preparing to start
         _init || return $?
         _uno
+        _mount
         local out
         out=/tmp/coog-docker-$HOSTNAME
-        WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$1"
+        WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$n"
 }
 
 _celery() {
-        [ -z "$1" ] && echo "missing concurrency" && return 1
+        local n; n="$1"
+        if [ "$n" -eq "$n" ]
+        then
+            shift
+        else
+            n="$COOG_CELERY_WORKERS"
+            [ -z "$n" ] && echo "missing concurrency" && return 1
+        fi
         echo Welcome on board, Coog Celery is preparing to start
         _init || return $?
         _uno
-        local n; n="$1"; shift
+        _mount
         local q
         if [ ! -z "$1" ]
         then

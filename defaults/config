@@ -1,3 +1,12 @@
 # This is the custom configuration for coog-admin
 # Typical override is the Coog image name:
 # COOG_IMAGE=coog/project:version
+#
+#                   ############################
+#                   ###### NGINX WITH SSL ######
+#                   ############################
+# NGINX_SSL_METHOD=          # SSL method (LETSENCRYPT or CUSTOM_KEYS)
+# NGINX_SSL_SERVER_NAME=     # SSL server name
+# LETSENCRYPT method needs ./nginx ssl to generate keys
+# CUSTOM_KEYS method need yours keys as following in COOG_DATA/certs: 
+# NGINX_SSL_SERVER_NAME.crt and NGINX_SSL_SERVER_NAME.key
