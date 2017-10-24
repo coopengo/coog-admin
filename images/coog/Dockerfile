@@ -16,35 +16,35 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
-        pyflakes \
-        dateutils \
-        num2words \
-        lxml \
-        python-sql \
-        psycopg2 \
-        polib \
-        Genshi \
-        relatorio \
-        pydot \
-        pyparsing \
-        python-stdnum \
-        unidecode \
-        intervaltree \
-        filelock \
-        wrapt \
-        werkzeug \
-        simpleeval \
+        "pyflakes==1.6.0" \
+        "dateutils==0.6.6" \
+        "num2words==0.5.5" \
+        "lxml==3.8.0" \
+        "python-sql==0.9" \
+        "psycopg2==2.7.3.1" \
+        "polib==1.0.8" \
+        "Genshi==0.7" \
+        "relatorio==0.7.0" \
+        "pydot==1.2.3" \
+        "pyparsing==2.2.0" \
+        "python-stdnum==1.6" \
+        "unidecode==0.4.21" \
+        "intervaltree==2.1.0" \
+        "filelock==2.0.12" \
+        "wrapt==1.10.11" \
+        "werkzeug==0.12.2" \
+        "simpleeval==0.9.5" \
         "ldap3<2.0" \
-        requests \
-        raven \
-        redis \
-        hiredis \
-        msgpack-python \
-        numpy \
-        scipy \
-        uwsgi \
-        "celery<4" \
-        rq \
+        "requests==2.18.4" \
+        "raven==6.1.0" \
+        "redis==2.10.6" \
+        "hiredis==0.2.0" \
+        "msgpack-python==0.4.8" \
+        "numpy==1.13.1" \
+        "scipy==0.19.1" \
+        "uwsgi==2.0.15" \
+        "celery==4.1.0" \
+        "rq==0.8.2" \
     && rm -rf /root/.cache
 
 RUN mkdir /workspace
