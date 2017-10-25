@@ -1,0 +1,78 @@
+#!/bin/bash
+# vim: set ft=sh:
+
+get_dir() {
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
+}
+
+set_postgres_args(){
+    local args
+        if [ ! -z "$_POSTGRES_HOST" ]
+        then
+                args="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST"
+                [ ! -z "$COOG_POSTGRES_PORT" ] \
+                    && args="$args -e COOG_PORT=$COOG_POSTGRES_PORT"
+        else
+                args="$args -e COOG_HOSTNAME=${NETWORK_NAME}-postgres -e COOG_PORT=5432"
+        fi
+        if [ ! -z "$DW_HOSTNAME" ]
+        then
+                args="$args -e DW_HOSTNAME=$DW_HOSTNAME"
+                [ ! -z "$DW_PORT" ] && args="$args -e DW_PORT=$DW_PORT"
+        else
+                args="$args -e DW_HOSTNAME=${NETWORK_NAME}-dw -e DW_PORT=5432"
+        fi
+        echo "$args"
+
+}
+
+_build(){
+    (cd "$(get_dir)/images/bi_etl" && ./build bi_pentaho "$@")
+}
+
+_run(){
+    docker run --rm \
+        --name pentaho \
+        --net ${NETWORK_NAME} \
+        -e COOG_HOSTNAME=$DWH_ORIGIN_DB_HOSTNAME \
+        -e COOG_PORT=$ETL_ORIGIN_DB_PORT \
+        -e COOG_DB=$ETL_ORIGIN_DB_NAME \
+        -e COOG_USER=$ETL_ORIGIN_DB_USER \
+        -e COOG_PASSWORD=$ETL_ORIGIN_DB_PASSWORD \
+        -e DW_HOSTNAME=$DW_ORIGIN_DB_HOSTNAME \
+        -e DW_PORT=$DW_ORIGIN_DB_PORT \
+        -e DW_DB=$DW_ORIGIN_DB_NAME \
+        -e DW_USER=$DW_ORIGIN_DB_USER \
+        -e DW_PASSWORD=$DW_ORIGIN_DB_PASSWORD \
+        -e "PGPASSWORD=postgres" \
+        $(set_postgres_args) \
+        bi_pentaho && return 1
+}
+
+usage() {
+    echo
+    echo "  Available commands "
+    echo
+    echo "  build               -> Build etl images"
+    echo "  run                 -> Run etl image"
+    echo "  <action>            -> Call docker action on etl container"
+    echo
+}
+
+main(){
+    source "$(get_dir)/config"
+    #
+    [ -z "$1" ] && usage && return 0
+
+    local cmd; cmd="$1"; shift
+    #
+    [ "$cmd" = "run" ] && { _run $@; return $?; }
+    [ "$cmd" = "build" ] && { _build $@; return $?; }
+    [ "$cmd" = "import" ] && { _import; return $?; }
+
+    docker $cmd pentaho $@
+}
+
+main "$@"

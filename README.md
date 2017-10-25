@@ -115,3 +115,44 @@ Once running, the url mapping is:
 ### upgrade
 
 This command updates a running environment. It stops and drops running containers, mount new ones and launches `./coog admin -u ir` on current database to migrate database.
+
+### BI
+
+First of all, you have to set up a running databse server to host your datawarehouse.
+
+Initiate configuration file with `./pentaho init`
+
+If you own your own server, just set up database configuration and shared
+folder : `./pentaho edit`
+
+If not follow the same step as `postgres` but with `dwh` and name your database
+like pentaho parameter `DW_DB_NAME`
+
+Now you have to build the docker images, just run `./pentaho build`
+
+When it ends, run `./pentaho run` then datawarehouse will build itself, and the
+server is now running.
+
+After that if you want only one service running, run `./pentaho <commands>
+<images>`, it will run the command for the docker images and build only this
+one.
+
+We recommend you to run the etl image at least.
+
+If you have the server running, you'll maybe want to import defaults reports
+and OLAP cubes : `./pentaho import`
+
+/!\ You have to add your datawarehouse connection to the server. Follow this
+step:
+ - Connect to your server within your browser : `ip:port`
+ - Connect as an admin login : `admin`, password : `password`
+ - Wait, then click on `manage datasource`
+ - Click on the wheel then `new connection`
+ - Select postgresql then add your parameters :
+    - Hostname : `<NETWORK_NAME>-postgres-dw`
+    - Database : `<DW_DB_NAME>`
+    - Port : `<DW_DB_PORT>`
+    - User : `<DW_DB_USER>`
+    - Password : `<DW_DB_PASSWORD>`
+
+Now if you want to learn more about the bi server just follow this wiki
