@@ -5,10 +5,8 @@ ENV BI_RELEASE=7.1 \
 	PENTAHO_HOME=/opt/pentaho 
 ENV PENTAHO_SERVER=${PENTAHO_HOME}/pentaho-server
 
-RUN curl -L -o /tmp/pentaho-server-ce-${BI_VERSION}.zip https://sourceforge.net/projects/pentaho/files/Business%20Intelligence%20Server/${BI_RELEASE}/pentaho-server-ce-${BI_VERSION}.zip/download
-
-
-RUN unzip -q /tmp/pentaho-server-ce-${BI_VERSION}.zip -d $PENTAHO_HOME \
+RUN curl -L -o /tmp/pentaho-server-ce-${BI_VERSION}.zip https://sourceforge.net/projects/pentaho/files/Business%20Intelligence%20Server/${BI_RELEASE}/pentaho-server-ce-${BI_VERSION}.zip/download \
+    && unzip -q /tmp/pentaho-server-ce-${BI_VERSION}.zip -d $PENTAHO_HOME \
 	&& rm /tmp/pentaho-server-ce-${BI_VERSION}.zip
 
 ENV PENTAHO_JAVA_HOME $JAVA_HOME
@@ -23,10 +21,8 @@ RUN sed -i -e 's/\(exec ".*"\) start/\1 run/' ${PENTAHO_SERVER}/tomcat/bin/start
 
 EXPOSE 8080
 
-COPY dist/server/server/scripts ${PENTAHO_HOME}/scripts
-COPY dist/server/server/config ${PENTAHO_HOME}/config
+COPY dist/coog-bi/server/scripts ${PENTAHO_HOME}/scripts
+COPY dist/coog-bi/server/config ${PENTAHO_HOME}/config
+COPY dist/coog-bi/server/default ${PENTAHO_HOME}/default
 
-VOLUME ["/usr/local/coog/default","/opt/pentaho/default"]
-
-ADD dist/server/server/default ${PENTAHO_HOME}/default
 ENTRYPOINT ["sh", "-c", "$PENTAHO_HOME/scripts/run.sh"]

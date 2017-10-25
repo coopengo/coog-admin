@@ -150,39 +150,44 @@ BACKUP_DIRECTORY=/mnt/coog_backup
 # DWH CONFIG
 #-------------------------------------------------------------------------------#
 
-DW_VOLUME="$PREFIX"/dwh               # shared volume
-DW_IMAGE="$POSTGRES_IMAGE"            # docker postgres image
+DWH_IMAGE="$POSTGRES_IMAGE"             # docker postgres image
+DWH_VOLUME="$PREFIX/dwh"                # shared volume
 
-DW_DB_HOSTNAME="$COOG_POSTGRES_HOST"
-DW_DB_USER="$POSTGRES_USER"           # datawarehouse pg user
-DW_DB_PASSWORD="$POSTGRES_PASSWORD"   # datawarehouse pg passwor
-DW_DB_NAME=coog_bi                    # datawarehouse database
+DWH_USER=postgres                       # datawarehouse pg user
+DWH_PASSWORD=postgres                   # datawarehouse pg passwor
+
+DWH_DB_NAME=coog_dwh                    # datawarehouse database
 
 #-------------------------------------------------------------------------------#
 # ETL CONFIG
 #-------------------------------------------------------------------------------#
 
-ETL_ORIGIN_DB_HOSTNAME="$COOG_DB_NAME"
-ETL_ORIGIN_DB_NAME="$COOG_DB_NAME"
+ETL_IMAGE=coog/etl
+
+ETL_ORIGIN_DB_HOST="$COOG_POSTGRES_HOST"
 ETL_ORIGIN_DB_PORT="$COOG_POSTGRES_PORT"
 ETL_ORIGIN_DB_USER="$COOG_DB_USER"
 ETL_ORIGIN_DB_PASSWORD="$COOG_DB_PASSWORD"
+ETL_ORIGIN_DB_NAME="$COOG_DB_NAME"
 
-ETL_TARGET_DB_HOSTNAME="$COOG_DB_NAME"
-ETL_TARGET_DB_NAME="coog_bi"
-ETL_TARGET_DB_PORT="$COOG_POSTGRES_PORT"
-ETL_TARGET_DB_USER="$COOG_DB_USER"
-ETL_TARGET_DB_PASSWORD="$COOG_DB_PASSWORD"
+ETL_TARGET_DB_HOST=
+ETL_TARGET_DB_PORT=
+ETL_TARGET_DB_USER="$DWH_USER"
+ETL_TARGET_DB_PASSWORD="$DWH_PASSWORD"
+ETL_TARGET_DB_NAME="$DWH_DB_NAME"
 
 #-------------------------------------------------------------------------------#
 # BI SERVER CONFIG
 #-------------------------------------------------------------------------------#
 
-BI_PORT=4242
+BI_IMAGE=coog/bi
 
-BI_DB_HOST="$ETL_TARGET_DB_HOST-dw"
+BI_DB_HOST="$ETL_TARGET_DB_HOST"
+BI_DB_PORT="$ETL_TARGET_DB_PORT"
 BI_DB_USER="$ETL_TARGET_DB_USER"
 BI_DB_PASSWORD="$ETL_TARGET_DB_PASSWORD"
+BI_DB_NAME="$ETL_TARGET_DB_NAME"
+BI_PORT=4242
 
 #-------------------------------------------------------------------------------#
 # CUSTOMS

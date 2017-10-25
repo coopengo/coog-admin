@@ -1,5 +1,4 @@
-#!/bin/bash
-# vim: set ft=sh:
+#!/bin/sh
 
 . ../build-utils.sh
 [ $# -lt 2 ] && echo "missing tag <etl:image>" >&2 && exit 1

@@ -1,6 +1,0 @@
-#!/bin/bash
-# vim: set ft=sh:
-
-. ../build-utils.sh
-[ $# -lt 2 ] && echo "missing tag <server:image>" >&2 && exit 1
-build "$@"

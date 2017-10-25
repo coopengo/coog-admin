@@ -1,0 +1,22 @@
+#!/bin/bash
+FILE="$KETTLE_HOME/.kettle/kettle.properties"
+KITCHEN=$PDI_HOME/data-integration/kitchen.sh
+
+main() {
+    {
+        echo "DW_HOSTNAME=$DW_HOSTNAME"
+        echo "DW_DB=$DW_DB"
+        echo "DW_PORT=$DW_PORT"
+        echo "DW_USER=$DW_USER"
+        echo "DW_PASSWORD=$DW_PASSWORD"
+        echo "COOG_HOSTNAME=$COOG_HOSTNAME"
+        echo "COOG_DB=$COOG_DB"
+        echo "COOG_PORT=$COOG_PORT"
+        echo "COOG_USER=$COOG_USER"
+        echo "COOG_PASSWORD=$COOG_PASSWORD"
+    } >>"$FILE"
+    cat "$FILE"
+    $KITCHEN -file="$KETTLE_HOME/ETL/Main.kjb"
+}
+
+main "$@"

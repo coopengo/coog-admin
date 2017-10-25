@@ -8,27 +8,46 @@ get_dir() {
 }
 
 _build(){
-    (cd "$(get_dir)/images/bi_server" && ./build bi_server "$@")
+    (cd "$(get_dir)/images/bi" && ./build "$@")
+}
+
+set_args(){
+    local args
+    if [ ! -z "$BI_DB_HOST" ]
+    then
+        args="$args -e PGHOST=$BI_DB_HOST"
+        if [ ! -z "$BI_DB_PORT" ]
+        then
+            args="$args -e PGPORT=$BI_DB_PORT"
+        else
+            args="$args -e PGPORT=5432"
+        fi
+    else
+        args="$args -e PGHOST=$NETWORK_NAME-dwh -e PGPORT=5432"
+    fi
+    args="$args -e PGUSER=$BI_DB_USER"
+    args="$args -e PGPASSWORD=$BI_DB_PASSWORD"
+    args="$args -e PGDATABASE=$BI_DB_NAME"
+    echo "$args"
 }
 
 _run(){
     docker run \
-        --name biserver \
-        -d --net ${NETWORK_NAME} \
-        -e PGHOST=${NETWORK_NAME}-postgres-dw \
-        -e PGUSER=$DW_TARGET_DB_USER \
-        -e PGPASSWORD=$DW_TARGET_DB_PASSWORD \
-        --privileged=true \
-        -p ${BI_SERVER_PORT}:8080 bi_server
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-bi" \
+        -p "$BI_PORT:8080" \
+        $(set_args) \
+        "$BI_IMAGE"
 }
 
 usage() {
     echo
     echo "  Available commands "
     echo
-    echo "  build               -> Build bi server image"
-    echo "  run                 -> Run bi server container"
-    echo "  <action>            -> Call docker action on bi server container"
+    echo "  build               -> Build bi image"
+    echo "  run                 -> Run bi image"
+    echo "  <action>            -> Call docker action on bi container"
     echo
 }
 
@@ -39,12 +58,9 @@ main(){
 
     local cmd; cmd="$1"; shift
     #
-    [ "$cmd" = "run" ] && { _run $@; return $?; }
-    [ "$cmd" = "build" ] && { _build $@; return $?; }
-    [ "$cmd" = "import" ] && { _import; return $?; }
-
-    docker $cmd biserver $@
-
+    [ "$cmd" = "run" ] && { _run "$@"; return $?; }
+    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    docker "$@" "$NETWORK_NAME-bi"
 }
 
 main "$@"

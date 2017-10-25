@@ -7,72 +7,74 @@ get_dir() {
     echo "$script_dir"
 }
 
-set_postgres_args(){
+set_args(){
     local args
-        if [ ! -z "$_POSTGRES_HOST" ]
+    if [ ! -z "$ETL_ORIGIN_DB_HOST" ]
+    then
+        args="-e COOG_HOSTNAME=$ETL_ORIGIN_DB_HOST"
+        if [ ! -z "$ETL_ORIGIN_DB_PORT" ]
         then
-                args="-e COOG_HOSTNAME=$COOG_POSTGRES_HOST"
-                [ ! -z "$COOG_POSTGRES_PORT" ] \
-                    && args="$args -e COOG_PORT=$COOG_POSTGRES_PORT"
+            args="$args -e COOG_PORT=$ETL_ORIGIN_DB_PORT"
         else
-                args="$args -e COOG_HOSTNAME=${NETWORK_NAME}-postgres -e COOG_PORT=5432"
+            args="$args -e COOG_PORT=5432"
         fi
-        if [ ! -z "$DW_HOSTNAME" ]
+    else
+        args="$args -e COOG_HOSTNAME=$NETWORK_NAME-postgres -e COOG_PORT=5432"
+    fi
+    if [ ! -z "$ETL_TARGET_DB_HOST" ]
+    then
+        args="$args -e DW_HOSTNAME=$ETL_TARGET_DB_HOST"
+        if [ ! -z "$ETL_TARGET_DB_PORT" ]
         then
-                args="$args -e DW_HOSTNAME=$DW_HOSTNAME"
-                [ ! -z "$DW_PORT" ] && args="$args -e DW_PORT=$DW_PORT"
+            args="$args -e DW_PORT=$ETL_TARGET_DB_PORT"
         else
-                args="$args -e DW_HOSTNAME=${NETWORK_NAME}-dw -e DW_PORT=5432"
+            args="$args -e DW_PORT=5432"
         fi
-        echo "$args"
-
+    else
+        args="$args -e DW_HOSTNAME=$NETWORK_NAME-dwh -e DW_PORT=5432"
+    fi
+    args="$args -e COOG_USER=$ETL_ORIGIN_DB_USER"
+    args="$args -e COOG_PASSWORD=$ETL_ORIGIN_DB_PASSWORD"
+    args="$args -e COOG_DB=$ETL_ORIGIN_DB_NAME"
+    args="$args -e DW_USER=$ETL_TARGET_DB_USER"
+    args="$args -e DW_PASSWORD=$ETL_TARGET_DB_PASSWORD"
+    args="$args -e DW_DB=$ETL_TARGET_DB_NAME"
+    echo "$args"
 }
 
-_build(){
-    (cd "$(get_dir)/images/bi_etl" && ./build bi_pentaho "$@")
+_build() {
+    (cd "$(get_dir)/images/etl" && ./build "$@")
 }
 
-_run(){
-    docker run --rm \
-        --name pentaho \
-        --net ${NETWORK_NAME} \
-        -e COOG_HOSTNAME=$DWH_ORIGIN_DB_HOSTNAME \
-        -e COOG_PORT=$ETL_ORIGIN_DB_PORT \
-        -e COOG_DB=$ETL_ORIGIN_DB_NAME \
-        -e COOG_USER=$ETL_ORIGIN_DB_USER \
-        -e COOG_PASSWORD=$ETL_ORIGIN_DB_PASSWORD \
-        -e DW_HOSTNAME=$DW_ORIGIN_DB_HOSTNAME \
-        -e DW_PORT=$DW_ORIGIN_DB_PORT \
-        -e DW_DB=$DW_ORIGIN_DB_NAME \
-        -e DW_USER=$DW_ORIGIN_DB_USER \
-        -e DW_PASSWORD=$DW_ORIGIN_DB_PASSWORD \
-        -e "PGPASSWORD=postgres" \
-        $(set_postgres_args) \
-        bi_pentaho && return 1
+_run() {
+    docker run \
+        $DOCKER_INTERACTIVE_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-etl" \
+        $(set_args) \
+        "$ETL_IMAGE"
 }
 
 usage() {
     echo
     echo "  Available commands "
     echo
-    echo "  build               -> Build etl images"
+    echo "  build               -> Build etl image"
     echo "  run                 -> Run etl image"
     echo "  <action>            -> Call docker action on etl container"
     echo
 }
 
-main(){
+main() {
     source "$(get_dir)/config"
     #
     [ -z "$1" ] && usage && return 0
 
     local cmd; cmd="$1"; shift
     #
-    [ "$cmd" = "run" ] && { _run $@; return $?; }
-    [ "$cmd" = "build" ] && { _build $@; return $?; }
-    [ "$cmd" = "import" ] && { _import; return $?; }
-
-    docker $cmd pentaho $@
+    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    [ "$cmd" = "run" ] && { _run "$@"; return $?; }
+    docker "$@" "$NETWORK_NAME-etl"
 }
 
 main "$@"
