@@ -18,7 +18,7 @@ dump_attachments() {
     SECONDS=0
     docker run -i --rm \
         -v /tmp:/tmp \
-        --volumes-from "$USER"-coog-server \
+        --volumes-from "$NETWORK"-coog-server \
         alpine:3.6 \
         tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
         cp /tmp/"$1" "$BACKUP_DIRECTORY/" &&

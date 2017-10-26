@@ -20,7 +20,7 @@ server() {
         -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
         -v /etc/timezone:/etc/timezone:ro \
         -v "$POSTGRES_VOLUME:/var/lib/postgresql/data" \
-        -v "/tmp:/tmp" \
+        -v "/tmp/$NETWORK_NAME-postgres:/tmp" \
         "$POSTGRES_IMAGE" "$@"
 }
 
@@ -28,7 +28,7 @@ client() {
     docker run \
         $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
-        -v "/tmp:/tmp" \
+        -v "/tmp/$NETWORK_NAME-postgres:/tmp" \
         "$POSTGRES_IMAGE" \
         psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
 }
