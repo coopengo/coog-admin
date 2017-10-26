@@ -7,7 +7,7 @@ get_dir() {
     echo "$script_dir"
 }
 
-set_args(){
+set_args() {
     local args
     if [ ! -z "$ETL_ORIGIN_DB_HOST" ]
     then
@@ -74,7 +74,7 @@ main() {
     #
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "run" ] && { _run "$@"; return $?; }
-    docker "$@" "$NETWORK_NAME-etl"
+    docker "$cmd" "$@" "$NETWORK_NAME-etl"
 }
 
 main "$@"

@@ -7,24 +7,20 @@ get_dir() {
     echo "$script_dir"
 }
 
-_build(){
+_build() {
     (cd "$(get_dir)/images/bi" && ./build "$@")
 }
 
-_import(){
-    docker ps | grep "$NETWORK_NAME-bi"
-    [ "$?" != 0 ] \
-        && echo "Server need to run, ./bi run" \
-        && return 1
-    docker run --rm \
-        --name "$NETWORK_NAME-bi-import" \
+_import() {
+    docker run \
+        $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
-        --entrypoint "/opt/pentaho/scripts/import_file.sh" \
         -e BI_SERVER="$NETWORK_NAME-bi" \
+        --entrypoint "/opt/pentaho/scripts/import_file.sh" \
         "$BI_IMAGE"
 }
 
-set_args(){
+set_args() {
     local args
     if [ ! -z "$BI_DB_HOST" ]
     then
@@ -44,7 +40,7 @@ set_args(){
     echo "$args"
 }
 
-_run(){
+_run() {
     docker run \
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
@@ -60,11 +56,12 @@ usage() {
     echo
     echo "  build               -> Build bi image"
     echo "  run                 -> Run bi image"
+    echo "  import              -> Import default Coog reports"
     echo "  <action>            -> Call docker action on bi container"
     echo
 }
 
-main(){
+main() {
     source "$(get_dir)/config"
     #
     [ -z "$1" ] && usage && return 0
@@ -74,7 +71,7 @@ main(){
     [ "$cmd" = "run" ] && { _run "$@"; return $?; }
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "import" ] && { _import; return $?; }
-    docker "$@" "$NETWORK_NAME-bi"
+    docker "$cmd" "$@" "$NETWORK_NAME-bi"
 }
 
 main "$@"
