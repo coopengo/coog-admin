@@ -12,7 +12,6 @@ RUN curl -L -o /tmp/pentaho-server-ce-${BI_VERSION}.zip https://sourceforge.net/
 ENV PENTAHO_JAVA_HOME $JAVA_HOME
 
 RUN apt-get -qq update && apt-get install -qq -y netcat postgresql-client
-RUN apt-get install strace
 RUN rm ${PENTAHO_SERVER}/tomcat/lib/postgresql-9.3-1102-jdbc4.jar \
 	&& curl -L -o ${PENTAHO_SERVER}/tomcat/lib/postgresql-9.4.1212.jar https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
 

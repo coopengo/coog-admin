@@ -11,6 +11,19 @@ _build(){
     (cd "$(get_dir)/images/bi" && ./build "$@")
 }
 
+_import(){
+    docker ps | grep "$NETWORK_NAME-bi"
+    [ "$?" != 0 ] \
+        && echo "Server need to run, ./bi run" \
+        && return 1
+    docker run --rm \
+        --name "$NETWORK_NAME-bi-import" \
+        --network "$NETWORK_NAME" \
+        --entrypoint "/opt/pentaho/scripts/import_file.sh" \
+        -e BI_SERVER="$NETWORK_NAME-bi" \
+        "$BI_IMAGE"
+}
+
 set_args(){
     local args
     if [ ! -z "$BI_DB_HOST" ]
@@ -60,6 +73,7 @@ main(){
     #
     [ "$cmd" = "run" ] && { _run "$@"; return $?; }
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    [ "$cmd" = "import" ] && { _import; return $?; }
     docker "$@" "$NETWORK_NAME-bi"
 }
 

@@ -118,29 +118,30 @@ This command updates a running environment. It stops and drops running container
 
 ### BI
 
-First of all, you have to set up a running databse server to host your datawarehouse.
+Config can be find at the config file into DWH, ETL and BI section and edited.
 
-Initiate configuration file with `./pentaho init`
+First of all, you have to set up a running database server to host your datawarehouse.
 
-If you own your own server, just set up database configuration and shared
-folder : `./pentaho edit`
-
-If not follow the same step as `postgres` but with `dwh` and name your database
+If you don't own any datawarehouse server use the command `dwh server` and name your database
 like pentaho parameter `DW_DB_NAME`
 
-Now you have to build the docker images, just run `./pentaho build`
+Now you have to build the docker images, just run 
+`./etl build coog/etl:master coog-bi:master`
 
-When it ends, run `./pentaho run` then datawarehouse will build itself, and the
-server is now running.
+When it ends, run `./etl run` then datawarehouse will build itself.
 
-After that if you want only one service running, run `./pentaho <commands>
-<images>`, it will run the command for the docker images and build only this
-one.
+You can see loaded data using `./dwh client`, connect to your database and then
+request table to view the result.
 
-We recommend you to run the etl image at least.
+If you don't own your server you can install one with :
+`./bi build coog/bi:master coog-bi:master`
+
+And then run it :
+`./bi run`
 
 If you have the server running, you'll maybe want to import defaults reports
-and OLAP cubes : `./pentaho import`
+and OLAP cubes : `./bi import`
+
 
 /!\ You have to add your datawarehouse connection to the server. Follow this
 step:
@@ -149,10 +150,8 @@ step:
  - Wait, then click on `manage datasource`
  - Click on the wheel then `new connection`
  - Select postgresql then add your parameters :
-    - Hostname : `<NETWORK_NAME>-postgres-dw`
-    - Database : `<DW_DB_NAME>`
-    - Port : `<DW_DB_PORT>`
-    - User : `<DW_DB_USER>`
-    - Password : `<DW_DB_PASSWORD>`
-
-Now if you want to learn more about the bi server just follow this wiki
+    - Hostname : `<ETL_TARGET_DB_HOST>`
+    - Database : `<ETL_TARGET_DB_NAME>`
+    - Port : `<ETL_TARGET_DB_PORT>`
+    - User : `<ETL_TARGET_DB_USER>`
+    - Password : `<ETL_TARGET_DB_PASSWORD>`
