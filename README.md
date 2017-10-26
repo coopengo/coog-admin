@@ -115,3 +115,43 @@ Once running, the url mapping is:
 ### upgrade
 
 This command updates a running environment. It stops and drops running containers, mount new ones and launches `./coog admin -u ir` on current database to migrate database.
+
+### BI
+
+Config can be find at the config file into DWH, ETL and BI section and edited.
+
+First of all, you have to set up a running database server to host your datawarehouse.
+
+If you don't own any datawarehouse server use the command `dwh server` and name your database
+like pentaho parameter `DW_DB_NAME`
+
+Now you have to build the docker images, just run 
+`./etl build coog/etl:master coog-bi:master`
+
+When it ends, run `./etl run` then datawarehouse will build itself.
+
+You can see loaded data using `./dwh client`, connect to your database and then
+request table to view the result.
+
+If you don't own your server you can install one with :
+`./bi build coog/bi:master coog-bi:master`
+
+And then run it :
+`./bi run`
+
+If you have the server running, you'll maybe want to import defaults reports
+and OLAP cubes : `./bi import`
+
+
+/!\ You have to add your datawarehouse connection to the server. Follow this
+step:
+ - Connect to your server within your browser : `ip:port`
+ - Connect as an admin login : `admin`, password : `password`
+ - Wait, then click on `manage datasource`
+ - Click on the wheel then `new connection`
+ - Select postgresql then add your parameters :
+    - Hostname : `<ETL_TARGET_DB_HOST>`
+    - Database : `<ETL_TARGET_DB_NAME>`
+    - Port : `<ETL_TARGET_DB_PORT>`
+    - User : `<ETL_TARGET_DB_USER>`
+    - Password : `<ETL_TARGET_DB_PASSWORD>`

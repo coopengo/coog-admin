@@ -1,0 +1,84 @@
+#!/bin/bash
+# vim: set ft=sh:
+# This script helps doing with postgres docker image.
+# More informations: https://hub.docker.com/_/postgres/
+
+get_dir() {
+    local script_path; script_path=$(readlink -f "$0")
+    local script_dir; script_dir=$(dirname "$script_path")
+    echo "$script_dir"
+}
+
+server() {
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-dwh" \
+        -e "POSTGRES_USER=$DWH_USER" \
+        -e "POSTGRES_PASSWORD=$DWH_PASSWORD" \
+        -e "PGDATA=/var/lib/postgresql/data/pgdata" \
+        -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+        -v /etc/timezone:/etc/timezone:ro \
+        -v "$DWH_VOLUME:/var/lib/postgresql/data" \
+        -v "/tmp:/tmp" \
+        "$DWH_IMAGE" "$@"
+}
+
+client() {
+    docker run \
+        $DOCKER_INTERACTIVE_OPTS \
+        --network "$NETWORK_NAME" \
+        -v "/tmp:/tmp" \
+        "$DWH_IMAGE" \
+        psql -h "$NETWORK_NAME-dwh" -U "$DWH_USER" "$@"
+}
+
+dump() {
+    if [ -z "$DWH_HOST" ]
+    then
+        docker run \
+            $DOCKER_PIPED_OPTS \
+            --network "$NETWORK_NAME" \
+            -e PGHOST="$NETWORK_NAME-dwh" \
+            -e PGUSER="$DWH_USER" \
+            -e PGPASSWORD="$DWH_PASSWORD" \
+            "$DWH_IMAGE" \
+            pg_dump "$DWH_DB_NAME" "$@"
+    else
+        docker run \
+            $DOCKER_PIPED_OPTS \
+            -e PGHOST="$DWH_HOST" \
+            -e PGUSER="$DWH_USER" \
+            -e PGPASSWORD="$DWH_PASSWORD" \
+            "$DWH_IMAGE" \
+            pg_dump "$DWH_DB_NAME" "$@"
+    fi
+}
+
+usage() {
+    echo
+    echo Available commands
+    echo
+    echo "  server    -> runs a datawarehouse postgres docker image as a server"
+    echo "  client    -> runs a datawarehouse postgres docker image as a client"
+    echo "  dump      -> creates a dump of datawarehouse database"
+    echo "  <action>  -> calls docker action on server container"
+    echo
+}
+
+main() {
+    source "$(get_dir)/config"
+    [ ! -z "$PGUSER" ] && DWH_USER="$PGUSER"
+    [ ! -z "$PGPASSWORD" ] && DWH_PASSWORD="$PGPASSWORD"
+    [ ! -z "$DB_NAME" ] && DWH_DB_NAME="$DB_NAME"
+    #
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd=$1; shift
+    #
+    [ "$cmd" = "server" ] && { server "$@"; return $?; }
+    [ "$cmd" = "client" ] && { client "$@"; return $?; }
+    [ "$cmd" = "dump" ] && { dump "$@"; return $?; }
+    docker "$cmd" "$@" "$NETWORK_NAME-dwh"
+}
+
+main "$@"
