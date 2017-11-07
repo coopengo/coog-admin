@@ -95,7 +95,7 @@ _args() {
 ###############
 
 _build() {
-    (cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" )
 }
 
 _edit_ls() {

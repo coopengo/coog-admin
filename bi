@@ -6,7 +6,7 @@ then
 fi
 
 _build() {
-    (cd "$COOG_CODE_DIR/images/bi" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/bi" && ./build "$@" )
 }
 
 _import() {

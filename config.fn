@@ -101,7 +101,6 @@ config_data_reset_nginx_cp() {
     touch "nginx/events-custom.conf"
     touch "nginx/http-custom.conf"
     touch "nginx/server-custom.conf"
-
     if [ -z "$NGINX_SSL_METHOD" ]
     then
         NGINX_SERVER_CONF=nginx_server.conf
@@ -147,7 +146,6 @@ config_check() {
     fi
     ( cd "$COOG_DATA_DIR" \
         && config_data_branch_exists "$code" )
-
     if [ $? -eq 0 ]
     then
         ( cd "$COOG_DATA_DIR" && git checkout -q "$code" )

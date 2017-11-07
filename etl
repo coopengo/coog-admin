@@ -41,7 +41,7 @@ set_args() {
 }
 
 _build() {
-    (cd "$COOG_CODE_DIR/images/etl" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/etl" && ./build "$@" )
 }
 
 _run() {

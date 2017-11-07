@@ -6,7 +6,7 @@ then
 fi
 
 _build() {
-    (cd "$COOG_CODE_DIR/images/sync" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/sync" && ./build "$@" )
 }
 
 _run() {

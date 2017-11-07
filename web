@@ -6,7 +6,7 @@ then
 fi
 
 _build() {
-    (cd "$COOG_CODE_DIR/images/web" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/web" && ./build "$@" )
 }
 
 _args() {
