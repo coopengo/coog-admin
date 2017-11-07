@@ -1,0 +1,162 @@
+# vim: set ft=sh:
+
+config_code_version() {
+    local version
+    version=$(git describe --tags --exact-match 2> /dev/null | grep "^coog-" | head -1)
+    if [ -z "$version" ]
+    then
+        version=$(git rev-parse --abbrev-ref HEAD)
+    else
+        version=$(echo "$version" | grep -oP "coog-\d+\.\d+")
+    fi
+    if [ "$version" != HEAD ]
+    then
+        echo "$version"
+    fi
+}
+
+config_data_branch_exists() {
+    local l
+    l=$(git show-branch --list | grep -c "\[$1\]")
+    [ "$l" -eq 0 ] && return 1
+    return 0
+}
+
+config_data_path_changed() {
+    local n; n=$(git status -s --porcelain -- "$1" | wc -l)
+    [ "$n" -ne 0 ] && return 0
+    return 1
+}
+
+config_data_commit() {
+    git commit -q --author="$USER <$USER@$HOSTNAME>" "$@"
+}
+
+config_data_gitignore() {
+    {
+        echo "/redis"
+        echo "/postgres"
+        echo "/dwh"
+        echo "/coog/edm"
+        echo "/coog/batch"
+    } >> .gitignore
+}
+
+config_data_bootstrap() {
+    git init -q \
+        && git checkout -q -b init \
+        && config_data_gitignore \
+        && git add .gitignore \
+        && config_data_commit -m "bootstrap"
+}
+
+config_data_migrate() {
+    git checkout -q init \
+        && git checkout -q -b "$1" \
+        && git add . \
+        && config_data_commit -m "migrate"
+}
+
+config_data_reset_base() {
+    git rm -q --ignore-unmatch config \
+        && cp "$COOG_CODE_DIR/defaults/config" "$COOG_DATA_DIR/config" \
+        && git add config \
+        && config_data_commit -m "reset base"
+}
+
+config_data_reset_coog() {
+    git rm -q --ignore-unmatch -r coog* \
+        && mkdir -p coog \
+        && mkdir -p coog/conf \
+        && mkdir -p coog/edm \
+        && mkdir -p coog/batch \
+        && touch coog/conf/coog.conf \
+        && touch coog/conf/batch.conf \
+        && git add coog* \
+        && config_data_commit -m "reset coog"
+}
+
+config_data_reset_nginx_cp() {
+    local def; def="$COOG_CODE_DIR/defaults/nginx"
+    cp -f "$def/nginx.conf" "nginx/nginx.conf"
+    if [ -z "$COOG_IMAGE" ]
+    then
+        touch "nginx/http-coog.conf"
+        touch "nginx/server-coog.conf"
+        touch "nginx/server-coog-ssl.conf"
+    else
+        cp -f "$def/http-coog.conf" "nginx/http-coog.conf"
+        cp -f "$def/server-coog.conf" "nginx/server-coog.conf"
+        cp -f "$def/server-coog-ssl.conf" "nginx/server-coog-ssl.conf"
+    fi
+    if [ -z "$WEB_IMAGE" ]
+    then
+        touch "nginx/http-web.conf"
+        touch "nginx/server-web.conf"
+    else
+        cp -f "$def/http-web.conf" "nginx/http-web.conf"
+        cp -f "$def/server-web.conf" "nginx/server-web.conf"
+    fi
+    touch "nginx/main-custom.conf"
+    touch "nginx/events-custom.conf"
+    touch "nginx/http-custom.conf"
+    touch "nginx/server-custom.conf"
+
+    if [ -z "$NGINX_SSL_METHOD" ]
+    then
+        NGINX_SERVER_CONF=nginx_server.conf
+    else
+        source "$COOG_CODE_DIR/ssl/$NGINX_SSL_METHOD/init"
+    fi
+    cp -f "$def/$NGINX_SERVER_CONF" "nginx/$NGINX_SERVER_CONF"
+}
+
+config_data_reset_nginx_sedf() {
+    sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$1" \
+        && sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$1" \
+        && sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$1" \
+        && sed -i "s/COOG_DB_NAME/$COOG_DB_NAME/g" "$1"
+}
+
+config_data_reset_nginx_sed() {
+    find nginx -maxdepth 1 -type f | while read f
+do
+    config_data_reset_nginx_sedf "$f" || return 1
+done
+}
+
+config_data_reset_nginx() {
+    git rm -q --ignore-unmatch -r nginx* \
+        && mkdir -p "nginx" \
+        && config_data_reset_nginx_cp \
+        && config_data_reset_nginx_sed \
+        && git add nginx* \
+        && config_data_commit -m "reset nginx"
+}
+
+config_check() {
+    mkdir -p "$COOG_DATA_DIR"
+    local code; code="$(config_code_version)"
+    [ -z "$code" ] && echo "code version is empty" >&2 && return 1
+    if [ ! -d "$COOG_DATA_DIR/.git" ]
+    then
+        ( cd "$COOG_DATA_DIR" \
+            && config_data_bootstrap \
+            && config_data_migrate "$code" )
+        [ $? -ne 0 ] && return 1
+    fi
+    ( cd "$COOG_DATA_DIR" \
+        && config_data_branch_exists "$code" )
+
+    if [ $? -eq 0 ]
+    then
+        ( cd "$COOG_DATA_DIR" && git checkout -q "$code" )
+    else
+        ( cd "$COOG_DATA_DIR" \
+            && git checkout -q init \
+            && git checkout -q -b "$code" \
+            && config_data_reset_base \
+            && config_data_reset_coog \
+            && config_data_reset_nginx )
+    fi
+}

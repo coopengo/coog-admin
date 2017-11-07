@@ -1,5 +1,9 @@
 #!/bin/bash
-# vim: set ft=sh:
+
+if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+fi
 
 OPTIND=1
 COOG_IMAGE_TAG="-"
@@ -7,12 +11,6 @@ COOG_IMAGE_ARCHIVE="-"
 COOG_IMAGE_REPO="-"
 COOG_DB_BACKUP=n
 COOG_DB_UPDATE=n
-
-get_dir() {
-    local script_path; script_path=$(readlink -f "$0")
-    local script_dir; script_dir=$(dirname "$script_path")
-    echo "$script_dir"
-}
 
 docker_image() {
     [ -z "$1" ] && return 1
@@ -29,17 +27,17 @@ docker_container() {
 }
 
 cache_clear() {
-    [ ! -z "$COOG_CACHE_DB" ] && "$(get_dir)/redis" client -n "$COOG_CACHE_DB" FLUSHDB
+    [ ! -z "$COOG_CACHE_DB" ] && "$COOG_CODE_DIR/redis" client -n "$COOG_CACHE_DB" FLUSHDB
 }
 
 database_backup() {
     local file_name
     file_name="coog-$USER-$COOG_DB_NAME-$(date +'%y%m%d-%H%M%S').dmp"
-    "$(get_dir)/postgres" dump -F c > "/tmp/$file_name"
+    "$COOG_CODE_DIR/postgres" dump -F c > "/tmp/$file_name"
 }
 
 database_update() {
-    "$(get_dir)/coog" admin -u ir "$@"
+    "$COOG_CODE_DIR/coog" admin -u ir "$@"
 }
 
 print_help() {
@@ -81,9 +79,7 @@ shift $((OPTIND-1))
     echo "Archive (-a) and repository (-p) parameters are mutually exclusive" && exit 1
 
 main() {
-    local dir
-    dir=$(get_dir)
-    source "$dir/config"
+    source "$COOG_CODE_DIR/config"
     [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
     if [ "$COOG_IMAGE_ARCHIVE" != "-" ]
     then
@@ -107,7 +103,7 @@ main() {
         if [ ! -z "$img" ]
         then
             echo "adding $COOG_IMAGE_TAG image to config"
-            echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$PREFIX/config"
+            echo "COOG_IMAGE=$COOG_IMAGE_TAG" >> "$COOG_DATA_DIR/config"
         else
             echo "$COOG_IMAGE_TAG image not found"
             return 1
@@ -120,7 +116,7 @@ main() {
     if [ ! -z "$paybox_container" ]
     then
         echo "removing paybox container"
-        "$dir/paybox" rm -f
+        "$COOG_CODE_DIR/paybox" rm -f
     else
         echo "no paybox container running"
     fi
@@ -131,7 +127,7 @@ main() {
     if [ ! -z "$nginx_container" ]
     then
         echo "removing nginx container"
-        "$dir/nginx" rm -f
+        "$COOG_CODE_DIR/nginx" rm -f
     else
         echo "no nginx container running"
     fi
@@ -142,7 +138,7 @@ main() {
     if [ ! -z "$web_container" ]
     then
         echo "removing web container"
-        "$dir/web" rm -f
+        "$COOG_CODE_DIR/web" rm -f
     else
         echo "no web container running"
     fi
@@ -153,7 +149,7 @@ main() {
     if [ ! -z "$server_container" ]
     then
         echo "removing server container"
-        "$dir/coog" -- server rm -f
+        "$COOG_CODE_DIR/coog" -- server rm -f
     else
         echo "no server container running"
     fi
@@ -164,7 +160,7 @@ main() {
     if [ ! -z "$celery_container" ]
     then
         echo "removing celery container"
-        "$dir/coog" -- celery rm -f
+        "$COOG_CODE_DIR/coog" -- celery rm -f
     else
         echo "no celery container running"
     fi
@@ -175,7 +171,7 @@ main() {
     if [ ! -z "$cron_container" ]
     then
         echo "removing cron container"
-        "$dir/coog" -- cron rm -f
+        "$COOG_CODE_DIR/coog" -- cron rm -f
     else
         echo "no cron container running"
     fi
@@ -196,42 +192,42 @@ main() {
     then
         echo
         echo "starting celery container"
-        "$dir/coog" celery
+        "$COOG_CODE_DIR/coog" celery
     fi
 
     if [ ! -z "$cron_container" ]
     then
         echo
         echo "starting cron container"
-        "$dir/coog" cron
+        "$COOG_CODE_DIR/coog" cron
     fi
 
     if [ ! -z "$server_container" ]
     then
         echo
         echo "starting server container"
-        "$dir/coog" server
+        "$COOG_CODE_DIR/coog" server
     fi
 
     if [ ! -z "$web_container" ]
     then
         echo
         echo "starting web container"
-        "$dir/web" run
+        "$COOG_CODE_DIR/web" run
     fi
 
     if [ ! -z "$nginx_container" ]
     then
         echo
         echo "starting nginx container"
-        "$dir/nginx" run
+        "$COOG_CODE_DIR/nginx" run
     fi
 
     if [ ! -z "$paybox_container" ]
     then
         echo
         echo "starting paybox container"
-        "$dir/paybox" run
+        "$COOG_CODE_DIR/paybox" run
     fi
 }
 

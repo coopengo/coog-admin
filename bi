@@ -1,14 +1,12 @@
 #!/bin/bash
-# vim: set ft=sh:
 
-get_dir() {
-    local script_path; script_path=$(readlink -f "$0")
-    local script_dir; script_dir=$(dirname "$script_path")
-    echo "$script_dir"
-}
+if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+fi
 
 _build() {
-    (cd "$(get_dir)/images/bi" && ./build "$@")
+    (cd "$COOG_CODE_DIR/images/bi" && ./build "$@")
 }
 
 _import() {
@@ -62,12 +60,9 @@ usage() {
 }
 
 main() {
-    source "$(get_dir)/config"
-    #
+    source "$COOG_CODE_DIR/config"
     [ -z "$1" ] && usage && return 0
-
     local cmd; cmd="$1"; shift
-    #
     [ "$cmd" = "run" ] && { _run "$@"; return $?; }
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "import" ] && { _import; return $?; }

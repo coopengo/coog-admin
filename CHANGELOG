@@ -1,0 +1,6 @@
+FEA#7433: COOG_CODE_DIR and COOG_DATA_DIR should be set to run any command
+FEA#7433: COOG_DATA_DIR content is now a `git` repo (branch per code branch)
+FEA#7433: ./coog edit-xxx replaced by ./coog edit
+FEA#7433: ./coog edit-cron is removed (it was a demonstrative command)
+FEA#7433: ./coog init -> ./coog reset and no need to backup (thanks `git`)
+FEA#7433: ./nginx init -> ./nginx reset and no need to backup (thanks `git`)
