@@ -1,16 +1,20 @@
 #!/bin/bash
-# vim: set ft=sh:
-# This script launches custom config script edition
 
-get_dir() {
-    local script_path; script_path=$(readlink -f "$0")
-    local script_dir; script_dir=$(dirname "$script_path")
-    echo "$script_dir"
+if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+fi
+
+_commit() {
+    config_data_path_changed config \
+        && git add config \
+        && config_data_commit -m "update config"
 }
 
 main() {
-    source "$(get_dir)/config"
-    "$EDITOR" "$PREFIX/config"
+    source "$COOG_CODE_DIR/config"
+    "$EDITOR" "$COOG_DATA_DIR/config"
+    ( cd "$COOG_DATA_DIR" && _commit )
 }
 
 main

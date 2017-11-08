@@ -26,24 +26,21 @@ For the first versions, Coog Admin will be focused on deployment.
 ## What is this tool
 
 - Set of shell scripts to ensure operations
-- All Coog data are stored in **one folder** named `$PREFIX`
+- All Coog data are stored in **one folder** named `$COOG_DATA_DIR`
     - This ensures that the host server is kept clean (no files at different locations).
-    - By default `$PREFIX` is mapped to `/usr/local/coog`.
-    - It could be overridden by setting `COOG_DATA` (maybe in user's `.profile`)
-    - A good practice is to use `data` folder inside coog-admin (git ignored)
 - Coog data includes postgresql databases, redis persistency, coog documents.
-  All those are stored in sub-fodlers of `$PREFIX`.
+  All those are stored in sub-fodlers of `$COOG_DATA_DIR`.
 - All operations scripts source a special script (`config`) that sets the
   configuration
 - `config` last line is:
 
   ```
-  [ -f $PREFIX/config ] && source $PREFIX/config
+  [ -f $COOG_DATA_DIR/config ] && source $COOG_DATA_DIR/config
   ```
   Basically, all the configuration is done through environment variables, which
   are defined in `config`. To modify the configuration, just set your updated
-  environment variables in `$PREFIX/config`.
-- To clean your environment, you can just remove `$PREFIX` folder
+  environment variables in `$COOG_DATA_DIR/config`.
+- To clean your environment, you can just remove `$COOG_DATA_DIR` folder
 
 It is very recommended to read the scripts to have a deep understanding of how
 it works:
@@ -77,14 +74,14 @@ Creates a network where all containers will live: `./net create`
 - `./postgres client`: launches postgres client
 - `./postgres dump`: dumps current database (to be piped to a file)
 
-### coog (build, init, server, celery, etc.)
+### coog (build, server, celery, etc.)
 
 Coog image contains all resources to run Coog backend and Sao Web client
 
 Environment variables to customize process exec (`DB_NAME` and `LOG_LEVEL`)
 
 - `./coog build coog/coog:master trytond:master trytond-modules:master coog:master coog-bench:master sao:master`: builds a coog image
-- `./coog init`: inits coog volume
+- `./coog reset`: resets coog configuration
 - `./coog server 4`: launches a coog server with 4 uwsgi workers
 - `./coog celery 4`: launches a coog set of 4 celery workers
 - `./coog admin`: launches trytond admin utilities on current database
@@ -101,9 +98,9 @@ Environment variables to customize process exec (`DEBUG`)
 - `./web build coog/web:master coog-api:master coog-app:master`: builds a web image
 - `./web run`
 
-### nginx (init, run)
+### nginx (reset, run)
 
-- `./nginx init`: initializes configuration folder for nginx (depending on WEB_IMAGE value)
+- `./nginx reset`: resets nginx configuration
 - `./nginx run`: runs nginx server
 
 Once running, the url mapping is:
@@ -125,7 +122,7 @@ First of all, you have to set up a running database server to host your dataware
 If you don't own any datawarehouse server use the command `dwh server` and name your database
 like pentaho parameter `DW_DB_NAME`
 
-Now you have to build the docker images, just run 
+Now you have to build the docker images, just run
 `./etl build coog/etl:master coog-bi:master`
 
 When it ends, run `./etl run` then datawarehouse will build itself.

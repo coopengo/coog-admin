@@ -1,13 +1,9 @@
 #!/bin/bash
-# vim: set ft=sh:
-# This script helps doing with Coog image.
-# More informations: https://docs.docker.com/engine/reference/run/
 
-get_dir() {
-    local script_path; script_path=$(readlink -f "$0")
-    local script_dir; script_dir=$(dirname "$script_path")
-    echo "$script_dir"
-}
+if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+fi
 
 ########
 # args #
@@ -99,38 +95,31 @@ _args() {
 ###############
 
 _build() {
-    (cd "$(get_dir)/images/coog" && ./build "$@")
+    ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" )
 }
 
-_init() {
-    mkdir -p "$COOG_VOLUME"
-    mkdir -p "$COOG_VOLUME"/conf
-    mkdir -p "$COOG_VOLUME"/edm
-    mkdir -p "$COOG_VOLUME"/batch
-    [ ! -e "$COOG_VOLUME/conf/coog.conf" ] && touch "$COOG_VOLUME/conf/coog.conf"
-    [ ! -e "$COOG_VOLUME/conf/batch.conf" ] && touch "$COOG_VOLUME/conf/batch.conf"
+_edit_ls() {
+    echo
+    ( cd "$COOG_DATA_DIR/coog/conf" && find . -type f | cut -c 3- )
 }
 
-_edit_app() {
-    "$EDITOR" "$COOG_VOLUME/conf/coog.conf"
+_edit_commit() {
+    config_data_path_changed "coog*" \
+        && git add coog* \
+        && config_data_commit -m "update coog - $1"
 }
 
-_edit_batch() {
-    "$EDITOR" "$COOG_VOLUME/conf/batch.conf"
-}
-
-_edit_cron() {
-    local f; f="$PREFIX/cron"
-    crontab -l > "$f"
-    {
-        echo "# uncomment the line below to activate the chain"
-        echo "# - a celery container should be running to consume jobs"
-        echo "# - when a chain fails, the container will pipe to stderr an execution report"
-        echo "#* * * * 5 USER=$USER COOG_DATA=$COOG_DATA $(get_dir)/coog chain coog_core check"
-    } >> "$f"
-    crontab "$f"
-    rm "$f"
-    crontab -e
+_edit() {
+    [ -z "$1" ] && echo "choose file to edit:" \
+        && _edit_ls \
+        && return 1
+    local f; f="$COOG_DATA_DIR/coog/conf/$1"
+    [ ! -f "$f" ] \
+        && echo "bad file name, choose within:" \
+        && _edit_ls \
+        && return 1
+    "$EDITOR" "$COOG_DATA_DIR/coog/conf/$1"
+    ( cd "$COOG_DATA_DIR" && _edit_commit "$1" )
 }
 
 _docker() {
@@ -165,10 +154,8 @@ usage() {
     echo Admin commands
     echo
     echo "  build         -> build coog image: <tag> <repo:branch>+"
-    echo "  init          -> init volume folder"
-    echo "  edit-app      -> edits coog app config file"
-    echo "  edit-batch    -> edits coog batch config file"
-    echo "  edit-cron     -> configure cron for a chain execution"
+    echo "  reset         -> reset coog configuration"
+    echo "  edit          -> edit coog configuration"
     echo
     echo Docker commands
     echo
@@ -178,19 +165,14 @@ usage() {
 }
 
 main() {
-    source "$(get_dir)/config"
+    source "$COOG_CODE_DIR/config"
     [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
     [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
-    #
     [ -z "$1" ] && usage && return 1
     local cmd; cmd="$1"; shift
-    #
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
-    [ "$cmd" = "init" ] && { _init; return $?; }
-    [ ! -e "$COOG_VOLUME" ] && echo "You need to run: './coog init'" && return 1
-    [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
-    [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
-    [ "$cmd" = "edit-cron" ] && { _edit_cron; return $?; }
+    [ "$cmd" = "reset" ] && { ( cd "$COOG_DATA_DIR" && config_data_reset_coog "$@" ); return $?; }
+    [ "$cmd" = "edit" ] && { _edit "$@"; return $?; }
     [ "$cmd" = "--" ] && { _docker "$@"; return $?; }
     _image "$cmd" "$@"
 }
