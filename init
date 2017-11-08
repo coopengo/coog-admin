@@ -14,13 +14,15 @@ main() {
     local v
     if [ -d "$COOG_DATA_DIR" ]
     then
+        [ -d "$COOG_DATA_DIR/.git" ] \
+            && echo already initialized >&2 \
+            && return 1
         [ -z "$1" ] \
-            && echo "missing coog version from which you are coming" \
+            && echo "missing coog version from which you are coming" >&2 \
             && return 1
         v="$1"
     else
-        [ ! -z "$1" ] \
-            && echo "skipping parameter: $1"
+        [ ! -z "$1" ] && echo "skipping parameter: $1" >&2
         mkdir "$COOG_DATA_DIR"
     fi
 

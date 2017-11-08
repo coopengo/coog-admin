@@ -36,6 +36,18 @@ config_data_commit() {
     git commit -q --author="$USER <$USER@$HOSTNAME>" "$@"
 }
 
+config_data_check() {
+    local n; n=$(git status -s --porcelain | wc -l)
+    if [ "$n" -eq 0 ]
+    then
+        return 0
+    else
+        echo "data repo is not clean ($COOG_DATA_DIR)" \
+            && git status \
+            && return 1
+    fi
+}
+
 config_data_gitignore() {
     {
         echo "/redis"
@@ -140,11 +152,13 @@ config_data_reset_nginx() {
 config_check() {
     [ ! -d "$COOG_DATA_DIR" ] || [ ! -d "$COOG_DATA_DIR/.git" ] \
         && echo "execute init to setup coog-admin" >&2 \
-        return 1
+        && return 1
+    ( cd "$COOG_DATA_DIR" && config_data_check ) || return $?
     local code; code="$(config_version)"
-    [ -z "$code" ] && echo "code version is empty" >&2 && return 1
-    ( cd "$COOG_DATA_DIR" \
-        && config_data_branch_exists "$code" )
+    [ -z "$code" ] \
+        && echo "code version is empty" >&2 \
+        && return 1
+    ( cd "$COOG_DATA_DIR" && config_data_branch_exists "$code" )
     if [ $? -eq 0 ]
     then
         ( cd "$COOG_DATA_DIR" && git checkout -q "$code" )
@@ -154,6 +168,7 @@ config_check() {
             && git checkout -q -b "$code" \
             && config_data_reset_base \
             && config_data_reset_coog \
-            && config_data_reset_nginx )
+            && config_data_reset_nginx \
+            && git tag "init-$code" )
     fi
 }
