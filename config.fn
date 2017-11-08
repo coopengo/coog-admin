@@ -15,6 +15,10 @@ config_code_version() {
     fi
 }
 
+config_version() {
+    ( cd "$COOG_CODE_DIR" && config_code_version )
+}
+
 config_data_branch_exists() {
     local l
     l=$(git show-branch --list | grep -c "\[$1\]")
@@ -134,16 +138,11 @@ config_data_reset_nginx() {
 }
 
 config_check() {
-    mkdir -p "$COOG_DATA_DIR"
-    local code; code="$(config_code_version)"
+    [ ! -d "$COOG_DATA_DIR" ] || [ ! -d "$COOG_DATA_DIR/.git" ] \
+        && echo "execute init to setup coog-admin" >&2 \
+        return 1
+    local code; code="$(config_version)"
     [ -z "$code" ] && echo "code version is empty" >&2 && return 1
-    if [ ! -d "$COOG_DATA_DIR/.git" ]
-    then
-        ( cd "$COOG_DATA_DIR" \
-            && config_data_bootstrap \
-            && config_data_migrate "$code" )
-        [ $? -ne 0 ] && return 1
-    fi
     ( cd "$COOG_DATA_DIR" \
         && config_data_branch_exists "$code" )
     if [ $? -eq 0 ]
