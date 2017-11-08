@@ -74,14 +74,14 @@ Creates a network where all containers will live: `./net create`
 - `./postgres client`: launches postgres client
 - `./postgres dump`: dumps current database (to be piped to a file)
 
-### coog (build, init, server, celery, etc.)
+### coog (build, server, celery, etc.)
 
 Coog image contains all resources to run Coog backend and Sao Web client
 
 Environment variables to customize process exec (`DB_NAME` and `LOG_LEVEL`)
 
 - `./coog build coog/coog:master trytond:master trytond-modules:master coog:master coog-bench:master sao:master`: builds a coog image
-- `./coog init`: inits coog volume
+- `./coog reset`: resets coog configuration
 - `./coog server 4`: launches a coog server with 4 uwsgi workers
 - `./coog celery 4`: launches a coog set of 4 celery workers
 - `./coog admin`: launches trytond admin utilities on current database
@@ -98,9 +98,9 @@ Environment variables to customize process exec (`DEBUG`)
 - `./web build coog/web:master coog-api:master coog-app:master`: builds a web image
 - `./web run`
 
-### nginx (init, run)
+### nginx (reset, run)
 
-- `./nginx init`: initializes configuration folder for nginx (depending on WEB_IMAGE value)
+- `./nginx reset`: resets nginx configuration
 - `./nginx run`: runs nginx server
 
 Once running, the url mapping is:
