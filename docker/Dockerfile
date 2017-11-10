@@ -24,7 +24,7 @@ RUN pip install \
         psycopg2 \
         polib \
         Genshi \
-        relatorio==0.6.4 \
+        relatorio~=0.6.4 \
         pydot \
         pyparsing \
         python-stdnum \
