@@ -65,7 +65,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog                    # docker image
+COOG_IMAGE="coopengo/coog:coog-1.14"    # docker image
 COOG_VOLUME=$COOG_DATA_DIR/coog         # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
@@ -98,7 +98,7 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 # WEB CONFIG
 #-------------------------------------------------------------------------------#
 
-WEB_IMAGE=coog/web                      # docker image
+WEB_IMAGE="coopengo/web:coog-1.14"      # docker image
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG
@@ -115,7 +115,7 @@ NGINX_SSL_SERVER_NAME=                  # SSL server name
 # PAYBOX CONFIG
 #-------------------------------------------------------------------------------#
 
-PAYBOX_IMAGE=coog/paybox:master
+PAYBOX_IMAGE="coopengo/paybox:coog-1.14"
 PAYBOX_PUB_PORT=3000
 PAYBOX_COOG_USER=admin
 PAYBOX_COOG_PASS=admin
@@ -124,7 +124,7 @@ PAYBOX_COOG_PASS=admin
 # SYNC CONFIG
 #-------------------------------------------------------------------------------#
 
-SYNC_IMAGE=coog/sync                    # docker image
+SYNC_IMAGE="coopengo/sync:coog-1.14"    # docker image
 SYNC_SRC=$COOG_VOLUME                   # source volume
 SYNC_DEST=/home/$USER/.sync             # destination volume
 
@@ -150,7 +150,7 @@ DWH_DB_NAME=coog_dwh                    # datawarehouse database
 # ETL CONFIG
 #-------------------------------------------------------------------------------#
 
-ETL_IMAGE=coog/etl
+ETL_IMAGE="coopengo/etl:coog-1.14"
 
 ETL_ORIGIN_DB_HOST="$COOG_POSTGRES_HOST"
 ETL_ORIGIN_DB_PORT="$COOG_POSTGRES_PORT"
@@ -168,7 +168,7 @@ ETL_TARGET_DB_NAME="$DWH_DB_NAME"
 # BI SERVER CONFIG
 #-------------------------------------------------------------------------------#
 
-BI_IMAGE=coog/bi
+BI_IMAGE="coopengo/bi:coog-1.14"
 
 BI_DB_HOST="$ETL_TARGET_DB_HOST"
 BI_DB_PORT="$ETL_TARGET_DB_PORT"
