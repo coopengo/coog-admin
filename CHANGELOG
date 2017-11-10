@@ -5,5 +5,5 @@ FEA#7433: ./coog edit-cron is removed (it was a demonstrative command)
 FEA#7433: ./coog init -> ./coog reset and no need to backup (thanks `git`)
 FEA#7433: ./nginx init -> ./nginx reset and no need to backup (thanks `git`)
 FEA#7433: ./edit-config -> ./conf edit
-FEA#7433: new ./conf log command to show data history
+FEA#7433: new ./conf log / show to consult coog data history
 
