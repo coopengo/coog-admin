@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+fi
+
+_commit() {
+    config_data_path_changed config \
+        && git add config \
+        && config_data_commit -m "update config"
+}
+
+_edit() {
+    "$EDITOR" "$COOG_DATA_DIR/config"
+    ( cd "$COOG_DATA_DIR" && _commit )
+}
+
+_log() {
+    ( cd "$COOG_DATA_DIR" && git log --graph --abbrev-commit --decorate "$@" )
+}
+
+_show() {
+    ( cd "$COOG_DATA_DIR" && git show "$@" )
+}
+
+usage() {
+    echo
+    echo Available commands
+    echo
+    echo "  edit      -> edits coog data config"
+    echo "  log       -> shows coog data history"
+    echo "  show      -> shows coog data changeset"
+    echo
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    [ -z "$1" ] && usage && return 1
+    local cmd; cmd=$1; shift
+    [ "$cmd" = "edit" ] && { _edit "$@"; return $?; }
+    [ "$cmd" = "log" ] && { _log "$@"; return $?; }
+    [ "$cmd" = "show" ] && { _show "$@"; return $?; }
+    echo "bad command" >&2 && return 1
+}
+
+main "$@"
