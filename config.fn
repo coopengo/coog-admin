@@ -33,7 +33,7 @@ config_data_path_changed() {
 }
 
 config_data_commit() {
-    git commit -q --author="$USER <$USER@$HOSTNAME>" "$@"
+    git commit -q --allow-empty --author="$USER <$USER@$HOSTNAME>" "$@"
 }
 
 config_data_check() {
