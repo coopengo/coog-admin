@@ -1,8 +1,12 @@
 #!/bin/bash
 
-if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
 then
-    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
 fi
 
 OPTIND=1
@@ -171,26 +175,15 @@ main() {
         echo "no celery container running"
     fi
 
-    local cron_container
-    cron_container=$(docker_container coog-cron)
-    echo
-    if [ ! -z "$cron_container" ]
-    then
-        echo "removing cron container"
-        "$COOG_CODE_DIR/coog" -- cron rm -f
-    else
-        echo "no cron container running"
-    fi
-
     echo
     echo "clearing cache" && { cache_clear || return $?; }
     if [ "$COOG_DB_BACKUP" = y ]
     then
-        echo "backup database" && { database_backup || return $?; }
+        echo "backup database $COOG_DB_NAME" && { database_backup || return $?; }
     fi
     if [ "$COOG_DB_UPDATE" = y ]
     then
-        echo "updating database" && { database_update "$@" || return $?; }
+        echo "updating database $COOG_DB_NAME" && { database_update "$@" || return $?; }
         echo "clearing cache" && { cache_clear || return $?; }
     fi
 
@@ -199,13 +192,6 @@ main() {
         echo
         echo "starting celery container"
         "$COOG_CODE_DIR/coog" celery
-    fi
-
-    if [ ! -z "$cron_container" ]
-    then
-        echo
-        echo "starting cron container"
-        "$COOG_CODE_DIR/coog" cron
     fi
 
     if [ ! -z "$server_container" ]

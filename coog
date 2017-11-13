@@ -1,8 +1,12 @@
 #!/bin/bash
 
-if [ -z "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
 then
-    echo "COOG_CODE_DIR or COOG_DATA_DIR not set" >&2 && exit 1
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
 fi
 
 ########
@@ -132,7 +136,7 @@ _image() {
     [ -z "$1" ] && echo missing command && return 1
     local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
     local args
-    if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ] || [ "$cmd" = "cron" ]
+    if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
     then
         args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1 -v /tmp/$NETWORK_NAME-coog-$1:/tmp"
     elif [ "$cmd" = "admin" ]
