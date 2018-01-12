@@ -10,7 +10,7 @@ then
 fi
 
 dump_database() {
-    if "$COOG_CODE_DIR/postgres dump" -Fc > "$BACKUP_DIRECTORY/$1"; then
+    if "$COOG_CODE_DIR/postgres" dump -Fc > "$BACKUP_DIRECTORY/$1"; then
         echo "dump db -> OK"
     else
         echo "dump db -> KO"
