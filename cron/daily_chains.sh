@@ -16,4 +16,8 @@ cd $COOG_ADMIN
 ./coog chain report_engine produce_request
 ./coog batch ftp.move --input="/workspace/io/reports/bdoc/" --output="."
 
+# attente de 20 minutes le temps d'envoyer la bande à la banque et de recevoir l'accusé reception
+sleep 1200
+./coog chain account_payment_cog payment_ack --treatment_date=$(date --iso) --journal_methods=sepa --payment_kind='payable'
+
 cd -
