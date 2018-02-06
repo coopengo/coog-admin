@@ -153,6 +153,17 @@ main() {
         echo "no web container running"
     fi
 
+    local unoconv_container
+    unoconv_container=$(docker_container unoconv)
+    echo
+    if [ ! -z "$unoconv_container" ]
+    then
+        echo "removing unoconv container"
+        "$COOG_CODE_DIR/unoconv" rm -f
+    else
+        echo "no unoconv container running"
+    fi
+
     local server_container
     server_container=$(docker_container coog-server)
     echo
@@ -192,6 +203,13 @@ main() {
         echo
         echo "starting celery container"
         "$COOG_CODE_DIR/coog" celery
+    fi
+
+    if [ ! -z "$unoconv_container" ]
+    then
+        echo
+        echo "starting unoconv container"
+        "$COOG_CODE_DIR/unoconv" run
     fi
 
     if [ ! -z "$server_container" ]

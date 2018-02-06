@@ -105,6 +105,12 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 WEB_IMAGE=coopengo/web:master           # docker image
 
 #-------------------------------------------------------------------------------#
+# UNOCONV CONFIG
+#-------------------------------------------------------------------------------#
+
+UNOCONV_IMAGE=coopengo/unoconv          # docker image
+
+#-------------------------------------------------------------------------------#
 # NGINX CONFIG
 #-------------------------------------------------------------------------------#
 

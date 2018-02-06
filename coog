@@ -99,7 +99,12 @@ _args() {
 ###############
 
 _build() {
-    ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" )
+    if [ ! -z "$COOG_IMAGE_BASE" ] && [ "$COOG_IMAGE_BASE" -eq 3 ]
+    then
+        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" -- -f py3/Dockerfile )
+    else
+        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
+    fi
 }
 
 _edit_ls() {

@@ -66,7 +66,7 @@ conf_async() {
 }
 
 hash_pwd() {
-    python -c "import crypt,random,string; print crypt.crypt('$1', ''.join(random.sample(string.ascii_letters + string.digits, 8)))"
+    python -c "import crypt,random,string; print(crypt.crypt('$1', ''.join(random.sample(string.ascii_letters + string.digits, 8))))"
 }
 
 conf_session() {
@@ -75,12 +75,6 @@ conf_session() {
     local password
     password=$(hash_pwd "$COOG_SESSION_SUPERPWD")
     echo "super_pwd = $password"
-    return 0
-}
-
-conf_report() {
-    echo "[report]"
-    echo "unoconv = pipe,name=trytond;urp;StarOffice.ComponentContext"
     return 0
 }
 
@@ -103,7 +97,6 @@ _init_conf() {
     conf_cache >> "$COOG_CONF_SRV" || return $?
     conf_async >> "$COOG_CONF_SRV" || return $?
     conf_session >> "$COOG_CONF_SRV" || return $?
-    conf_report >> "$COOG_CONF_SRV" || return $?
     conf_sentry >> "$COOG_CONF_SRV" || return $?
     conf_batch >> "$COOG_CONF_SRV" || return $?
     # append override
@@ -133,12 +126,6 @@ _init_env() {
 
 _init() {
     _init_conf && _init_env
-}
-
-_uno() {
-    unoconv --listener -c "pipe,name=trytond;urp;StarOffice.ComponentContext" &
-    sleep 3
-    unoconv --listener -c "pipe,name=trytond;urp;StarOffice.ComponentContext" &
 }
 
 _mount() {
@@ -213,7 +200,6 @@ _server() {
     [ -z "$n" ] && echo "missing concurrency" && return 1
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
-    _uno
     _mount
     local out
     out=/tmp/coog-docker-$HOSTNAME
@@ -231,7 +217,6 @@ _celery() {
     fi
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
-    _uno
     _mount
     local q
     if [ ! -z "$1" ]
@@ -250,7 +235,6 @@ _celery() {
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
     _init || return $?
-    _uno
     local q
     if [ ! -z "$1" ]
     then

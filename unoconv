@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
+fi
+
+_build() {
+    ( cd "$COOG_CODE_DIR/images/unoconv" && ./build "$@" )
+}
+
+_run() {
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-unoconv" \
+        "$UNOCONV_IMAGE"
+
+}
+
+_docker() {
+    docker "$@" "$NETWORK_NAME-unoconv"
+}
+
+usage() {
+    echo
+    echo Available commands
+    echo
+    echo "  build     -> builds unoconv image"
+    echo "  run       -> runs a unoconv docker image"
+    echo "  <action>  -> calls docker action on unoconv container"
+    echo
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd="$1"; shift
+    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    [ "$cmd" = "run" ] && { _run; return $?; }
+    _docker "$cmd" "$@"
+}
+
+main "$@"
