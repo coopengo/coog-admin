@@ -1,10 +1,9 @@
 FROM alpine:edge
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-    && echo '#!/bin/sh' >> /usr/local/bin/uwsgi \
-    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /usr/local/bin/uwsgi \
-    && chmod u+x /usr/local/bin/uwsgi \
+RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
+    && mkdir /workspace && chown coog:coog /workspace \
+    && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk add --no-cache \
         python3 cifs-utils redis graphviz \
         py3-lxml py3-psycopg2 py3-redis py-hiredis py3-ldap3 py3-scipy uwsgi-python3 \
@@ -30,18 +29,26 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
         "raven~=6.1.0" \
         "msgpack-python~=0.4.8" \
         "celery~=4.1.0" \
-        "rq~=0.8.2"
+        "rq~=0.8.2" \
+    && rm -rf /root/.cache \
+    && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
-RUN mkdir /workspace
+ENV PATH="/workspace/bin:${PATH}"
 
-COPY ./dist /workspace
-COPY ./ep /workspace/
+USER coog:coog
+
+RUN mkdir /workspace/bin \
+    && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
+    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
+    && chmod u+x /workspace/bin/uwsgi
+
+COPY --chown=coog:coog dist /workspace
+COPY --chown=coog:coog ep /workspace/bin
 
 RUN 2to3 --no-diffs -w -n /workspace > /dev/null \
-    && ln -s /workspace/trytond/bin/trytond /usr/local/bin \
-    && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
-    && ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin \
-    && ln -s /workspace/ep /usr/local/bin/ep \
+    && ln -s /workspace/trytond/bin/trytond /workspace/bin \
+    && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin \
+    && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin \
     && ep link
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]

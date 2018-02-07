@@ -181,9 +181,14 @@ _server() {
     [ -z "$n" ] && echo "missing concurrency" && return 1
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
-    local out
-    out=/tmp/coog-docker-$HOSTNAME
-    WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http-socket 0.0.0.0:8000 --processes "$n"
+    local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
+    WSGI_LOG_FILE="/tmp/coog-docker-$HOSTNAME"
+    export WSGI_LOG_FILE
+    uwsgi -M -T \
+        --module trytond.application:app \
+        --logformat "$format" \
+        --http-socket 0.0.0.0:8000 \
+        --processes "$n"
 }
 
 _celery() {
@@ -200,7 +205,7 @@ _celery() {
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
     fi
@@ -208,7 +213,7 @@ _celery() {
         --app=async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
-        --queues=$q
+        --queues="$q"
 }
 
 _rq() {
@@ -217,13 +222,13 @@ _rq() {
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null)"
     fi
     rq worker \
         -u "$TRYTOND_ASYNC_RQ" \
-        $q
+        "$q"
 }
 
 _batch() {
@@ -244,7 +249,7 @@ _chain() {
     . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
-    [ "$1" == "--" ] && shift 1
+    [ "$1" = "--" ] && shift 1
     coog_chain_main "$@"
 }
 
