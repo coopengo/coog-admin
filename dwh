@@ -20,7 +20,6 @@ server() {
         -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
         -v /etc/timezone:/etc/timezone:ro \
         -v "$DWH_VOLUME:/var/lib/postgresql/data" \
-        -v "/tmp:/tmp" \
         "$DWH_IMAGE" "$@"
 }
 
@@ -28,7 +27,6 @@ client() {
     docker run \
         $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
-        -v "/tmp:/tmp" \
         "$DWH_IMAGE" \
         psql -h "$NETWORK_NAME-dwh" -U "$DWH_USER" "$@"
 }

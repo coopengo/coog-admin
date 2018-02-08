@@ -1,24 +1,17 @@
-FROM python:3-slim
+FROM alpine:edge
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        gcc \
-        vim \
-        libpq-dev \
-        libldap2-dev \
-        libsasl2-dev \
-        redis-tools \
-        graphviz \
-        cifs-utils \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN pip install \
+RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
+    && mkdir /workspace && chown coog:coog /workspace \
+    && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk add --no-cache \
+        python3 cifs-utils redis graphviz \
+        py3-lxml py3-psycopg2 py3-redis py-hiredis py3-ldap3 py3-scipy uwsgi-python3 \
+    && pip3 install \
         "pyflakes~=1.6.0" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
-        "lxml~=3.8.0" \
         "python-sql~=0.9" \
-        "psycopg2~=2.7.3.1" \
         "polib~=1.0.8" \
         "Genshi~=0.7" \
         "relatorio~=0.7.0" \
@@ -32,30 +25,31 @@ RUN pip install \
         "wrapt~=1.10.11" \
         "werkzeug~=0.12.2" \
         "simpleeval~=0.9.5" \
-        "ldap3<2.0" \
         "requests~=2.18.4" \
         "raven~=6.1.0" \
-        "redis~=2.10.6" \
-        "hiredis~=0.2.0" \
         "msgpack-python~=0.4.8" \
-        "numpy~=1.13.1" \
-        "scipy~=0.19.1" \
-        "uwsgi~=2.0.15" \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
-    && rm -rf /root/.cache
+    && rm -rf /root/.cache \
+    && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
-RUN mkdir /workspace
-COPY ./dist /workspace
-COPY ./ep /workspace/
+ENV PATH="/workspace/bin:${PATH}"
 
-RUN 2to3 --no-diffs -w -n /workspace > /dev/null
+USER coog:coog
 
-RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
-RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
-RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
-RUN ln -s /workspace/ep /usr/local/bin/ep
-RUN ep link
+RUN mkdir /workspace/bin \
+    && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
+    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
+    && chmod u+x /workspace/bin/uwsgi
+
+COPY --chown=coog:coog dist /workspace
+COPY --chown=coog:coog ep /workspace/bin
+
+RUN 2to3 --no-diffs -w -n /workspace > /dev/null \
+    && ln -s /workspace/trytond/bin/trytond /workspace/bin \
+    && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin \
+    && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin \
+    && ep link
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
