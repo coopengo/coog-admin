@@ -11,6 +11,7 @@ fi
 
 main() {
     source "$COOG_CODE_DIR/config"
+    docker pull alpine:3.7
     docker pull node:8-alpine
     docker pull python:2-slim
     docker pull python:3-slim
