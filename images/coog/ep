@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # vim: set ft=sh:
 # docker entrypoint
 
@@ -128,25 +128,6 @@ _init() {
     _init_conf && _init_env
 }
 
-_mount() {
-    [ -z "$MOUNT" ] && return
-    echo "########## MOUNTING ##########"
-    while IFS=';' read -ra MOUNTPOINTS; do
-        for i in "${MOUNTPOINTS[@]}"; do
-            unset OPTIONS
-            ARGS=(${i//:/ })
-            [ ! -z "${ARGS[2]}" ] && OPTIONS="-o ${ARGS[2]}"
-            mount -t cifs "${ARGS[0]}" "${ARGS[1]}" $OPTIONS
-            if [ "$?" -ne 0 ]; then
-                echo "WARNING: failed to mount ${ARGS[0]} to ${ARGS[1]}"
-            else
-                echo "Successfully mounted ${ARGS[0]} to ${ARGS[1]}"
-            fi
-        done
-    done <<< "$MOUNT"
-    echo "########## ######## ##########"
-}
-
 ###############
 # entrypoints #
 ###############
@@ -200,10 +181,14 @@ _server() {
     [ -z "$n" ] && echo "missing concurrency" && return 1
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
-    _mount
-    local out
-    out=/tmp/coog-docker-$HOSTNAME
-    WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$n"
+    local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
+    WSGI_LOG_FILE="/tmp/coog-docker-$HOSTNAME"
+    export WSGI_LOG_FILE
+    uwsgi -M -T \
+        --module trytond.application:app \
+        --logformat "$format" \
+        --http-socket 0.0.0.0:8000 \
+        --processes "$n"
 }
 
 _celery() {
@@ -217,11 +202,10 @@ _celery() {
     fi
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
-    _mount
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
     fi
@@ -229,7 +213,7 @@ _celery() {
         --app=async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
-        --queues=$q
+        --queues="$q"
 }
 
 _rq() {
@@ -238,13 +222,13 @@ _rq() {
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null)"
     fi
     rq worker \
         -u "$TRYTOND_ASYNC_RQ" \
-        $q
+        "$q"
 }
 
 _batch() {
@@ -265,7 +249,7 @@ _chain() {
     . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
-    [ "$1" == "--" ] && shift 1
+    [ "$1" = "--" ] && shift 1
     coog_chain_main "$@"
 }
 

@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libsasl2-dev \
         redis-tools \
         graphviz \
-        cifs-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
