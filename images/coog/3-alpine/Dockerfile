@@ -45,7 +45,7 @@ RUN mkdir /workspace/bin \
 COPY --chown=coog:coog dist /workspace
 COPY --chown=coog:coog ep /workspace/bin
 
-RUN 2to3 --no-diffs -w -n /workspace > /dev/null \
+RUN 2to3 --no-diffs -w -n /workspace 2> /dev/null \
     && ln -s /workspace/trytond/bin/trytond /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin \

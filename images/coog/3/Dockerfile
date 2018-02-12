@@ -46,7 +46,7 @@ RUN mkdir /workspace
 COPY ./dist /workspace
 COPY ./ep /workspace/
 
-RUN 2to3 --no-diffs -w -n /workspace > /dev/null
+RUN 2to3 --no-diffs -w -n /workspace 2> /dev/null
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
