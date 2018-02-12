@@ -182,12 +182,12 @@ _server() {
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
-    WSGI_LOG_FILE="/tmp/coog-docker-$HOSTNAME"
+    WSGI_LOG_FILE="/tmp/coog.log"
     export WSGI_LOG_FILE
-    uwsgi -M -T \
+    uwsgi -T \
         --module trytond.application:app \
         --logformat "$format" \
-        --http-socket 0.0.0.0:8000 \
+        --http-socket :8000 \
         --processes "$n"
 }
 

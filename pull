@@ -18,6 +18,7 @@ main() {
     [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
     [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
     [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
+    docker pull jordanorc/docker-unoconv-flask
 }
 
 main

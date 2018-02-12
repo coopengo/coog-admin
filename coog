@@ -99,6 +99,7 @@ _args() {
 ###############
 
 _build() {
+    [ ! -z "$VARIANT" ] && COOG_IMAGE_VARIANT=$VARIANT
     if [ -z "$COOG_IMAGE_VARIANT" ]
     then
         ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")

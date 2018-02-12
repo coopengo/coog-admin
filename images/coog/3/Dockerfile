@@ -37,8 +37,6 @@ RUN pip install \
         "redis~=2.10.6" \
         "hiredis~=0.2.0" \
         "msgpack-python~=0.4.8" \
-        "numpy~=1.13.1" \
-        "scipy~=0.19.1" \
         "uwsgi~=2.0.15" \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
