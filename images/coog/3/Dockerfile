@@ -1,4 +1,4 @@
-FROM python:2-slim
+FROM python:3-slim
 MAINTAINER Coopengo <support@coopengo.com>
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -45,6 +45,8 @@ RUN pip install \
 RUN mkdir /workspace
 COPY ./dist /workspace
 COPY ./ep /workspace/
+
+RUN 2to3 --no-diffs -w -n /workspace 2> /dev/null
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin

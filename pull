@@ -11,12 +11,14 @@ fi
 
 main() {
     source "$COOG_CODE_DIR/config"
-    docker pull alpine:3.6
+    docker pull alpine:3.7
     docker pull node:8-alpine
     docker pull python:2-slim
+    docker pull python:3-slim
     [ ! -z "$POSTGRES_IMAGE" ] && docker pull "$POSTGRES_IMAGE"
     [ ! -z "$REDIS_IMAGE" ] && docker pull "$REDIS_IMAGE"
     [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
+    docker pull jordanorc/docker-unoconv-flask
 }
 
 main

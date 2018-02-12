@@ -69,6 +69,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
+COOG_IMAGE_VARIANT=3-alpine             # docker image variant for build
 COOG_IMAGE=coopengo/coog:master         # docker image
 COOG_VOLUME=$COOG_DATA_DIR/coog         # docker data volume
 
@@ -103,6 +104,12 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 #-------------------------------------------------------------------------------#
 
 WEB_IMAGE=coopengo/web:master           # docker image
+
+#-------------------------------------------------------------------------------#
+# UNOCONV CONFIG
+#-------------------------------------------------------------------------------#
+
+UNOCONV_IMAGE=coopengo/unoconv          # docker image
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG

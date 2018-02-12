@@ -99,7 +99,17 @@ _args() {
 ###############
 
 _build() {
-    ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" )
+    if [ ! -z "$VARIANT" ]
+    then
+        [ "$VARIANT" -eq 2 ] && VARIANT=
+        COOG_IMAGE_VARIANT=$VARIANT
+    fi
+    if [ -z "$COOG_IMAGE_VARIANT" ]
+    then
+        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
+    else
+        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" -- -f "$COOG_IMAGE_VARIANT/Dockerfile" )
+    fi
 }
 
 _edit_ls() {
@@ -138,7 +148,7 @@ _image() {
     local args
     if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
     then
-        args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1 -v /tmp/$NETWORK_NAME-coog-$1:/tmp"
+        args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
     elif [ "$cmd" = "admin" ]
     then
         args="$DOCKER_INTERACTIVE_OPTS"

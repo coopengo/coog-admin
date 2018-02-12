@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # vim: set ft=sh:
 # docker entrypoint
 
@@ -66,7 +66,7 @@ conf_async() {
 }
 
 hash_pwd() {
-    python -c "import crypt,random,string; print crypt.crypt('$1', ''.join(random.sample(string.ascii_letters + string.digits, 8)))"
+    python -c "import crypt,random,string; print(crypt.crypt('$1', ''.join(random.sample(string.ascii_letters + string.digits, 8))))"
 }
 
 conf_session() {
@@ -75,12 +75,6 @@ conf_session() {
     local password
     password=$(hash_pwd "$COOG_SESSION_SUPERPWD")
     echo "super_pwd = $password"
-    return 0
-}
-
-conf_report() {
-    echo "[report]"
-    echo "unoconv = pipe,name=trytond;urp;StarOffice.ComponentContext"
     return 0
 }
 
@@ -103,7 +97,6 @@ _init_conf() {
     conf_cache >> "$COOG_CONF_SRV" || return $?
     conf_async >> "$COOG_CONF_SRV" || return $?
     conf_session >> "$COOG_CONF_SRV" || return $?
-    conf_report >> "$COOG_CONF_SRV" || return $?
     conf_sentry >> "$COOG_CONF_SRV" || return $?
     conf_batch >> "$COOG_CONF_SRV" || return $?
     # append override
@@ -133,31 +126,6 @@ _init_env() {
 
 _init() {
     _init_conf && _init_env
-}
-
-_uno() {
-    unoconv --listener -c "pipe,name=trytond;urp;StarOffice.ComponentContext" &
-    sleep 3
-    unoconv --listener -c "pipe,name=trytond;urp;StarOffice.ComponentContext" &
-}
-
-_mount() {
-    [ -z "$MOUNT" ] && return
-    echo "########## MOUNTING ##########"
-    while IFS=';' read -ra MOUNTPOINTS; do
-        for i in "${MOUNTPOINTS[@]}"; do
-            unset OPTIONS
-            ARGS=(${i//:/ })
-            [ ! -z "${ARGS[2]}" ] && OPTIONS="-o ${ARGS[2]}"
-            mount -t cifs "${ARGS[0]}" "${ARGS[1]}" $OPTIONS
-            if [ "$?" -ne 0 ]; then
-                echo "WARNING: failed to mount ${ARGS[0]} to ${ARGS[1]}"
-            else
-                echo "Successfully mounted ${ARGS[0]} to ${ARGS[1]}"
-            fi
-        done
-    done <<< "$MOUNT"
-    echo "########## ######## ##########"
 }
 
 ###############
@@ -213,11 +181,14 @@ _server() {
     [ -z "$n" ] && echo "missing concurrency" && return 1
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
-    _uno
-    _mount
-    local out
-    out=/tmp/coog-docker-$HOSTNAME
-    WSGI_LOG_FILE=$out uwsgi -M -T --module trytond.application:app --http :8000 --http-timeout 600 --processes "$n"
+    local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
+    WSGI_LOG_FILE="/tmp/coog.log"
+    export WSGI_LOG_FILE
+    uwsgi -T \
+        --module trytond.application:app \
+        --logformat "$format" \
+        --http-socket :8000 \
+        --processes "$n"
 }
 
 _celery() {
@@ -231,12 +202,10 @@ _celery() {
     fi
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
-    _uno
-    _mount
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
     fi
@@ -244,23 +213,22 @@ _celery() {
         --app=async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
-        --queues=$q
+        --queues="$q"
 }
 
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
     _init || return $?
-    _uno
     local q
     if [ ! -z "$1" ]
     then
-        q="$@"
+        q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null)"
     fi
     rq worker \
         -u "$TRYTOND_ASYNC_RQ" \
-        $q
+        "$q"
 }
 
 _batch() {
@@ -281,7 +249,7 @@ _chain() {
     . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
-    [ "$1" == "--" ] && shift 1
+    [ "$1" = "--" ] && shift 1
     coog_chain_main "$@"
 }
 
