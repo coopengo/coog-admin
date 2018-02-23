@@ -99,8 +99,6 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 COOG_IMAGE=coog/coog:coog-1.10          # docker image
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
-COOG_EXPOSE_PORT=                              # defaults 
-
 COOG_POSTGRES_HOST=                     # defaults to postgres container
 COOG_POSTGRES_PORT=                     # defaults to postgres container
 
