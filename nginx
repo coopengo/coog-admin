@@ -12,6 +12,7 @@ get_dir() {
 init() {
         [ -e "$NGINX_CONF" ] && echo backup old config before && return 1
         cp "$(get_dir)/defaults/nginx.conf" "$NGINX_CONF"
+        sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$NGINX_CONF"
 }
 
 edit() {
@@ -20,19 +21,20 @@ edit() {
 
 run() {
         docker run \
-                -d \
-                --name "$NGINX_CONTAINER" \
-                --link "$COOG_CONTAINER:coog" \
+                $DOCKER_DAEMON_OPTS \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-nginx" \
                 -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
                 -v /etc/timezone:/etc/timezone:ro \
                 -v "$NGINX_CONF:/etc/nginx/nginx.conf:ro" \
-                --volumes-from "$COOG_CONTAINER" \
+                -v "/tmp:/tmp" \
+                --volumes-from "$NETWORK_NAME-coog-server" \
                 -p "$NGINX_PUB_PORT:80" \
                 "$NGINX_IMAGE" "$@"
 }
 
 action() {
-        docker "$@" "$NGINX_CONTAINER"
+        docker "$@" "$NETWORK_NAME-nginx"
 }
 
 usage() {
@@ -54,7 +56,7 @@ main() {
         #
         [ "$cmd" = "init" ] && { init; return $?; }
         [ "$cmd" = "edit" ] && { edit; return $?; }
-        [ "$cmd" = "run" ] && { run "$@"; return $?; }
+        [ "$cmd" = "run" ] && { run; return $?; }
         action "$cmd" "$@"
 }
 

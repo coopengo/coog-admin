@@ -19,12 +19,8 @@ postgres_args() {
         then
                 args="-e SENTRY_POSTGRES_HOST=$SENTRY_POSTGRES_HOST"
                 [ ! -z "$SENTRY_POSTGRES_PORT" ] && args="$args -e SENTRY_POSTGRES_PORT=$SENTRY_POSTGRES_PORT"
-        elif [ ! -z "$POSTGRES_CONTAINER" ]
-        then
-                args="--link $POSTGRES_CONTAINER:postgres"
-                args="$args -e SENTRY_POSTGRES_HOST=postgres"
         else
-                return 0
+                args="$args -e SENTRY_POSTGRES_HOST=$NETWORK_NAME-postgres"
         fi
         echo "$args"
 }
@@ -35,12 +31,8 @@ redis_args() {
         then
                 args="-e SENTRY_REDIS_HOST=$SENTRY_REDIS_HOST"
                 [ ! -z "$SENTRY_REDIS_PORT" ] && args="$args -e SENTRY_REDIS_PORT=$SENTRY_REDIS_PORT"
-        elif [ ! -z "$REDIS_CONTAINER" ]
-        then
-                args="--link $REDIS_CONTAINER:redis"
-                args="$args -e SENTRY_REDIS_HOST=redis"
         else
-                return 0
+                args="$args -e SENTRY_REDIS_HOST=$NETWORK_NAME-redis"
         fi
         echo "$args"
 }
@@ -61,6 +53,7 @@ cache_args() {
 
 args() {
         local args
+        local secret_key; secret_key=$(get_key)       
         args="-v $SENTRY_VOLUME:/var/lib/sentry/files -e SENTRY_SECRET_KEY=$secret_key"
         echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args)"
 }
@@ -95,27 +88,39 @@ edit_conf() {
 }
 
 upgrade() {
-        check_key || return 1
-        docker run -it --rm $(args) "$SENTRY_IMAGE" upgrade "$@"
+        docker run \
+                $DOCKER_INTERACTIVE_OPTS \
+                --network "$NETWORK_NAME" \
+                $(args) "$SENTRY_IMAGE" upgrade "$@"
 }
 
 server() {
-        check_key || return 1
-        docker run -d --name "$SENTRY_CONTAINER" $(args) "$SENTRY_IMAGE" "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-sentry" \
+                -p "9000:9000" \
+                $(args) "$SENTRY_IMAGE" "$@"
 }
 
 cron() {
-        check_key || return 1
-        docker run -d --name "$SENTRY_CONTAINER-cron" $(args) "$SENTRY_IMAGE" run cron "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-sentry-cron" \
+                $(args) "$SENTRY_IMAGE" run cron "$@"
 }
 
 worker() {
-        check_key || return 1
-        docker run -d --name "$SENTRY_CONTAINER-worker" $(args) "$SENTRY_IMAGE" run worker "$@"
+        docker run \
+                $DOCKER_DAEMON_OPTS \
+                --network "$NETWORK_NAME" \
+                --name "$NETWORK_NAME-sentry-worker" \
+                $(args) "$SENTRY_IMAGE" run worker "$@"
 }
 
 action() {
-        docker "$@" "$SENTRY_CONTAINER"
+        docker "$@" "$NETWORK_NAME-sentry"
 }
 
 client() {
@@ -134,7 +139,7 @@ usage() {
         echo "  server    -> launches sentry server"
         echo "  client    -> launches sentry client on browser"
         echo "  beat      -> launches sentry cron"
-        echo "  server    -> launches sentry worker"
+        echo "  worker    -> launches sentry worker"
         echo "  <action>  -> calls docker action on server container"
         echo
 }
@@ -151,7 +156,6 @@ main() {
         [ "$cmd" = "edit-conf" ] && { edit_conf; return $?; }
         [ "$cmd" = "upgrade" ] && { upgrade "$@"; return $?; }
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
-        [ "$cmd" = "client" ] && { client; return $?; }
         [ "$cmd" = "cron" ] && { cron "$@"; return $?; }
         [ "$cmd" = "worker" ] && { worker "$@"; return $?; }
         action "$cmd" "$@"
