@@ -4,10 +4,21 @@ cd /opt/coog-admin
 echo ------ Arrêt du serveur applicatif 1
 ./coog -- server-1 kill
 ./coog -- server-1 rm
-
 echo ------ Arrêt du serveur applicatif 2
 ./coog -- server-2 kill
 ./coog -- server-2 rm
+echo ------ Arrêt du serveur applicatif 3
+./coog -- server-3 kill
+./coog -- server-3 rm
+echo ------ Arrêt du serveur applicatif 4
+./coog -- server-4 kill
+./coog -- server-4 rm
+echo ------ Arrêt du serveur applicatif 5
+./coog -- server-5 kill
+./coog -- server-5 rm
+echo ------ Arrêt du serveur applicatif 6
+./coog -- server-6 kill
+./coog -- server-6 rm
 
 echo ------ Arrêt de sentry
 ./sentry -- server kill
