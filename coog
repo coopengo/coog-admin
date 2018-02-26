@@ -142,6 +142,12 @@ _image() {
                 args="$DOCKER_PIPED_OPTS"
         fi
         shift
+        while [[ ! -z "$1" ]]
+        do
+                [ "$1" = "--" ] && shift && break
+                args="$args $1"
+                shift
+        done
         docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
 }
 
@@ -156,7 +162,6 @@ usage() {
         echo "  init          -> init volume folder"
         echo "  edit-app      -> edits coog app config file"
         echo "  edit-batch    -> edits coog batch config file"
-        echo "  edit-cron     -> configure cron for a chain execution"
         docker run -t --rm "$COOG_IMAGE"
         echo Docker commands
         echo
@@ -173,21 +178,12 @@ main() {
         local cmd; cmd="$1"; shift
         #
         [ "$cmd" = "init" ] && { _init; return $?; }
+        [ ! -e "$COOG_VOLUME" ] && echo "You need to run: './coog init'" && return 1
         [ "$cmd" = "edit-app" ] && { _edit_app; return $?; }
         [ "$cmd" = "edit-batch" ] && { _edit_batch; return $?; }
         [ "$cmd" = "edit-cron" ] && { _edit_cron; return $?; }
-        [ "$cmd" = "version" ] && { _version; return $?; }
-        [ "$cmd" = "env" ] && { _env; return $?; }
-        [ "$cmd" = "conf" ] && { _conf; return $?; }
-        [ "$cmd" = "admin" ] && { _admin "$@"; return $?; }
-        [ "$cmd" = "cron" ] && { _cron "$@"; return $?; }
-        [ "$cmd" = "server" ] && { _server "$@"; return $?; }
-        [ "$cmd" = "celery" ] && { _celery "$@"; return $?; }
-        [ "$cmd" = "rq" ] && { _rq "$@"; return $?; }
-        [ "$cmd" = "batch" ] && { _batch "$@"; return $?; }
-        [ "$cmd" = "chain" ] && { _chain "$@"; return $?; }
-        [ "$cmd" = "redis" ] && { _redis "$@"; return $?; }
-        _action "$cmd" "$@"
+        [ "$cmd" = "--" ] && { _docker "$@"; return $?; }
+        _image "$cmd" "$@"
 }
 
 main "$@"

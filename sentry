@@ -53,6 +53,7 @@ cache_args() {
 
 args() {
         local args
+        local secret_key; secret_key=$(get_key)       
         args="-v $SENTRY_VOLUME:/var/lib/sentry/files -e SENTRY_SECRET_KEY=$secret_key"
         echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args)"
 }
@@ -138,7 +139,7 @@ usage() {
         echo "  server    -> launches sentry server"
         echo "  client    -> launches sentry client on browser"
         echo "  beat      -> launches sentry cron"
-        echo "  server    -> launches sentry worker"
+        echo "  worker    -> launches sentry worker"
         echo "  <action>  -> calls docker action on server container"
         echo
 }

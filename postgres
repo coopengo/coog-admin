@@ -10,7 +10,15 @@ get_dir() {
 }
 
 server() {
+        local args
+        while [[ ! -z "$1" ]]
+        do
+                [ "$1" = "--" ] && shift && break
+                args="$args $1"
+                shift
+        done
         docker run \
+                $args \
                 $DOCKER_DAEMON_OPTS \
                 --network "$NETWORK_NAME" \
                 --name "$NETWORK_NAME-postgres" \

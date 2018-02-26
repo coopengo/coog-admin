@@ -55,10 +55,6 @@ POSTGRES_VOLUME=$PREFIX/postgres        # docker data volume
 POSTGRES_USER=postgres                  # postgres user
 POSTGRES_PASSWORD=postgres              # postgres password
 
-COOG_DB_USER=$POSTGRES_USER             # coog pg user
-COOG_DB_PASSWORD=$POSTGRES_PASSWORD     # coog pg password
-COOG_DB_NAME=coog                       # coog pg db name
-
 SENTRY_DB_USER=$POSTGRES_USER           # sentry db user
 SENTRY_DB_PASSWORD=$POSTGRES_PASSWORD   # sentry db password
 SENTRY_DB_NAME=sentry                   # sentry db db name
@@ -100,11 +96,15 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coog/coog:master             # docker image
+COOG_IMAGE=coog/coog:coog-1.10          # docker image
 COOG_VOLUME=$PREFIX/coog                # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
 COOG_POSTGRES_PORT=                     # defaults to postgres container
+
+COOG_DB_USER=$POSTGRES_USER             # coog pg user
+COOG_DB_PASSWORD=$POSTGRES_PASSWORD     # coog pg password
+COOG_DB_NAME=coog                       # coog pg db name
 
 COOG_REDIS_HOST=                        # defaults to redis container
 COOG_REDIS_PORT=                        # defaults to redis container

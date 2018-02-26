@@ -30,7 +30,7 @@ run() {
                 -v "/tmp:/tmp" \
                 --volumes-from "$NETWORK_NAME-coog-server" \
                 -p "$NGINX_PUB_PORT:80" \
-                "$NGINX_IMAGE"
+                "$NGINX_IMAGE" "$@"
 }
 
 action() {

@@ -142,16 +142,6 @@ main() {
         else
                 echo "no server container running"
         fi
-        local celery_container
-        celery_container=$(docker_container coog-celery)
-        echo
-        if [ ! -z "$celery_container" ]
-        then
-                echo "removing celery container"
-                "$dir/coog" -- celery rm -f
-        else
-                echo "no celery container running"
-        fi
         echo
         echo "clearing cache" && { cache_clear || return $?; }
         if [ "$COOG_DB_BACKUP" = y ]
@@ -163,17 +153,11 @@ main() {
                 echo "updating database" && { database_update "$@" || return $?; }
                 echo "clearing cache" && { cache_clear || return $?; }
         fi
-        if [ ! -z "$celery_container" ]
-        then
-                echo
-                echo "starting celery container"
-                "$dir/coog" celery "$COOG_CELERY_WORKERS"
-        fi
         if [ ! -z "$server_container" ]
         then
                 echo
                 echo "starting server container"
-                "$dir/coog" server "$COOG_SERVER_WORKERS"
+                "$dir/coog" server -- "$COOG_SERVER_WORKERS"
         fi
         if [ ! -z "$nginx_container" ]
         then
