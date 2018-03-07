@@ -146,14 +146,15 @@ _image() {
     [ -z "$1" ] && echo missing command && return 1
     local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
     local args
+    args="--name $NETWORK_NAME-coog-$1"
     if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
     then
-        args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
+        args="$args $DOCKER_DAEMON_OPTS"
     elif [ "$cmd" = "admin" ]
     then
-        args="$DOCKER_INTERACTIVE_OPTS"
+        args="$args $DOCKER_INTERACTIVE_OPTS"
     else
-        args="$DOCKER_PIPED_OPTS"
+        args="$args $DOCKER_PIPED_OPTS"
     fi
     shift
     docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
