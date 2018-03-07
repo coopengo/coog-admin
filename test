@@ -33,6 +33,7 @@ check() {
 
 build() {
     echo "build image"
+    rm -rf "$COOG_CODE_DIR/images/coog/dist"
     ./coog build \
         "coopengo/coog:$COOG_TEST_BRANCH-test" \
         "proteus:$COOG_TEST_BRANCH" \
