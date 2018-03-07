@@ -1,0 +1,96 @@
+#!/bin/bash
+
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
+fi
+
+_get_postgres_container() {
+    echo "$USER-postgres"
+}
+
+_get_redis_container() {
+    echo "$USER-redis"
+}
+
+check() {
+    echo "check running containers"
+    local postgres_container
+    postgres_container=$(_get_postgres_container)
+    local postgres_running
+    postgres_running=$(docker inspect -f '{{.State.Running}}' "$postgres_container")
+    [ "$postgres_running" != true ] && return 1
+    local redis_container
+    redis_container=$(_get_redis_container)
+    redis_running=$(docker inspect -f '{{.State.Running}}' "$redis_container")
+    [ "$redis_running" != true ] && return 1
+    return 0
+}
+
+build() {
+    echo "build image"
+    ./coog build \
+        "coopengo/coog:$COOG_TEST_BRANCH-test" \
+        "proteus:$COOG_TEST_BRANCH" \
+        "trytond:$COOG_TEST_BRANCH" \
+        "trytond-modules:$COOG_TEST_BRANCH" \
+        "coog:$COOG_TEST_BRANCH"
+}
+
+clear_redis() {
+    echo "clear redis"
+    ./redis client flushall
+}
+
+_clear_postgres_ls() {
+    echo "select datname from pg_database;" \
+        | docker exec -i "$(_get_postgres_container)" psql -U postgres -t \
+        | grep -P "test_\d+$" \
+        | xargs
+}
+
+_clear_postgres_drop() {
+    echo "drop database $1;" \
+        | docker exec -i "$(_get_postgres_container)" psql -U postgres -t
+}
+
+clear_postgres() {
+    echo "clear postgres"
+    for db in $(_clear_postgres_ls)
+    do
+        _clear_postgres_drop "$db"
+    done
+}
+
+start_workers() {
+    echo "start workers"
+    for i in $(seq 1 "$COOG_TEST_WORKERS")
+    do
+        ./coog "rq-$i" test
+    done
+}
+
+rm_workers() {
+    echo "rm workers"
+    for i in $(seq 1 "$COOG_TEST_WORKERS")
+    do
+        ./coog -- "rq-$i" rm -f
+    done
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    check || return $?
+    build || return $?
+    clear_redis || return $?
+    clear_postgres || return $?
+    start_workers
+    ./coog test "$@"
+    rm_workers
+}
+
+main "$@"

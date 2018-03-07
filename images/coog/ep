@@ -6,6 +6,7 @@ COOG_ROOT=/workspace
 COOG_BIN=$COOG_ROOT/coog/bin/bin
 COOG_LIB=$COOG_ROOT/coog/bin/lib
 COOG_TRYTOND=$COOG_ROOT/trytond
+COOG_PROTEUS=$COOG_ROOT/proteus
 COOG_CONF_SRV=$COOG_ROOT/coog.conf
 COOG_CONF_BAT=$COOG_ROOT/batch.conf
 COOG_IO=$COOG_ROOT/io
@@ -114,6 +115,7 @@ _init_conf() {
 _init_env() {
     export PYTHONUNBUFFERED=1
     export PYTHONPATH="$COOG_LIB:$COOG_TRYTOND:$PYTHONPATH"
+    [ -d "$COOG_PROTEUS" ] && export PYTHONPATH="$COOG_PROTEUS:$PYTHONPATH"
     [ -z "$LOG_LEVEL" ] && LOG_LEVEL=ERROR
     export LOG_LEVEL
     export TRYTOND_CONFIG="$COOG_CONF_SRV"
@@ -218,17 +220,25 @@ _celery() {
 
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
+    unset COOG_DB_NAME
     _init || return $?
     local q
     if [ ! -z "$1" ]
     then
-        q="$*"
+        rq worker -u "$TRYTOND_ASYNC_RQ" "$@"
     else
-        q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null)"
+        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker -u "$TRYTOND_ASYNC_RQ"
     fi
-    rq worker \
-        -u "$TRYTOND_ASYNC_RQ" \
-        "$q"
+}
+
+_test() {
+    . "$COOG_ROOT/coog/bin/coog-redis"
+    . "$COOG_ROOT/coog/bin/coog-rq"
+    . "$COOG_ROOT/coog/bin/coog-test"
+    unset COOG_CELERY_DB
+    _init && \
+        coog_test_generate "$@" && \
+        coog_test_join
 }
 
 _batch() {
@@ -312,6 +322,7 @@ main() {
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
     [ "$cmd" = rq ] && { _rq "$@"; return $?; }
+    [ "$cmd" = test ] && { _test "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
