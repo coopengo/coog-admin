@@ -10,11 +10,11 @@ then
 fi
 
 _get_postgres_container() {
-    echo "$USER-postgres"
+    echo "$NETWORK_NAME-postgres"
 }
 
 _get_redis_container() {
-    echo "$USER-redis"
+    echo "$NETWORK_NAME-redis"
 }
 
 check() {
@@ -34,12 +34,7 @@ check() {
 build() {
     echo "build image"
     rm -rf "$COOG_CODE_DIR/images/coog/dist"
-    ./coog build \
-        "coopengo/coog:$COOG_TEST_BRANCH-test" \
-        "proteus:$COOG_TEST_BRANCH" \
-        "trytond:$COOG_TEST_BRANCH" \
-        "trytond-modules:$COOG_TEST_BRANCH" \
-        "coog:$COOG_TEST_BRANCH"
+    ./coog build "$@"
 }
 
 clear_redis() {
@@ -85,8 +80,18 @@ rm_workers() {
 
 main() {
     source "$COOG_CODE_DIR/config"
+    export IMAGE="$1"
     check || return $?
-    build || return $?
+
+    local args
+    args=()
+    while [ ! -z "$1" ] && [ "$1" != "--" ]
+    do
+        args+=($1) && shift
+    done
+    shift
+    build "${args[@]}" || return $?
+
     clear_redis || return $?
     clear_postgres || return $?
     start_workers
