@@ -30,6 +30,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
         "msgpack-python~=0.4.8" \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
+        "mock" \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
