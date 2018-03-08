@@ -99,11 +99,6 @@ _args() {
 ###############
 
 _build() {
-    if [ ! -z "$VARIANT" ]
-    then
-        [ "$VARIANT" -eq 2 ] && VARIANT=
-        COOG_IMAGE_VARIANT=$VARIANT
-    fi
     if [ -z "$COOG_IMAGE_VARIANT" ]
     then
         ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
@@ -179,11 +174,29 @@ usage() {
     return 0
 }
 
-main() {
-    source "$COOG_CODE_DIR/config"
-    [ ! -z $IMAGE ] && COOG_IMAGE="$IMAGE"
+set_runtime_vars() {
+    if [ ! -z "$VARIANT" ]
+    then
+        [ "$VARIANT" -eq 2 ] && VARIANT=
+        COOG_IMAGE_VARIANT=$VARIANT
+    fi
+    [ ! -z "$IMAGE" ] && COOG_IMAGE="$IMAGE"
     [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
     [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+    if [ ! -z "$CACHE_DB" ]
+    then
+        if [ "$CACHE_DB" = "x" ]
+        then
+            unset COOG_CACHE_DB
+        else
+            COOG_CACHE_DB="$CACHE_DB"
+        fi
+    fi
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    set_runtime_vars
     [ -z "$1" ] && usage && return 1
     local cmd; cmd="$1"; shift
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
