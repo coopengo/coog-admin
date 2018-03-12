@@ -129,9 +129,9 @@ email() {
     local subject
     if [ "$ok" -eq 0 ]
     then
-        subject="Tests OK"
+        subject="$USER - tests OK"
     else
-        subject="Tests KO"
+        subject="$USER - tests KO"
     fi
     local args
     args=()
