@@ -9,6 +9,8 @@ then
     } >&2 && exit 1
 fi
 
+REPORT_NAME="/tmp/coog-test-$(date '+%Y%m%d-%H%M%S')"
+
 _get_postgres_container() {
     echo "$NETWORK_NAME-postgres"
 }
@@ -34,12 +36,12 @@ check() {
 build() {
     echo "build image"
     rm -rf "$COOG_CODE_DIR/images/coog/dist"
-    ./coog build "$@"
+    "$COOG_CODE_DIR/coog" build "$@"
 }
 
 clear_redis() {
     echo "clear redis"
-    ./redis client flushall
+    "$COOG_CODE_DIR/redis" client flushall
 }
 
 _clear_postgres_ls() {
@@ -56,17 +58,19 @@ _clear_postgres_drop() {
 
 clear_postgres() {
     echo "clear postgres"
+    local old; old=$IFS; IFS=$'\n'
     for db in $(_clear_postgres_ls)
     do
         _clear_postgres_drop "$db"
     done
+    IFS=$old
 }
 
 start_workers() {
     echo "start workers"
     for i in $(seq 1 "$COOG_TEST_WORKERS")
     do
-        ./coog "rq-$i" test
+        "$COOG_CODE_DIR/coog" "rq-$i" test
     done
 }
 
@@ -74,11 +78,75 @@ rm_workers() {
     echo "rm workers"
     for i in $(seq 1 "$COOG_TEST_WORKERS")
     do
-        ./coog -- "rq-$i" rm -f
+        "$COOG_CODE_DIR/coog" -- "rq-$i" rm -f
     done
 }
 
+report_summary() {
+    local ok; ok=$1; shift
+    local image
+    image=$(docker images -f reference="$IMAGE" --format '{{.ID}}')
+    echo "Test image: $image"
+    echo
+    "$COOG_CODE_DIR/coog" redis rq q test
+    [ "$ok" -eq 0 ] && return 0
+    echo
+    "$COOG_CODE_DIR/coog" redis rq qlist test fail | column -t
+    return 0
+}
+
+report_failed_job() {
+    local line; line=$1; shift
+    local j; j=$(echo "$line" | cut -d $'\t' -f 3)
+    local m; m=$(echo "$line" | cut -d $'\t' -f 5)
+    "$COOG_CODE_DIR/coog" redis rq j "$j" \
+        | grep -P "(^coog.*|created_at|started_at|ended_at)" \
+        | sed 's/\\n/\n/g' \
+        > "$REPORT_NAME/$m.txt"
+}
+
+report() {
+    local ok; ok=$1; shift
+    report_summary "$ok" > "$REPORT_NAME.eml"
+    [ $? -ne 0 ] && echo "report_summary failed" && return 1
+
+    mkdir "$REPORT_NAME"
+
+    local first
+    local old; old=$IFS; IFS=$'\n'
+    for line in $("$COOG_CODE_DIR/coog" redis rq qlist test fail)
+    do
+        [ -z "$first" ] && first="$line" && continue
+        report_failed_job "$line"
+        [ $? -ne 0 ] && echo "report_failed_job failed" && return 1
+    done
+    IFS=$old
+    return 0
+}
+
+email() {
+    local ok; ok=$1; shift
+    local subject
+    if [ "$ok" -eq 0 ]
+    then
+        subject="Tests OK"
+    else
+        subject="Tests KO"
+    fi
+    local args
+    args=()
+    for f in $REPORT_NAME/*
+    do
+        args+=(-A $f)
+    done
+    mail \
+        -s "$subject" \
+        "${args[@]}" \
+        "$COOG_ADMIN_EMAIL" < "$REPORT_NAME.eml"
+}
+
 main() {
+    local ok
     source "$COOG_CODE_DIR/config"
     export IMAGE="$1"
     check || return $?
@@ -94,9 +162,13 @@ main() {
 
     clear_redis || return $?
     clear_postgres || return $?
-    start_workers
-    ./coog test "$@"
+    start_workers || return $?
+    "$COOG_CODE_DIR/coog" test "$@"
+    ok=$?
     rm_workers
+    report "$ok" && email "$ok"
 }
+
+return 2> /dev/null # avoid exec of main when sourced
 
 main "$@"
