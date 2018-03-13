@@ -221,6 +221,8 @@ _celery() {
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
     unset COOG_DB_NAME
+    DB_CACHE=/tmp
+    export DB_CACHE
     _init || return $?
     local q
     if [ ! -z "$1" ]
