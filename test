@@ -48,7 +48,7 @@ _clear_postgres_ls() {
     echo "select datname from pg_database;" \
         | docker exec -i "$(_get_postgres_container)" psql -U postgres -t \
         | grep -P "test_\d+$" \
-        | xargs
+        | xargs -n 1 echo
 }
 
 _clear_postgres_drop() {
