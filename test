@@ -47,7 +47,7 @@ clear_redis() {
 _clear_postgres_ls() {
     echo "select datname from pg_database;" \
         | docker exec -i "$(_get_postgres_container)" psql -U postgres -t \
-        | grep -P "test_\d+$" \
+        | grep -P "(test_\d+$|test_postgresql_cache_.*)" \
         | xargs -n 1 echo
 }
 
@@ -61,6 +61,7 @@ clear_postgres() {
     local old; old=$IFS; IFS=$'\n'
     for db in $(_clear_postgres_ls)
     do
+        printf "%s: " "$db"
         _clear_postgres_drop "$db"
     done
     IFS=$old
@@ -129,16 +130,19 @@ email() {
     local subject
     if [ "$ok" -eq 0 ]
     then
-        subject="$USER - tests OK"
+        subject="$USER - OK"
     else
-        subject="$USER - tests KO"
+        subject="$USER - KO"
     fi
     local args
     args=()
-    for f in $REPORT_NAME/*
-    do
-        args+=(-A $f)
-    done
+    if [ "$ok" -ne 0 ]
+    then
+        for f in $REPORT_NAME/*
+        do
+            args+=(-A $f)
+        done
+    fi
     mail \
         -s "$subject" \
         "${args[@]}" \

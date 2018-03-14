@@ -90,6 +90,12 @@ conf_batch() {
     echo "root_dir = $COOG_IO/batch"
 }
 
+conf_test() {
+    [ -z "$COOG_TEST" ] && return 0
+    echo "[env]"
+    echo "testing = true"
+}
+
 _init_conf() {
     # build conf from env vars
     conf_postgres >> "$COOG_CONF_SRV" || return $?
@@ -100,6 +106,7 @@ _init_conf() {
     conf_session >> "$COOG_CONF_SRV" || return $?
     conf_sentry >> "$COOG_CONF_SRV" || return $?
     conf_batch >> "$COOG_CONF_SRV" || return $?
+    conf_test >> "$COOG_CONF_SRV" || return $?
     # append override
     local override
     override="$COOG_IO/conf/coog.conf"
@@ -120,9 +127,16 @@ _init_env() {
     export LOG_LEVEL
     export TRYTOND_CONFIG="$COOG_CONF_SRV"
     export TRYTOND_BATCH_CONFIG="$COOG_CONF_BAT"
-    [ ! -z "$COOG_DB_NAME" ] && export DB_NAME=$COOG_DB_NAME
     [ ! -z "$COOG_CELERY_DB" ] && export TRYTOND_ASYNC_CELERY="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CELERY_DB"
     [ ! -z "$COOG_RQ_DB" ] && export TRYTOND_ASYNC_RQ="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_RQ_DB"
+    if [ ! -z "$COOG_TEST" ]
+    then
+        DB_CACHE=/tmp
+        export DB_CACHE
+    elif [ ! -z "$COOG_DB_NAME" ]
+    then
+        export DB_NAME=$COOG_DB_NAME
+    fi
     return 0
 }
 
@@ -220,9 +234,6 @@ _celery() {
 
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
-    unset COOG_DB_NAME
-    DB_CACHE=/tmp
-    export DB_CACHE
     _init || return $?
     local q
     if [ ! -z "$1" ]
