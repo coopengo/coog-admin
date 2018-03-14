@@ -145,6 +145,7 @@ email() {
     fi
     mail \
         -s "$subject" \
+        -a "From:bot@coopengo.com" \
         "${args[@]}" \
         "$COOG_ADMIN_EMAIL" < "$REPORT_NAME.eml"
 }
