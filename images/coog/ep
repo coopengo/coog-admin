@@ -93,7 +93,7 @@ conf_batch() {
 conf_test() {
     [ -z "$COOG_TEST" ] && return 0
     echo "[env]"
-    echo "testing = true"
+    echo "testing = True"
 }
 
 _init_conf() {
