@@ -52,7 +52,7 @@ _clear_postgres_ls() {
 }
 
 _clear_postgres_drop() {
-    echo "drop database $1;" \
+    echo "drop database \"$1\";" \
         | docker exec -i "$(_get_postgres_container)" psql -U postgres -t
 }
 
