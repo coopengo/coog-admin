@@ -41,7 +41,7 @@ RUN pip install \
         "uwsgi~=2.0.15" \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
-        "mock" \
+        "mock~=2.0.0" \
     && rm -rf /root/.cache
 
 RUN mkdir /workspace

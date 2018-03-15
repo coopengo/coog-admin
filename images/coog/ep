@@ -235,7 +235,6 @@ _celery() {
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
     _init || return $?
-    local q
     if [ ! -z "$1" ]
     then
         rq worker -u "$TRYTOND_ASYNC_RQ" "$@"
