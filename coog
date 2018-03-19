@@ -90,7 +90,7 @@ _args() {
     [ ! -z "$COOG_ADMIN_EMAIL" ] && args="$args -e COOG_ADMIN_EMAIL=$COOG_ADMIN_EMAIL"
     [ ! -z "$COOG_SERVER_WORKERS" ] && args="$args -e COOG_SERVER_WORKERS=$COOG_SERVER_WORKERS"
     [ ! -z "$COOG_CELERY_WORKERS" ] && args="$args -e COOG_CELERY_WORKERS=$COOG_CELERY_WORKERS"
-    [ ! -z "$MOUNT" ] && args="$args -e MOUNT=$MOUNT --privileged"
+    [ ! -z "$COOG_TEST" ] && args="$args -e COOG_TEST=$COOG_TEST"
     echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
@@ -99,11 +99,6 @@ _args() {
 ###############
 
 _build() {
-    if [ ! -z "$VARIANT" ]
-    then
-        [ "$VARIANT" -eq 2 ] && VARIANT=
-        COOG_IMAGE_VARIANT=$VARIANT
-    fi
     if [ -z "$COOG_IMAGE_VARIANT" ]
     then
         ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
@@ -146,14 +141,15 @@ _image() {
     [ -z "$1" ] && echo missing command && return 1
     local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
     local args
+    args="--name $NETWORK_NAME-coog-$1"
     if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
     then
-        args="$DOCKER_DAEMON_OPTS --name $NETWORK_NAME-coog-$1"
+        args="$args $DOCKER_DAEMON_OPTS"
     elif [ "$cmd" = "admin" ]
     then
-        args="$DOCKER_INTERACTIVE_OPTS"
+        args="$args $DOCKER_INTERACTIVE_OPTS"
     else
-        args="$DOCKER_PIPED_OPTS"
+        args="$args $DOCKER_PIPED_OPTS"
     fi
     shift
     docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
@@ -178,10 +174,30 @@ usage() {
     return 0
 }
 
+set_runtime_vars() {
+    if [ ! -z "$VARIANT" ]
+    then
+        [ "$VARIANT" -eq 2 ] && VARIANT=
+        COOG_IMAGE_VARIANT=$VARIANT
+    fi
+    [ ! -z "$IMAGE" ] && COOG_IMAGE="$IMAGE"
+    [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
+    [ ! -z "$TEST" ] && COOG_TEST="$TEST"
+    [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+    if [ ! -z "$CACHE_DB" ]
+    then
+        if [ "$CACHE_DB" = "x" ]
+        then
+            unset COOG_CACHE_DB
+        else
+            COOG_CACHE_DB="$CACHE_DB"
+        fi
+    fi
+}
+
 main() {
     source "$COOG_CODE_DIR/config"
-    [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
-    [ ! -z "$DB_NAME" ] && COOG_DB_NAME="$DB_NAME"
+    set_runtime_vars
     [ -z "$1" ] && usage && return 1
     local cmd; cmd="$1"; shift
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }

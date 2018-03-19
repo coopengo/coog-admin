@@ -1,5 +1,6 @@
 trytond;git@github.com:coopengo/trytond
 trytond-modules;git@github.com:coopengo/trytond-modules
-coog;git@github.com:coopengo/coog
+proteus;git@github.com:coopengo/proteus
 sao;git@github.com:coopengo/sao
+coog;git@github.com:coopengo/coog
 coog-bench;git@github.com:coopengo/coog-bench

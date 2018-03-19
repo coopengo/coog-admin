@@ -4,7 +4,7 @@ MAINTAINER Coopengo <support@coopengo.com>
 RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && mkdir /workspace && chown coog:coog /workspace \
     && apk add --no-cache \
-        python3 redis graphviz \
+        python3 redis graphviz libmagic \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
@@ -30,6 +30,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
         "msgpack-python~=0.4.8" \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
+        "mock~=2.0.0" \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 

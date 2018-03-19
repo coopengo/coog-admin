@@ -1,0 +1,179 @@
+#!/bin/bash
+
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
+fi
+
+REPORT_NAME="/tmp/coog-test-$(date '+%Y%m%d-%H%M%S')"
+
+_get_postgres_container() {
+    echo "$NETWORK_NAME-postgres"
+}
+
+_get_redis_container() {
+    echo "$NETWORK_NAME-redis"
+}
+
+check() {
+    echo "check running containers"
+    local postgres_container
+    postgres_container=$(_get_postgres_container)
+    local postgres_running
+    postgres_running=$(docker inspect -f '{{.State.Running}}' "$postgres_container")
+    [ "$postgres_running" != true ] && return 1
+    local redis_container
+    redis_container=$(_get_redis_container)
+    redis_running=$(docker inspect -f '{{.State.Running}}' "$redis_container")
+    [ "$redis_running" != true ] && return 1
+    return 0
+}
+
+build() {
+    echo "build image"
+    rm -rf "$COOG_CODE_DIR/images/coog/dist"
+    "$COOG_CODE_DIR/coog" build "$@"
+}
+
+clear_redis() {
+    echo "clear redis"
+    "$COOG_CODE_DIR/redis" client flushall
+}
+
+_clear_postgres_ls() {
+    echo "select datname from pg_database;" \
+        | docker exec -i "$(_get_postgres_container)" psql -U postgres -t \
+        | grep -P "(test_\d+$|test_postgresql_cache_.*)" \
+        | xargs -n 1 echo
+}
+
+_clear_postgres_drop() {
+    echo "drop database \"$1\";" \
+        | docker exec -i "$(_get_postgres_container)" psql -U postgres -t
+}
+
+clear_postgres() {
+    echo "clear postgres"
+    local old; old=$IFS; IFS=$'\n'
+    for db in $(_clear_postgres_ls)
+    do
+        printf "%s: " "$db"
+        _clear_postgres_drop "$db"
+    done
+    IFS=$old
+}
+
+start_workers() {
+    echo "start workers"
+    for i in $(seq 1 "$COOG_TEST_WORKERS")
+    do
+        "$COOG_CODE_DIR/coog" "rq-$i" test
+    done
+}
+
+rm_workers() {
+    echo "rm workers"
+    for i in $(seq 1 "$COOG_TEST_WORKERS")
+    do
+        "$COOG_CODE_DIR/coog" -- "rq-$i" rm -f
+    done
+}
+
+report_summary() {
+    local ok; ok=$1; shift
+    local image
+    image=$(docker images -f reference="$IMAGE" --format '{{.ID}}')
+    echo "Test image: $image"
+    echo
+    "$COOG_CODE_DIR/coog" redis rq q test
+    [ "$ok" -eq 0 ] && return 0
+    echo
+    "$COOG_CODE_DIR/coog" redis rq qlist test fail | column -t
+    return 0
+}
+
+report_failed_job() {
+    local line; line=$1; shift
+    local j; j=$(echo "$line" | cut -d $'\t' -f 3)
+    local m; m=$(echo "$line" | cut -d $'\t' -f 5)
+    "$COOG_CODE_DIR/coog" redis rq j "$j" \
+        | grep -P "(^coog.*|created_at|started_at|ended_at)" \
+        | sed 's/\\n/\n/g' \
+        > "$REPORT_NAME/$m.txt"
+}
+
+report() {
+    local ok; ok=$1; shift
+    report_summary "$ok" > "$REPORT_NAME.eml"
+    [ $? -ne 0 ] && echo "report_summary failed" && return 1
+
+    mkdir "$REPORT_NAME"
+
+    local first
+    local old; old=$IFS; IFS=$'\n'
+    for line in $("$COOG_CODE_DIR/coog" redis rq qlist test fail)
+    do
+        [ -z "$first" ] && first="$line" && continue
+        report_failed_job "$line"
+        [ $? -ne 0 ] && echo "report_failed_job failed" && return 1
+    done
+    IFS=$old
+    return 0
+}
+
+email() {
+    local ok; ok=$1; shift
+    local subject
+    if [ "$ok" -eq 0 ]
+    then
+        subject="$USER - OK"
+    else
+        subject="$USER - KO"
+    fi
+    local args
+    args=()
+    if [ "$ok" -ne 0 ]
+    then
+        for f in $REPORT_NAME/*
+        do
+            args+=(-A $f)
+        done
+    fi
+    mail \
+        -s "$subject" \
+        -a "From:bot@coopengo.com" \
+        "${args[@]}" \
+        "$COOG_ADMIN_EMAIL" < "$REPORT_NAME.eml"
+}
+
+main() {
+    local ok
+    source "$COOG_CODE_DIR/config"
+    export IMAGE="$1"
+    check || return $?
+
+    local args
+    args=()
+    while [ ! -z "$1" ] && [ "$1" != "--" ]
+    do
+        args+=($1) && shift
+    done
+    shift
+    build "${args[@]}" || return $?
+
+    clear_redis || return $?
+    clear_postgres || return $?
+    start_workers || return $?
+    "$COOG_CODE_DIR/coog" test "$@"
+    ok=$?
+    rm_workers
+    report "$ok" && email "$ok"
+}
+
+return 2> /dev/null # avoid exec of main when sourced
+
+main "$@"
