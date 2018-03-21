@@ -18,7 +18,6 @@ repo_fetch() { # <clones> <repo> <remote>
 repo_checkout() { # <dd> <repo> <branch>
     echo "  checkout"
     git checkout -q "$3" \
-        && git merge -q \
         && git submodule update -q --init \
         && echo "$2:$3:$(git rev-parse HEAD)" >> "$1/.version" \
         || return 1
