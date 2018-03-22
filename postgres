@@ -95,7 +95,7 @@ anon_dump() {
         "$POSTGRES_IMAGE" \
         pg_dump $anon_db_name -f /tmp/$dump_nanme > /dev/null 2>&1
 
-    echo "Droping copy"
+    echo "Dropping copy"
     docker run \
         $DOCKER_PIPED_OPTS \
         --network "$NETWORK_NAME" \
