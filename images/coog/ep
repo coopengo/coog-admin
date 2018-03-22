@@ -157,6 +157,11 @@ _print_version() {
     cat "$COOG_ROOT/.version"
 }
 
+_print_anon_queries() {
+    . "$COOG_ROOT/coog/bin/coog-db"
+    _get_anon_queries $@
+}
+
 _print_env() {
     _init || return $?
     echo
@@ -340,6 +345,7 @@ main() {
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
     [ "$cmd" = daily ] && { _daily "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
+    [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     echo "Not supported command" && return 1
 }
 
