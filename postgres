@@ -81,7 +81,7 @@ anon_dump() {
         psql --quiet -d $anon_db_name -c "$queries" > /dev/null 2>&1
 
     stamp=$(date +%Y-%m-%d_%Hh%M)
-    dump_nanme="$anon_db_name"_"$stamp".dump
+    dump_name="$anon_db_name"_"$stamp".dump
 
     echo "Dumping anonymized copy"
     docker run \
@@ -92,7 +92,7 @@ anon_dump() {
         -e PGPASSWORD="$COOG_DB_PASSWORD" \
         -v "/tmp:/tmp" \
         "$POSTGRES_IMAGE" \
-        pg_dump $anon_db_name -f /tmp/$dump_nanme > /dev/null 2>&1
+        pg_dump $anon_db_name -f /tmp/$dump_name > /dev/null 2>&1
 
     echo "Dropping copy"
     docker run \
@@ -106,7 +106,7 @@ anon_dump() {
 
     docker rm -f -v "$NETWORK_NAME-postgres-tmp" > /dev/null 2>&1
 
-    echo "Anonymized copy of $COOG_DB_NAME dumped to /tmp/$dump_nanme"
+    echo "Anonymized copy of $COOG_DB_NAME dumped to /tmp/$dump_name"
 }
 
 dump() {
