@@ -17,8 +17,7 @@ repo_fetch() { # <clones> <repo> <remote>
 
 repo_checkout() { # <dd> <repo> <branch>
     echo "  checkout"
-    git checkout -q "$3" \
-        && git merge -q \
+    git checkout -q "origin/$3" \
         && git submodule update -q --init \
         && echo "$2:$3:$(git rev-parse HEAD)" >> "$1/.version" \
         || return 1
@@ -38,7 +37,8 @@ repo_cp() { # <dd> <repo> <branch>
             || return 1
     else
         echo "  copy"
-        cp -R ./* "$1/$2/" || return 1
+        git archive HEAD | tar x -C "$1/$2" || return $?
+        git submodule foreach "git archive HEAD | tar x -C $1/$2/\$path" || return $?
     fi
     if [ -d doc ] && [ -f doc/build ]
     then
