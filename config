@@ -52,6 +52,12 @@ SENTRY_REDIS_DB=5                       # sentry db name
 WEB_REDIS_DB=7                          # web db name
 
 #-------------------------------------------------------------------------------#
+# UNOCONV CONFIG
+#-------------------------------------------------------------------------------#
+
+UNOCONV_IMAGE=coopengo/unoconv          # docker image
+
+#-------------------------------------------------------------------------------#
 # SENTRY CONFIG
 #-------------------------------------------------------------------------------#
 
@@ -96,6 +102,8 @@ COOG_CACHE_RECORD=                      # records cache size
 COOG_CACHE_FIELD=                       # fields cache size
 COOG_CACHE_COOG=                        # coog cache size
 
+COOG_REPORT_API=                        # report server - default: unoconv ctn
+
 COOG_LOG_LEVEL=                         # python levels
 COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 
@@ -107,12 +115,6 @@ COOG_TEST_WORKERS="$(nproc)"            # test workers number
 #-------------------------------------------------------------------------------#
 
 WEB_IMAGE=coopengo/web:master           # docker image
-
-#-------------------------------------------------------------------------------#
-# UNOCONV CONFIG
-#-------------------------------------------------------------------------------#
-
-UNOCONV_IMAGE=coopengo/unoconv          # docker image
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG

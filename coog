@@ -41,6 +41,12 @@ redis_args() {
     echo "$args"
 }
 
+report_args() {
+    [ -z "$COOG_REPORT_API" ] \
+        && COOG_REPORT_API="http://$NETWORK_NAME-unoconv:5000/unoconv/{oext}/"
+    echo "-e COOG_REPORT_API=$COOG_REPORT_API"
+}
+
 db_args() {
     local args
     [ ! -z "$COOG_DB_LANG" ] && args="$args -e COOG_DB_LANG=$COOG_DB_LANG"
@@ -91,7 +97,7 @@ _args() {
     [ ! -z "$COOG_SERVER_WORKERS" ] && args="$args -e COOG_SERVER_WORKERS=$COOG_SERVER_WORKERS"
     [ ! -z "$COOG_CELERY_WORKERS" ] && args="$args -e COOG_CELERY_WORKERS=$COOG_CELERY_WORKERS"
     [ ! -z "$COOG_TEST" ] && args="$args -e COOG_TEST=$COOG_TEST"
-    echo "$args $(session_args) $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
+    echo "$args $(session_args) $(postgres_args) $(redis_args) $(report_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
 ###############
