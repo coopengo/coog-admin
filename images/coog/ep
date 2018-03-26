@@ -79,6 +79,12 @@ conf_session() {
     return 0
 }
 
+conf_report() {
+    [ -z "$COOG_REPORT_API" ] && return 0
+    echo "[report]"
+    echo "api = $COOG_REPORT_API"
+}
+
 conf_sentry() {
     echo "[sentry]"
     [ ! -z "$COOG_SENTRY" ] && echo "dsn = $COOG_SENTRY"
@@ -104,6 +110,7 @@ _init_conf() {
     conf_cache >> "$COOG_CONF_SRV" || return $?
     conf_async >> "$COOG_CONF_SRV" || return $?
     conf_session >> "$COOG_CONF_SRV" || return $?
+    conf_report >> "$COOG_CONF_SRV" || return $?
     conf_sentry >> "$COOG_CONF_SRV" || return $?
     conf_batch >> "$COOG_CONF_SRV" || return $?
     conf_test >> "$COOG_CONF_SRV" || return $?
