@@ -10,6 +10,9 @@ RUN apk add --no-cache --virtual .build-deps wget ca-certificates make gcc g++ p
     && rm -rf /root/.node-gyp \
     && apk del .build-deps
 
+COPY ./ep /web/
+RUN ln -s /web/ep /usr/local/bin/ep
+
 VOLUME ["/web/coog-app"]
-ENTRYPOINT ["node", "svc"]
+ENTRYPOINT ["ep"]
 EXPOSE 3000

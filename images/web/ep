@@ -1,0 +1,42 @@
+#!/bin/sh
+# docker entrypoint
+
+WEB_ROOT=/web
+
+_print_version() {
+    cat "$WEB_ROOT/.version"
+}
+
+_print_env() {
+    printenv
+}
+
+_server() {
+    node svc
+}
+
+########
+# main #
+########
+
+usage() {
+    echo
+    echo Image commands
+    echo
+    echo "  version       -> gets image version (git trees)"
+    echo "  env           -> gets container env vars"
+    echo "  server        -> starts coog server"
+    echo
+}
+
+main() {
+    [ -z "$1" ] && usage && return 1
+    local cmd; cmd="$1"; shift
+    #
+    [ "$cmd" = version ] && { _print_version; return $?; }
+    [ "$cmd" = env ] && { _print_env; return $?; }
+    [ "$cmd" = server ] && { _server "$@"; return $?; }
+    echo "Not supported command" && return 1
+}
+
+main "$@"
