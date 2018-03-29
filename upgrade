@@ -223,7 +223,7 @@ main() {
     then
         echo
         echo "starting web container"
-        "$COOG_CODE_DIR/web" run
+        "$COOG_CODE_DIR/web" server
     fi
 
     if [ ! -z "$nginx_container" ]

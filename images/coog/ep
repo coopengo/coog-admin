@@ -1,5 +1,4 @@
 #!/bin/sh
-# vim: set ft=sh:
 # docker entrypoint
 
 COOG_ROOT=/workspace

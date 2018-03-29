@@ -158,7 +158,11 @@ _image() {
         args="$args $DOCKER_PIPED_OPTS"
     fi
     shift
-    docker run --network "$NETWORK_NAME" $args $(_args) "$COOG_IMAGE" "$cmd" "$@"
+    docker run \
+        --network "$NETWORK_NAME" \
+        $args \
+        $(_args) \
+        "$COOG_IMAGE" "$cmd" "$@"
 }
 
 ########
