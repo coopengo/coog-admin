@@ -40,6 +40,84 @@ client() {
                 psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
 }
 
+anon_dump() {
+    queries=$(./coog anon_queries $@) || { echo $queries; return 1; }
+    echo "Creating copy of $COOG_DB_NAME for anonymization, this can take a while"
+    docker run \
+        $DOCKER_DAEMON_OPTS \
+        --network "$NETWORK_NAME" \
+        --name "$NETWORK_NAME-postgres-tmp" \
+        -e "POSTGRES_USER=$POSTGRES_USER" \
+        -e "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" \
+        -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
+        -v /etc/timezone:/etc/timezone:ro \
+        "$POSTGRES_IMAGE"
+
+    sleep 5
+
+    anon_db_name=anon_copy_"$COOG_DB_NAME"
+
+
+    docker run \
+        $DOCKER_PIPED_OPTS \
+        --network "$NETWORK_NAME" \
+        -e PGHOST="$NETWORK_NAME-postgres-tmp" \
+        -e PGUSER="$COOG_DB_USER" \
+        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        "$POSTGRES_IMAGE" \
+        psql --quiet -c "create database $anon_db_name;" > /dev/null 2>&1
+
+
+    dump | docker run \
+        --rm \
+        -i \
+        --network "$NETWORK_NAME" \
+        -e PGHOST="$NETWORK_NAME-postgres-tmp" \
+        -e PGUSER="$COOG_DB_USER" \
+        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        "$POSTGRES_IMAGE" \
+        psql --quiet -d $anon_db_name > /dev/null 2>&1
+
+
+    echo "Anonymizing copy"
+    docker run \
+        $DOCKER_PIPED_OPTS \
+        --network "$NETWORK_NAME" \
+        -e PGHOST="$NETWORK_NAME-postgres-tmp" \
+        -e PGUSER="$COOG_DB_USER" \
+        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        "$POSTGRES_IMAGE" \
+        psql --quiet -d $anon_db_name -c "$queries" > /dev/null 2>&1
+
+    stamp=$(date +%Y-%m-%d_%Hh%M)
+    dump_name="$anon_db_name"_"$stamp".dump
+
+    echo "Dumping anonymized copy"
+    docker run \
+        $DOCKER_PIPED_OPTS \
+        --network "$NETWORK_NAME" \
+        -e PGHOST="$NETWORK_NAME-postgres-tmp" \
+        -e PGUSER="$COOG_DB_USER" \
+        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -v "/tmp:/tmp" \
+        "$POSTGRES_IMAGE" \
+        pg_dump $anon_db_name -f /tmp/$dump_name > /dev/null 2>&1
+
+    echo "Dropping copy"
+    docker run \
+        $DOCKER_PIPED_OPTS \
+        --network "$NETWORK_NAME" \
+        -e PGHOST="$NETWORK_NAME-postgres-tmp" \
+        -e PGUSER="$COOG_DB_USER" \
+        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        "$POSTGRES_IMAGE" \
+        psql -quiet -c "drop database $anon_db_name;" > /dev/null 2>&1
+
+    docker rm -f -v "$NETWORK_NAME-postgres-tmp" > /dev/null 2>&1
+
+    echo "Anonymized copy of $COOG_DB_NAME dumped to /tmp/$dump_name"
+}
+
 dump() {
         docker run \
                 $DOCKER_PIPED_OPTS \
@@ -72,6 +150,8 @@ main() {
         #
         [ "$cmd" = "server" ] && { server "$@"; return $?; }
         [ "$cmd" = "client" ] && { client "$@"; return $?; }
+        [ "$cmd" = "dump" ] && { dump "$@"; return $?; }
+        [ "$cmd" = "anon_dump" ] && { anon_dump "$@"; return $?; }
         action "$cmd" "$@"
 }
 
