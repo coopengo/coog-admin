@@ -105,7 +105,8 @@ _args() {
 ###############
 
 _build() {
-    if [ -z "$COOG_IMAGE_VARIANT" ]
+    [ -z "$COOG_IMAGE_VARIANT" ] && echo "no variant" >&2 && return 1
+    if [ "$COOG_IMAGE_VARIANT" = 2 ]
     then
         ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
     else
@@ -187,7 +188,6 @@ usage() {
 set_runtime_vars() {
     if [ ! -z "$VARIANT" ]
     then
-        [ "$VARIANT" -eq 2 ] && VARIANT=
         COOG_IMAGE_VARIANT=$VARIANT
     fi
     [ ! -z "$IMAGE" ] && COOG_IMAGE="$IMAGE"
