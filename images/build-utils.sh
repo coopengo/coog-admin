@@ -32,7 +32,7 @@ repo_cp() { # <dd> <repo> <branch>
     if [ -d build ]
     then
         echo "  build and copy"
-        ./build/build "$3" > /dev/null \
+        ./build/build "origin/$3" > /dev/null \
             && cp -R ./dist/* "$1/$2/" \
             || return 1
     else
