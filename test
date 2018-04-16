@@ -19,6 +19,11 @@ _get_redis_container() {
     echo "$NETWORK_NAME-redis"
 }
 
+pull() {
+    echo "git pull"
+    (cd "$COOG_CODE_DIR" && git pull)
+}
+
 check() {
     echo "check running containers"
     local postgres_container
@@ -34,8 +39,10 @@ check() {
 }
 
 build() {
+    echo "clean old images"
+    docker rmi -f "$1" || return 1
+    rm -rf "$COOG_CODE_DIR/images/coog/dist" || return 1
     echo "build image"
-    rm -rf "$COOG_CODE_DIR/images/coog/dist"
     "$COOG_CODE_DIR/coog" build "$@"
 }
 
@@ -151,6 +158,7 @@ email() {
 }
 
 main() {
+    pull || return $?
     local ok
     source "$COOG_CODE_DIR/config"
     export IMAGE="$1"
