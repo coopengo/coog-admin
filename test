@@ -41,7 +41,7 @@ build() {
 
 clear_redis() {
     echo "clear redis"
-    "$COOG_CODE_DIR/redis" client flushall
+    echo flushall | docker exec -i "$(_get_redis_container)" redis-cli
 }
 
 _clear_postgres_ls() {
