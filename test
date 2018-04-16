@@ -19,6 +19,11 @@ _get_redis_container() {
     echo "$NETWORK_NAME-redis"
 }
 
+pull() {
+    echo "git pull"
+    (cd "$COOG_CODE_DIR" && git pull)
+}
+
 check() {
     echo "check running containers"
     local postgres_container
@@ -32,11 +37,6 @@ check() {
     [ "$redis_running" != true ] && return 1
     return 0
 }
-
-pull(){
-    echo "git pull"
-    (cd "$COOG_CODE_DIR" && git pull)
- }
 
 build() {
     echo "clean old images"
@@ -158,6 +158,7 @@ email() {
 }
 
 main() {
+    pull || return $?
     local ok
     source "$COOG_CODE_DIR/config"
     export IMAGE="$1"
@@ -170,7 +171,6 @@ main() {
         args+=($1) && shift
     done
     shift
-    pull || return $?
     build "${args[@]}" || return $?
 
     clear_redis || return $?
