@@ -150,6 +150,12 @@ email() {
         "$COOG_ADMIN_EMAIL" < "$REPORT_NAME.eml"
 }
 
+pull(){
+    echo "git pull"
+    git pull
+ }
+
+
 main() {
     local ok
     source "$COOG_CODE_DIR/config"
@@ -163,6 +169,7 @@ main() {
         args+=($1) && shift
     done
     shift
+    pull || return $?
     build "${args[@]}" || return $?
 
     clear_redis || return $?
