@@ -34,8 +34,10 @@ check() {
 }
 
 build() {
+    echo "clean old images"
+    docker rmi -f "$1" || return 1
+    rm -rf "$COOG_CODE_DIR/images/coog/dist" || return 1
     echo "build image"
-    rm -rf "$COOG_CODE_DIR/images/coog/dist"
     "$COOG_CODE_DIR/coog" build "$@"
 }
 
@@ -152,7 +154,7 @@ email() {
 
 pull(){
     echo "git pull"
-    cd $COOG_CODE_DIR && git pull
+    (cd $COOG_CODE_DIR && git pull)
  }
 
 
