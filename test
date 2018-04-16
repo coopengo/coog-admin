@@ -152,7 +152,7 @@ email() {
 
 pull(){
     echo "git pull"
-    git pull
+    cd $COOG_CODE_DIR && git pull
  }
 
 
