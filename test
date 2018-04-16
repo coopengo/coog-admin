@@ -33,6 +33,11 @@ check() {
     return 0
 }
 
+pull(){
+    echo "git pull"
+    (cd "$COOG_CODE_DIR" && git pull)
+ }
+
 build() {
     echo "clean old images"
     docker rmi -f "$1" || return 1
@@ -151,12 +156,6 @@ email() {
         "${args[@]}" \
         "$COOG_ADMIN_EMAIL" < "$REPORT_NAME.eml"
 }
-
-pull(){
-    echo "git pull"
-    (cd $COOG_CODE_DIR && git pull)
- }
-
 
 main() {
     local ok
