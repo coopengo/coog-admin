@@ -35,7 +35,7 @@ Add that *coog-user* in **docker** groups
 
 .. code-block:: python
 
-    sudo/usermod -aG docker coog-user
+    sudo usermod -aG docker coog-user
 
 Configure **git** for *coog-user*
 
@@ -77,49 +77,48 @@ In *coog-user* home directory, clone coog-admin git repository and initialize co
 Load images to deploy
 ---------------------
 
-In coog-admin directory, load *Coog* images using the following command
+There are three ways to load images.
+
+* Pull images using docker pull
+* Load images from archived files
+* Build images
+
+Pull images using docker pull
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To pull an image, in coog-admin directory, load *Coog* images using the following command
 
 .. code-block:: python
 
     ./pull
 
-After that, you will have to install sphinx and all sphinx dependencies using pip. These dependencies are available in *coog-dep* file. This file is avaiblable in any *Coog* repository (or you can check **github**). This is not mandatory as these dependencies should already be installed, but it is to avoid bad surprises.
+Load images from archive files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install rst2pdf via pip
+If images are available somewhere else, save them:
 
 .. code-block:: python
 
-    pip install rst2pdf
+    docker save
 
-Then load *Coog* and *Web* images using docker. *Web* is optional if you do not want to build a *Web* image
+Then load archive file images using docker.
 
 .. code-block:: python
 
     docker load -i <coog-img-file-name>
     docker load -i <web-img-file-name>
 
-After that, edit the confifuration file to add changes 
+Build images
+~~~~~~~~~~~~
+
+First of all, you will have to install sphinx and all sphinx dependencies using pip. These dependencies are available in *coog-dep* file. This file is avaiblable in any *Coog* repository (or you can check **github**). This is not mandatory as these dependencies should already be installed, but it is advised to at least check they are installed to avoid bad surprises.
+
+Install rst2pdf via pip (if requirement isn't already satisfied)
+
 
 .. code-block:: python
 
-    ./config edit
-
-The configuration file will be displayed, add the following lines:
-
-.. code-block:: python
-
-    COOG_IMAGE=<coog-image>
-    WEB_IMAGE=<web-image>
-
-If you want to change the default port, add the following lines to the file:
-
-.. code-block:: python
-
-    NGINX_PUB_PORT=8080
-    NGINX_SSL_PUB_PORT=8443
-
-Build image
------------
+    pip install rst2pdf
 
 To build a **Coog** image, run the following command
 
@@ -140,7 +139,7 @@ If you want to build a **Web** image, follow the same logic, this time *coog-api
 
 .. code-block:: python
 
-    ./coog build \
+    ./web build \
         coopeng/web:<web-img> \ # Web image name
         coog-api: master \      # API repository 
         coog-app: master \      # APP repository
@@ -151,38 +150,31 @@ If you want to build a **Web** image, follow the same logic, this time *coog-api
 * **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000 (in **Docker** network) and is like an **nginx** client for backed calls.
 * **APP**: an SPA API client
 
-Optional variables for both commands
+Optional variables for both commands:
 
 * **DB_NAME**: name of the database to use
 * **LOG_LEVEL**: python verbosity level
 
-Beware, the image built must have the same name as in the configuration file
-
-After building a web image, if 
+After that, edit the configuration file to add changes 
 
 .. code-block:: python
 
-    ./web run
+    ./conf edit
 
-does not work, try
-
-.. code-block:: python
-
-     ./web server
-
-instead
-
-After building a coog image, run
+The configuration file will be displayed, add the following lines:
 
 .. code-block:: python
 
-    ./coog
+    COOG_IMAGE=<coog-image>
+    WEB_IMAGE=<web-image>
 
-if  nothing works, try 
+If you want to change the default port, add the following lines to the file:
 
 .. code-block:: python
 
-    ./upgrade
+    NGINX_PUB_PORT=8080
+    NGINX_SSL_PUB_PORT=8443
+
 
 Launch containers
 -----------------
@@ -220,6 +212,12 @@ Once the database is set, applicative servers can be run through the following c
     ./coog server
     ./web run
     ./nginx run
+
+If nothing works, try 
+
+.. code-block:: python
+
+    ./upgrade
 
 Test environment
 ----------------
@@ -707,8 +705,11 @@ Create an account
     ./sentry cron 
     ./sentry worker
 Connect to localhost:9000
+
 Input your credential created earlier
+
 Root path: localhost:9000
+
 Go to setting
 
 
