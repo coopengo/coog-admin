@@ -27,48 +27,59 @@ Create user and load source files
 
 It is highly advised to run **Coog** in another user than root. First of all, install a user with no administration privileges on the machine. Let that user be *coog-user*.
 
-.. code-block:: python
+.. code-block:: bash
 
    sudo adduser coog-user
 
 Add that *coog-user* in **docker** groups
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo usermod -aG docker coog-user
 
 Configure **git** for *coog-user*
 
-.. code-block:: python
+.. code-block:: bash
 
     su - coog-user
 
-You can either generate an SSH key and link it to a github account, or:
+If you are planning on building an image, you can either generate an SSH key and link it to a github account or:
 
-.. code-block:: python
+.. code-block:: bash
 
     git config --global user.email "coog@<project>.local"
     git config --global user.name coog-user
 
+If you are not planning on building an image, you should:
 
-Open *coog-user* *.bachrc* file and add the following lines:
+.. code-block:: bash
 
-.. code-block:: python
+    docker login
+
+And after ask for access to pull **Coog** images.
+
+Once you set your method to obtain images up, open *coog-user* *.bachrc* file and add the following lines:
+
+.. code-block:: bash
 
     export COOG_CODE_DIR=~/coog-admin
     export COOG_DATA_DIR=~/coog-data
-    export VISUAL=vi
-    export EDITOR=vi
+    export VISUAL=<editor>
+    export EDITOR=<editor>
 
-Do not forget running:
+*<editor>* can either be **vi** or **nano**
 
-.. code-block:: python
+Do not forget running
+
+.. code-block:: bash
 
     source .bashrc 
 
+Or logout and login to make sure *bashrc* is properly loaded.
+
 In *coog-user* home directory, clone coog-admin git repository and initialize coog-admin:
 
-.. code-block:: python
+.. code-block:: bash
 
     git clone https://github.com/coopengo/coog-admin 
     cd coog-admin
@@ -86,27 +97,26 @@ There are three ways to load images.
 Pull images using docker pull
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To pull an image, in coog-admin directory, load *Coog* images using the following command
+.. code-block:: bash
 
-.. code-block:: python
-
-    ./pull
+    docker pull
 
 Load images from archive files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If images are available somewhere else, save them:
 
-.. code-block:: python
+.. code-block:: bash
 
     docker save
 
 Then load archive file images using docker.
 
-.. code-block:: python
+.. code-block:: bash
 
     docker load -i <coog-img-file-name>
     docker load -i <web-img-file-name>
+
 
 Build images
 ~~~~~~~~~~~~
@@ -116,13 +126,13 @@ First of all, you will have to install sphinx and all sphinx dependencies using 
 Install rst2pdf via pip (if requirement isn't already satisfied)
 
 
-.. code-block:: python
+.. code-block:: bash
 
     pip install rst2pdf
 
 To build a **Coog** image, run the following command
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog build \
         coopengo/coog:<coog-image> \    # Coog image name
@@ -137,7 +147,7 @@ If you want the image built in python2, add *VARIANT=2* before the build command
 
 If you want to build a **Web** image, follow the same logic, this time *coog-api* and *coog-app* repositories are used
 
-.. code-block:: python
+.. code-block:: bash
 
     ./web build \
         coopeng/web:<web-img> \ # Web image name
@@ -157,20 +167,20 @@ Optional variables for both commands:
 
 After that, edit the configuration file to add changes 
 
-.. code-block:: python
+.. code-block:: bash
 
     ./conf edit
 
 The configuration file will be displayed, add the following lines:
 
-.. code-block:: python
+.. code-block:: bash
 
     COOG_IMAGE=<coog-image>
     WEB_IMAGE=<web-image>
 
 If you want to change the default port, add the following lines to the file:
 
-.. code-block:: python
+.. code-block:: bashbash
 
     NGINX_PUB_PORT=8080
     NGINX_SSL_PUB_PORT=8443
@@ -179,9 +189,15 @@ If you want to change the default port, add the following lines to the file:
 Launch containers
 -----------------
 
+Load middlewares by running:
+
+.. code-block:: bash
+
+    ./pull
+
 Launch net, redis and postgres containers using the following commands in *coog-admin* repository:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./net create
     ./redis server
@@ -191,14 +207,13 @@ You can either create a new database or use an existing database dump.
 
 If you want to create an empty database, run the following commands
 
-.. code-block:: python
+.. code-block:: bash
 
-    ./postgres client
     create database <db_name>
 
 If you want to use an existing database dump, run the following commands
 
-.. code-block:: python
+.. code-block:: bash
 
     ./postgres client
     docker cp dump_file_path coog-postgres:/tmp
@@ -207,7 +222,7 @@ If you want to use an existing database dump, run the following commands
 
 Once the database is set, applicative servers can be run through the following commands
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog server
     ./web run
@@ -215,7 +230,7 @@ Once the database is set, applicative servers can be run through the following c
 
 If nothing works, try 
 
-.. code-block:: python
+.. code-block:: bash
 
     ./upgrade
 
@@ -230,7 +245,7 @@ The environment is ready to be tested.
 If you want to check API is working, launch a Get on http://hostname/web/api/auth
 check it returns
 
-.. code-block:: python
+.. code-block:: bash
 
     {"ok": false}
 
@@ -250,7 +265,7 @@ The execution of a chain and of the daily chain follow the same routine. These c
 
 This is an example of how to launch *Coog*'s *ir.ui.view.validate* batch:
 
-.. code-block:: python
+.. code-block:: bash
 
    ./coog celery 1
    ./coog batch ir.ui.view.validate --job_size=10
@@ -263,14 +278,14 @@ Here are some useful celery commands
 
 * For all queues:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog redis celery list
     ./coog redis celery flist 
 
 * For one queue:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog redis celery fail
     ./coog redis celery  q
@@ -282,7 +297,7 @@ Here are some useful celery commands
 
 * For one job:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog redis celery j
     ./coog redis celery jarchive
@@ -304,7 +319,7 @@ This procedure does the following actions
 
 Command:
 
-.. code-block:: python
+.. code-block:: bash
 
  ./upgrade
 
@@ -320,7 +335,7 @@ In order to execute the backup command, create a backup directory. By default, t
 
 Execute
 
-.. code-block:: python
+.. code-block:: bash
 
     ./config edit
 
@@ -328,7 +343,7 @@ Edit the environment variable *BACKUP_DIRECTORY* with the path to this directory
 
 In order to launch the backup command, you have to be in your *coog-admin* directory. When you are in, launch the following command:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./backup save
 
@@ -342,19 +357,19 @@ This command also does an additional backup on
 
 In order to delete daily backups of more than seven days, run the command:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./build clean
 
 Both commands can be programmed in a *crontab* to be automatically launched everyday. In order to do so, edit the user's *crontab* using the comand:
 
-.. code-block:: python
+.. code-block:: bash
 
     crontab -e
 
 Add the following lines:
 
-.. code-block:: python
+.. code-block:: bash
 
     <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> <path/to/coog-admin/>/backup save
     <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> <path/to/coog-admin/>/backup clean
@@ -366,7 +381,7 @@ If you want to know more about coog-admin scripts and the possibilities you have
 
 Here are some useful comands files:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog reset
     ./coog edit # can be used with batch.conf or coog.conf
@@ -380,7 +395,7 @@ Here are some useful comands files:
 
 To obtain logs:
 
-.. code-block:: python
+.. code-block:: bash
 
     ./coog -- server logs
     ./coog -- celery logs
@@ -406,38 +421,38 @@ A default **nginx** configuration is given and allows doing the following mappin
 
 This configuration can be adapeted through the edit command:
 
-.. code-block:: python
+.. code-block:: bash
  
     ./nginx edit
 
 And it is always possible to reset the default configuration through the reset command:
 
-.. code-block:: python
+.. code-block:: bash
  
     ./nginx reset
 
 The ssl nginx command allows creating an RSA keys pair with letsencrypt
 
-.. code-block:: python
+.. code-block:: bash
  
     ./nginx ssl
 
 This requires an additional configuration via
 
-.. code-block:: python
+.. code-block:: bash
  
     ./config edit:
 
 Add the following lines:
 
-.. code-block:: python
+.. code-block:: bash
  
     NGINX_SSL_METHOD=LETSENCRYPT
     NGINX_SSL_SERVER_NAME=demo.coog.io # for example
 
 Some useful commands for nginx deployment
 
-.. code-block:: python
+.. code-block:: bash
 
     ./nginx run
     ./nginx logs
@@ -452,32 +467,32 @@ More about nginx
 
 To install **nginx** on your system:
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo apt-get update
     sudo apt-get install nginx
 
 To start **nginx**
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo service nginx start
 
 To start **nginx** with a custom configuration
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo nginx -c <path_to_custom_file.conf>
 
 To stop **nginx**:
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo service nginx stop
 
 To have **nginx** automatically start on boot:
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo update-rc.d nginx defaults
 
@@ -500,20 +515,20 @@ This creates a pid file in */var/run/redis.pid*
 
 To run **redis** with a custom configuration, use the following command:
 
-.. code-block:: python
+.. code-block:: bash
 
     redis-server <path_to_conf_file>
 
 If you want to use the **redis** distributed cache, add the following lines to you **trytond** configuration file:
 
-.. code-block:: python
+.. code-block:: bash
 
     [cache]
     redis://redis_host:redis_port/redis_db
 
 for example:
 
-.. code-block:: python
+.. code-block:: bash
 
     redis = redis://localhost:6379/0
 
@@ -524,7 +539,7 @@ More about job scheduler
 
 Note that **java8** is required if you want to install **jobscheduler**
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo add-apt-repository ppa:webupd8team/java8
     sudo apt-get update
@@ -538,13 +553,13 @@ http://www.sos-berlin.com/doc/en/scheduler_installation.pdf
 
 If **PostgreSQL** is used, the option *standard_conforming_strings* must be disabled.
 
-.. code-block:: python
+.. code-block:: bash
 
     ALTER USER [sceduler_user] SET standard_conforming_strings = off;
 
 Add a simple http authentication to the web interface. To do so, edit *congig/scheduler.xml* and add in *config* section:
 
-.. code-block:: python
+.. code-block:: bash
 
     <http_server>
         <http.authentication>
@@ -556,7 +571,7 @@ Add a simple http authentication to the web interface. To do so, edit *congig/sc
 
 To get the **password_md5**, do:
 
-.. code-block:: python
+.. code-block:: bash
 
     echo -n your_password | md5sum
 
@@ -573,26 +588,26 @@ As the **lxm** library is not compatible with **PyPy**, we must build a specific
 
 First of all, install **pypy** and **Cython**
 
-.. code-block:: python
+.. code-block:: bash
 
     sudo apt-get install pypy
     sudo apt-get install cython
 
 Then, create a new virtualenv using **PyPy** as the default interpreter
 
-.. code-block:: python
+.. code-block:: bash
 
     mkvirtualenv -p /usr/bin/pypu my_new_env
 
 Activate the my_new_env:
 
-.. code-block:: python
+.. code-block:: bash
 
     workon my_new_env
 
 Download and build a **PyPy** friendly **lxml**
 
-.. code-block:: python
+.. code-block:: bash
 
     git clone https://gihub.com/amauryfa/lxml
     cd lxml
@@ -604,7 +619,7 @@ Download and build a **PyPy** friendly **lxml**
 
 Here are the steps to install relatorio
 
-.. code-block:: python
+.. code-block:: bash
 
     workon my_new_env
     hg clone http://hg.tryton.org/relatorio 
@@ -613,7 +628,7 @@ Here are the steps to install relatorio
 
 To check everything went fine, launch tests on relatorio:
 
-.. code-block:: python
+.. code-block:: bash
 
     pip install unittest2
     pip install genshi
@@ -627,7 +642,7 @@ The rest of **Coog** can now be installed manually
 
 The **pypy** compatible **postgresql** connector can be installed via
 
-.. code-block:: python
+.. code-block:: bash
 
     pip install psycopg2cffi
 
@@ -638,7 +653,7 @@ Installing uWSGI
 
 **uWSGI** is installed through the command
 
-.. code-block:: python
+.. code-block:: bash
 
     pip install uwsgi
 
@@ -647,13 +662,13 @@ Make trytond uWSGI compatible
 
 **Trytond** is not natively compatible withy uWSGI. To make it compatible
 
-.. code-block:: python
+.. code-block:: bash
 
     hg patch --no-commit -f http://codereview.tryton.ord/download/issue92001_35002.diff
 
 **uWSGI** needs a python module and runs its application variable. Let's oblige and create a *wsgi.py* file in the **tryton-workspace**:
 
-.. code-block:: python
+.. code-block:: bash
 
     from trytond.protocols.wsgi import get_jsonrpc_app
 
@@ -666,7 +681,7 @@ Create the trytond.ini file
 
 **uWSGI** accepts a configuration file for the application to be run. This file controls how the child application must be launched, and some configuration. Let's create *trytond.ini* in the conf folder :
 
-.. code-block:: python
+.. code-block:: bashbash
 
     [uwsgi]
     master = True
@@ -683,7 +698,7 @@ Start uWSGI
 
 The **uWSGI** instance can be launched with this command line :
 
-.. code-block:: python
+.. code-block:: bash
 
     uwsgi --ini /path/to/trytond.ini
 
@@ -693,13 +708,13 @@ Sentry
 
 Create a new database named *sentry*
 
-.. code-block:: python
+.. code-block:: bash
 
     ./sentry upgrade
 
 Create an account
 
-.. code-block:: python
+.. code-block:: bash
 
     ./sentry server
     ./sentry cron 
