@@ -157,7 +157,7 @@ If you want to build a **Web** image, follow the same logic, this time *coog-api
 
 **Web** image has two components
 
-* **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000 (in **Docker** network) and is like an **nginx** client for backed calls.
+* **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000 (in **Docker** network) and is like an **nginx** client for backend calls.
 * **APP**: an SPA API client
 
 Optional variables for both commands:
@@ -288,8 +288,8 @@ Here are some useful celery commands
 .. code-block:: bash
 
     ./coog redis celery fail
-    ./coog redis celery  q
-    ./coog redis celery  qlist 
+    ./coog redis celery q
+    ./coog redis celery qlist
     ./coog redis celery qcount
     ./coog redis celery qtime
     ./coog redis celery qarchive
@@ -404,7 +404,7 @@ To obtain logs:
 More about Nginx
 ----------------
 
-**Nginx** is a web server with a strong focus on high concurrency perfomance and low memory usage.
+**Nginx** is a web server with a strong focus on high concurrency performance and low memory usage.
 
 The **nginx** script allows launching and handling the **nginx** container.
 
