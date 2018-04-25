@@ -725,7 +725,34 @@ Input your credential created earlier
 
 Root path: localhost:9000
 
-Go to setting
+Go to settings:
 
+* Create a new project, choose **python** and set a name <project_name>
 
+* Go to
 
+*http://localhost:9000/sentry/<project_name>/settings/keys/*
+
+and look at dsn key:
+
+*://<public_key>:<private_key>@<path>/<project_id>*
+
+* Edit configuration with the command
+
+.. code-block:: bash
+
+    ./conf edit
+
+There, copy/paste values accordingly:
+
+.. code-block:: bash
+
+    COOG_SENTRY_PUB=<public_key>
+    COOG_SENTRY_KEY=<private_key>
+    COOG_SENTRY_PROJECT=<project_id>
+
+* Reload **Coog** server
+
+.. code-block:: bash
+
+    ./upgrade
