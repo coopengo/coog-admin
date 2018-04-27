@@ -25,40 +25,27 @@ Create user and load source files
 
 **Coog** deployment is done via **docker**. 
 
-It is highly advised to run **Coog** in another user than root. First of all, install a user with no administration privileges on the machine. Let that user be *coog-user*.
+It is highly advised to run **Coog** in another user than root. First of all, install a user with no administration privileges on the machine. Let that user be *coog*.
 
 .. code-block:: bash
 
-   sudo adduser coog-user
+   sudo adduser coog
 
-Add that *coog-user* in **docker** groups
-
-.. code-block:: bash
-
-    sudo usermod -aG docker coog-user
-
-Configure **git** for *coog-user*
+Add *coog* in **docker** groups
 
 .. code-block:: bash
 
-    su - coog-user
+    sudo usermod -aG docker coog
 
-If you are planning on building an image, you can either generate an SSH key and link it to a github account or:
+Configure **git** for *coog*
 
 .. code-block:: bash
 
+    su - coog
     git config --global user.email "coog@<project>.local"
-    git config --global user.name coog-user
+    git config --global user.name coog
 
-If you are not planning on building an image, you should:
-
-.. code-block:: bash
-
-    docker login
-
-And after ask for access to pull **Coog** images.
-
-Once you set your method to obtain images up, open *coog-user* *.bachrc* file and add the following lines:
+Open *coog* *.bachrc* file and add the following lines:
 
 .. code-block:: bash
 
@@ -77,7 +64,7 @@ Do not forget running
 
 Or logout and login to make sure *bashrc* is properly loaded.
 
-In *coog-user* home directory, clone coog-admin git repository and initialize coog-admin:
+In *coog* home directory, clone *coog-admin* git repository and initialize **coog-admin**:
 
 .. code-block:: bash
 
@@ -85,32 +72,38 @@ In *coog-user* home directory, clone coog-admin git repository and initialize co
     cd coog-admin
     ./init
 
-Load images to deploy
----------------------
+Load Coog images to deploy
+--------------------------
 
-There are three ways to load images.
+There are two possible **Coog** images: **coog** (backend and web client) and **web** (frontend and API).
+
+There are three ways to load **Coog** images. 
 
 * Pull images using docker pull
 * Load images from archived files
 * Build images
 
-Pull images using docker pull
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pull images on Coopengo Docker Hub repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create an account on *https://hub.docker.com*
+On your prompt, login with the newly created account
 
 .. code-block:: bash
 
-    docker pull
+    docker login
+
+Ask for access to pull **Coog** images.
+
+.. code-block:: bash
+to
+    docker pull coopengo/coog-<customer>:<version_number>
+    docker pull coopengo/web
 
 Load images from archive files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If images are available somewhere else, save them:
-
-.. code-block:: bash
-
-    docker save
-
-Then load archive file images using docker.
+If you have a **Coog** image file, then you can load them using the following command
 
 .. code-block:: bash
 
@@ -123,8 +116,7 @@ Build images
 
 First of all, you will have to install sphinx and all sphinx dependencies using pip. These dependencies are available in *coog-dep* file. This file is avaiblable in any *Coog* repository (or you can check **github**). This is not mandatory as these dependencies should already be installed, but it is advised to at least check they are installed to avoid bad surprises.
 
-Install rst2pdf via pip (if requirement isn't already satisfied)
-
+Install **rst2pdf** via **pip** (if requirement isn't already satisfied)
 
 .. code-block:: bash
 
@@ -135,7 +127,7 @@ To build a **Coog** image, run the following command
 .. code-block:: bash
 
     ./coog build \
-        coopengo/coog:<coog-image> \    # Coog image name
+        coopengo/coog-<customer>:<version_number> \    # Coog image name
         coog:master\                    # Coog repository
         trytond-modules:master \        # Trytond native modules
         trytond:master \                # Tryton framework engine
@@ -143,14 +135,14 @@ To build a **Coog** image, run the following command
         coog-bench:master               # Bench utility
 
 
-If you want the image built in python2, add *VARIANT=2* before the build command, otherwide the image will be built in python 3
+If you want the image built in **python2**, add *VARIANT=2* before the build command, otherwide the image will be built in **python3**
 
 If you want to build a **Web** image, follow the same logic, this time *coog-api* and *coog-app* repositories are used
 
 .. code-block:: bash
 
     ./web build \
-        coopeng/web:<web-img> \ # Web image name
+        coopeng/web:<version_number> \ # Web image name
         coog-api: master \      # API repository 
         coog-app: master \      # APP repository
 
@@ -165,41 +157,102 @@ Optional variables for both commands:
 * **DB_NAME**: name of the database to use
 * **LOG_LEVEL**: python verbosity level
 
-After that, edit the configuration file to add changes 
+
+Configure coog-admin
+--------------------
+
+Global configuration
+~~~~~~~~~~~~~~~~~~~~
+
+Edit the global **coog-admin** configuration file
 
 .. code-block:: bash
 
     ./conf edit
 
-The configuration file will be displayed, add the following lines:
+The configuration file will be displayed. This file allows overriding any environment variable defined in the *coog-admin* *config* file (coog-admin/config)
+
+At least, override the following environment variables
 
 .. code-block:: bash
 
-    COOG_IMAGE=<coog-image>
-    WEB_IMAGE=<web-image>
+    COOG_IMAGE=coopengo/coog-<customer>:<version_number>
+    WEB_IMAGE=coopengo/web:<version_number>
 
-If you want to change the default port, add the following lines to the file:
+    POSTGRES_USER=<postgres_user>
+    POSTGRES_PASSWORD=<postgres_password>
 
-.. code-block:: bashbash
+You can change the number of workers for **Coog** server and **Celery** in the same file. By default, it is equal to the  number of processing units on the server
 
-    NGINX_PUB_PORT=8080
-    NGINX_SSL_PUB_PORT=8443
+.. code-block:: bash
 
+    COOG_SERVER_WORKERS=<number_of_coog_workers>
+    COOG_CELERY_WORKERS=<number_of_celery_workers>
+
+Coog backend image configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Configure **Coog** server 
+
+.. code-block:: bash
+
+    ./coog edit coog.conf
+
+You can define configuration variables such as
+
+.. code-block:: bash
+
+    [session]
+    timeout = 1800
+    authentications = ldap,password
+
+    [options]
+    table_dimension = 10
+    default_country = FR
+
+    [email]
+    uri = smtp://1.1.1.1:25
+    from = contact@coopengo.com
+
+    [ldap_authentication]
+    uri = 
+    bind_pass = 
+    uid = 
+    active_directory = True
+    create_user = False
+
+You can configure coog batch using the command
+
+.. code-block:: bash
+
+    ./coog edit batch.conf
+
+You can define batches configuration such as
+
+.. code-block:: bash
+
+    [batch_name]
+    job_size = <job_size>
 
 Launch containers
 -----------------
 
-Load middlewares by running:
+Load images (**postgres**, **redis**, **nginx** and **unoconv**) by running:
 
 .. code-block:: bash
 
     ./pull
 
-Launch net, redis and postgres containers using the following commands in *coog-admin* repository:
+First of all, create a docker network 
 
 .. code-block:: bash
 
     ./net create
+
+Create redis and postgres containers using the following commands in *coog-admin* repository
+    
+.. code-block:: bash
+
     ./redis server
     ./postgres server
 
@@ -209,26 +262,28 @@ If you want to create an empty database, run the following commands
 
 .. code-block:: bash
 
-    create database <db_name>
+    ./postgres client
+    create database <db_name>;
 
 If you want to use an existing database dump, run the following commands
 
 .. code-block:: bash
 
-    ./postgres client
     docker cp dump_file_path coog-postgres:/tmp
     docker exec -it coog-postgres sh
-    psql -U postgres -d <db_name> /tmp/<dump_file_path>
+    psql -U postgres -d <db_name> < /tmp/<dump_file_path>
 
 Once the database is set, applicative servers can be run through the following commands
 
 .. code-block:: bash
 
-    ./coog server
-    ./web run
+    ./coog server # Will launch Coog container
+    ./coog celery # Will launch Coog Celery
+    ./coog cron # Will launch Coog Cron (optional)
+    ./web server
     ./nginx run
 
-If nothing works, try 
+It can happen that containers need to be restarted. In this case
 
 .. code-block:: bash
 
@@ -240,6 +295,8 @@ Test environment
 The environment is ready to be tested.
 
 * Backoffice is accessible through http://hostname
+* Documentation is accessible through http://hostname/doc
+* Bench tool is accessible through http://hostname/bench
 * API REST is accessible through http://hostname/web/api 
 
 If you want to check API is working, launch a Get on http://hostname/web/api/auth
@@ -287,13 +344,13 @@ Here are some useful celery commands
 
 .. code-block:: bash
 
-    ./coog redis celery fail
-    ./coog redis celery q
-    ./coog redis celery qlist
-    ./coog redis celery qcount
-    ./coog redis celery qtime
-    ./coog redis celery qarchive
-    ./coog redis celery qremove
+    ./coog redis celery fail ir.ui.view.validate
+    ./coog redis celery q ir.ui.view.validate 
+    ./coog redis celery qlist ir.ui.view.validate 
+    ./coog redis celery qcount ir.ui.view.validate 
+    ./coog redis celery qtime ir.ui.view.validate 
+    ./coog redis celery qarchive ir.ui.view.validate 
+    ./coog redis celery qremove ir.ui.view.validate 
 
 * For one job:
 
@@ -384,7 +441,6 @@ Here are some useful comands files:
 .. code-block:: bash
 
     ./coog reset
-    ./coog edit # can be used with batch.conf or coog.conf
     ./coog version # gives the repositories list and the last commits
     ./coog conf # displays workers configuration for app and batch
     ./coog env # displays environment variables for coog containers
