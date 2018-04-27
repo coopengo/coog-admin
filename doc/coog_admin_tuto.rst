@@ -256,6 +256,18 @@ Create redis and postgres containers using the following commands in *coog-admin
     ./redis server
     ./postgres server
 
+Build **unoconv** running
+
+.. code-block:: bash
+
+    ./unoconv build coopengo/unoconv:latest
+
+Run **unoconv**
+
+.. code-block:: bash
+
+    ./unoconv run
+
 You can either create a new database or use an existing database dump.
 
 If you want to create an empty database, run the following commands
@@ -632,75 +644,6 @@ To get the **password_md5**, do:
     echo -n your_password | md5sum
 
 Finally, save *config/scheduler.xml* and restart **jobscheduler**
-
-Setup a PyPy environment
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-All **python** dependencies can be installed via **pip** except **lxml** and **relatorio**
-
-If these two are installed via **pip**, they will most likely break your environment.
-
-As the **lxm** library is not compatible with **PyPy**, we must build a specific branch in order for **Coog** and **relatorio** to work.
-
-First of all, install **pypy** and **Cython**
-
-.. code-block:: bash
-
-    sudo apt-get install pypy
-    sudo apt-get install cython
-
-Then, create a new virtualenv using **PyPy** as the default interpreter
-
-.. code-block:: bash
-
-    mkvirtualenv -p /usr/bin/pypu my_new_env
-
-Activate the my_new_env:
-
-.. code-block:: bash
-
-    workon my_new_env
-
-Download and build a **PyPy** friendly **lxml**
-
-.. code-block:: bash
-
-    git clone https://gihub.com/amauryfa/lxml
-    cd lxml
-    git checkout cffi # VERY IMPORTANT !
-    python setup.py build --with-cython
-    cd build/lib.linux-x86_64-2
-    cp -r lxml $VIRTUAL_ENV/lib_pypy/.
-    cp -r lxml-cffi $VIRTUAL_ENV/lib_pypy/.
-
-Here are the steps to install relatorio
-
-.. code-block:: bash
-
-    workon my_new_env
-    hg clone http://hg.tryton.org/relatorio 
-    cd relatorio
-    cp -R relatorio $VIRTUAL_ENV/lib-python/2.7/.
-
-To check everything went fine, launch tests on relatorio:
-
-.. code-block:: bash
-
-    pip install unittest2
-    pip install genshi
-
-    cd $VIRTUAL_ENV/lib-python/2.7/relatorio/tests
-    python -m unittests test_odt
-
-Note that **relatorio** unit tests are unconsistent.
-
-The rest of **Coog** can now be installed manually
-
-The **pypy** compatible **postgresql** connector can be installed via
-
-.. code-block:: bash
-
-    pip install psycopg2cffi
 
 Installing uWSGI
 ~~~~~~~~~~~~~~~~
