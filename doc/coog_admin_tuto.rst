@@ -527,7 +527,7 @@ If you want to know more about coog-admin scripts and the possibilities you
 have, just run the script with no arguments, they are all self documented
 (./coog ./redis )
 
-Here are some useful comands files:
+Here are some useful commands:
 
 .. code-block:: bash
 
