@@ -197,7 +197,7 @@ If you want to build a **Web** image, follow the same logic, this time
 **Web** image has two components
 
 * **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000
-(in **Docker** network) and is like an **nginx** client for backend calls.
+  (in **Docker** network) and is like an **nginx** client for backend calls.
 * **APP**: an SPA API client
 
 Optional variables for both commands:
