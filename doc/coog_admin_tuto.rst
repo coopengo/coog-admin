@@ -1,19 +1,24 @@
-===============
 Coog Deployment
 ===============
 
 .. image:: images/coog_admin_architecture.png
 
 
-**coog-admin** is a utility which allows handling **Coog** deployments and easing its administration. In general, each Linux user gets a **Coog** deployment. All **Coog** deployment related data is stored in two directories:
+**coog-admin** is a utility which allows handling **Coog** deployments and
+easing its administration. In general, each Linux user gets a **Coog**
+deployment. All **Coog** deployment related data is stored in two directories:
 
-* **~/coog-admin**: contains source files and scripts which allow launching, updating and watching docker containers. This directory's source files should never be changed.
+* **~/coog-admin**: contains source files and scripts which allow launching,
+updating and watching docker containers. This directory's source files should
+never be changed.
 
-* **~/coog-data**: contains deployment overloads (specific configuration)  and all data volumes linked to active containers.
+* **~/coog-data**: contains deployment overloads (specific configuration)and
+all data volumes linked to active containers.
 
 In addition to these two directories:
 
-* **~/coog-log**: contains functional logs (batch execution reports, backup procedure reports)
+* **~/coog-log**: contains functional logs (batch execution reports,
+backup procedure reports)
 
 Prerequired setup
 -----------------
@@ -28,7 +33,9 @@ Create user and load source files
 
 **Coog** deployment is done via **docker**. 
 
-It is highly advised to run **Coog** in another user than root. First of all, install a user with no administration privileges on the machine. Let that user be *coog*.
+It is highly advised to run **Coog** in another user than root. First of all,
+install a user with no administration privileges on the machine. Let that user
+be *coog*.
 
 .. code-block:: bash
 
@@ -48,7 +55,7 @@ Configure **git** for *coog*
     git config --global user.email "coog@<project>.local"
     git config --global user.name coog
 
-Open *coog* *.bachrc* file and add the following lines:
+Open *coog* *.bashrc* file and add the following lines:
 
 .. code-block:: bash
 
@@ -58,6 +65,8 @@ Open *coog* *.bachrc* file and add the following lines:
     export EDITOR=<editor>
 
 *<editor>* can either be **vi** or **nano**
+COOG_DATA_DIR contains path to *coog-admin* repository and COOG_DATA_DIR path to
+*coog-data* repository. These paths can be changed anytime in .bashrc file.
 
 Do not forget running
 
@@ -67,7 +76,8 @@ Do not forget running
 
 Or logout and login to make sure *bashrc* is properly loaded.
 
-In *coog* home directory, clone *coog-admin* git repository and initialize **coog-admin**:
+In *coog* home directory, clone *coog-admin* git repository and initialize
+**coog-admin**:
 
 .. code-block:: bash
 
@@ -75,7 +85,8 @@ In *coog* home directory, clone *coog-admin* git repository and initialize **coo
     cd coog-admin
     ./init
 
-**coog-admin branch** must match branch you will build images in (for example, if you build 2.0 images, checkout in coog-2.0 for **coog-admin**).
+**coog-admin branch** must match branch you will build images in (for example,
+if you build 2.0 images, checkout in coog-2.0 for **coog-admin**).
 
 .. code-block:: bash
 
@@ -84,7 +95,8 @@ In *coog* home directory, clone *coog-admin* git repository and initialize **coo
 Load Coog images to deploy
 --------------------------
 
-There are two possible **Coog** images: **coog** (backend and web client) and **web** (frontend and API).
+There are two possible **Coog** images: **coog** (backend and web client) and
+**web** (frontend and API).
 
 There are three ways to load **Coog** images. 
 
@@ -102,17 +114,19 @@ On your prompt, login with the newly created account
 
     docker login
 
-Ask for access to pull **Coog** images.
+First of all, ask for access to pull **Coog** images.
+Once you have access
 
 .. code-block:: bash
-to
+
     docker pull coopengo/coog-<customer>:<version_number>
     docker pull coopengo/web
 
 Load images from archive files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have a **Coog** image file, then you can load them using the following command
+If you have a **Coog** image file, then you can load them using the following
+command
 
 .. code-block:: bash
 
@@ -123,7 +137,11 @@ If you have a **Coog** image file, then you can load them using the following co
 Build images
 ~~~~~~~~~~~~
 
-First of all, you will have to install sphinx and all sphinx dependencies using pip. These dependencies are available in *coog-dep* file. This file is avaiblable in any *Coog* repository (or you can check **github**). This is not mandatory as these dependencies should already be installed, but it is advised to at least check they are installed to avoid bad surprises.
+First of all, you will have to install sphinx and all sphinx dependencies using
+pip. These dependencies are available in *coog-dep* file. This file is
+available in any *Coog* repository (or you can check **github**). This is not
+mandatory as these dependencies should already be installed, but it is advised
+to at least check they are installed to avoid bad surprises.
 
 Install **rst2pdf** via **pip** (if requirement isn't already satisfied)
 
@@ -131,7 +149,25 @@ Install **rst2pdf** via **pip** (if requirement isn't already satisfied)
 
     pip install rst2pdf
 
-To build a **Coog** image, run the following command
+The default configuration for building a **Coog** image contains **coog**,
+**trytond**, **trytond-modules**, **sao**, **coog-bench** and **proteus**
+repositories. It is the default build configuration defined in the
+*coog-admin/images/coog/repos.vendor* file.
+
+If you want to include additional
+repositories to the image you want to build, for instance **customers**, you
+will have to create a new file named **repos.custom** in
+*coog-admin/images/coog* and add a line following the same pattern as is
+**repos.vendor**.
+
+For instance, to add **customers**, open the newly created
+*coog-admin/images/coog/repos.custom* and add the following line
+
+.. code-block:: bash
+
+    customers;git@github.com:coopengo/customers
+
+Then, to build a **Coog** image, run the following command
 
 .. code-block:: bash
 
@@ -141,12 +177,14 @@ To build a **Coog** image, run the following command
         trytond-modules:master \        # Trytond native modules
         trytond:master \                # Tryton framework engine
         sao:master \                    # Backoffice web client
-        coog-bench:master               # Bench utility
+        coog-bench:master \             # Bench utility
+        customers:master                # Customers specific repository
 
+If you want the image built in **python2**, add *VARIANT=2* before the build
+command, otherwide the image will be built in **python3**
 
-If you want the image built in **python2**, add *VARIANT=2* before the build command, otherwide the image will be built in **python3**
-
-If you want to build a **Web** image, follow the same logic, this time *coog-api* and *coog-app* repositories are used
+If you want to build a **Web** image, follow the same logic, this time
+*coog-api* and *coog-app* repositories are used
 
 .. code-block:: bash
 
@@ -158,7 +196,8 @@ If you want to build a **Web** image, follow the same logic, this time *coog-api
 
 **Web** image has two components
 
-* **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000 (in **Docker** network) and is like an **nginx** client for backend calls.
+* **API**: a REST webservice based on **Coog**'s RPC. It listens on port 3000
+(in **Docker** network) and is like an **nginx** client for backend calls.
 * **APP**: an SPA API client
 
 Optional variables for both commands:
@@ -166,6 +205,11 @@ Optional variables for both commands:
 * **DB_NAME**: name of the database to use
 * **LOG_LEVEL**: python verbosity level
 
+In order for documents generation to work properly, build **unoconv** by running
+
+.. code-block:: bash
+
+    ./unoconv build coopengo/unoconv:latest
 
 Configure coog-admin
 --------------------
@@ -173,14 +217,19 @@ Configure coog-admin
 Global configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-Edit the global **coog-admin** configuration file
+**coog-admin** comes with a default configuration file located in
+*coog-admin/config*. This file must **NEVER** be edited, as all modifications
+will be deleted anyway when updating **coog-admin**.
+
+Any variale defined in this file can be overriden in the **coog-admin** custom
+configuration file, which can be opened and changed through the following
+command
 
 .. code-block:: bash
 
     ./conf edit
 
-The configuration file will be displayed. This file allows overriding any environment variable defined in the *coog-admin* *config* file (coog-admin/config)
-
+The custom configuration file will be displayed.
 At least, override the following environment variables
 
 .. code-block:: bash
@@ -191,7 +240,9 @@ At least, override the following environment variables
     POSTGRES_USER=<postgres_user>
     POSTGRES_PASSWORD=<postgres_password>
 
-You can change the number of workers for **Coog** server and **Celery** in the same file. By default, it is equal to the  number of processing units on the server
+You can change the number of workers for **Coog** server and **Celery** in the
+same file. By default, it is equal to the  number of processing units on the
+server
 
 .. code-block:: bash
 
@@ -201,36 +252,14 @@ You can change the number of workers for **Coog** server and **Celery** in the s
 Coog backend image configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Configure **Coog** server 
+**Coog** comes with a functional default server configuration. If you want a
+custom configuration, run the following command and edit the configuration file
 
 .. code-block:: bash
 
     ./coog edit coog.conf
 
-You can define configuration variables such as
-
-.. code-block:: bash
-
-    [session]
-    timeout = 1800
-    authentications = ldap,password
-
-    [options]
-    table_dimension = 10
-    default_country = FR
-
-    [email]
-    uri = smtp://1.1.1.1:25
-    from = contact@coopengo.com
-
-    [ldap_authentication]
-    uri = 
-    bind_pass = 
-    uid = 
-    active_directory = True
-    create_user = False
-
-You can configure coog batch using the command
+You can configure **Coog** batches using the command
 
 .. code-block:: bash
 
@@ -258,18 +287,13 @@ First of all, create a docker network
 
     ./net create
 
-Create redis and postgres containers using the following commands in *coog-admin* repository
+Create redis and postgres containers using the following commands in
+*coog-admin* repository
     
 .. code-block:: bash
 
     ./redis server
     ./postgres server
-
-Build **unoconv** running
-
-.. code-block:: bash
-
-    ./unoconv build coopengo/unoconv:latest
 
 Run **unoconv**
 
@@ -294,7 +318,8 @@ If you want to use an existing database dump, run the following commands
     docker exec -it coog-postgres sh
     psql -U postgres -d <db_name> < /tmp/<dump_file_path>
 
-Once the database is set, applicative servers can be run through the following commands
+Once the database is set, applicative servers can be run through the following
+commands
 
 .. code-block:: bash
 
@@ -310,6 +335,19 @@ It can happen that containers need to be restarted. In this case
 
     ./upgrade
 
+Containers and applicative servers can be stopped through the following commands
+
+.. code-block:: bash
+
+    ./redis rm -f
+    ./postgres rm -f
+    ./nginx rm -f
+    ./web rm -f
+    ./coog -- server rm -f
+    ./coog -- celery rm -f
+    ./coog -- cron rm -f
+    ./unoconv rm -f
+
 Test environment
 ----------------
 
@@ -318,9 +356,12 @@ The environment is ready to be tested.
 * Backoffice is accessible through http://hostname
 * Documentation is accessible through http://hostname/doc
 * Bench tool is accessible through http://hostname/bench
-* API REST is accessible through http://hostname/web/api 
+* API REST is accessible through http://hostname/web/api
+* Modules selection application is accessible through
+  http://hostname/web/#install/start
 
-If you want to check API is working, launch a Get on http://hostname/web/api/auth
+If you want to check API is working, launch a Get on
+http://hostname/web/api/auth
 check it returns
 
 .. code-block:: bash
@@ -332,14 +373,18 @@ check it returns
 Batch
 -----
 
-The *batch* command allows executing a coog batch. A celery batch worker must be launched in order for it to work properly. Its execution follows the ordered steps:
+The *batch* command allows executing a coog batch. A celery batch worker must
+be launched in order for it to work properly. Its execution follows the ordered
+steps:
 
 * Jobs generation
 * Batch execution
 * *Optional*: Failed batches split and wait for new jobs génération
 * Return with exit status *OK* if all jobs succeed
 
-The execution of a chain and of the daily chain follow the same routine. These commands are usually launched by **cron** and their outputs are usually configured to be sent by mail.
+The execution of a chain and of the daily chain follow the same routine. These
+commands are usually launched by **cron** and their outputs are usually
+configured to be sent by mail.
 
 This is an example of how to launch *Coog*'s *ir.ui.view.validate* batch:
 
@@ -381,7 +426,8 @@ Here are some useful celery commands
     ./coog redis celery jarchive
     ./coog redis celery jremove
 
-**cron** configuration allows handling jobs execution generation and monitoring, and notifying batch chain execution end by email
+**cron** configuration allows handling jobs execution generation and monitoring,
+and notifying batch chain execution end by email
 
 Update / upgrade procedure
 --------------------------
@@ -401,13 +447,28 @@ Command:
 
  ./upgrade
 
+Here are **upgrade** command's options:
+
+.. code-block:: bash
+
+    ./upgrade \
+        -t <image-tag> \
+        -a <image-archive> \
+        -p <image-repository> \
+        -s <server-workers-number> \
+        -c <celery-workers-number> \
+        -b : backup database \
+        -u : update database \
+        -h : print upgrade command help
 
 Backup procedure
 ----------------
 
-In order to regularly keep database and attachments backups, coog-admin offers a backup command.
+In order to regularly keep database and attachments backups, coog-admin offers
+a backup command.
 
-In order to execute the backup command, create a backup directory. By default, the backup directory is set to
+In order to execute the backup command, create a backup directory. By default,
+the backup directory is set to
 
 */mnt/coog_backup*
 
@@ -417,21 +478,8 @@ Execute
 
     ./config edit
 
-Edit the environment variable *BACKUP_DIRECTORY* with the path to this directory.
-
-In order to launch the backup command, you have to be in your *coog-admin* directory. When you are in, launch the following command:
-
-.. code-block:: bash
-
-    ./backup save
-
-This will generate an archive for the database and another one for attachments in *$BACKUP_DIRECTORY*.
-
-This command also does an additional backup on
-
-* The first day of the year
-* The first day of the month
-* The first day of the week
+Edit the environment variable *BACKUP_DIRECTORY* with the path to this
+directory.
 
 In order to delete daily backups of more than seven days, run the command:
 
@@ -439,7 +487,25 @@ In order to delete daily backups of more than seven days, run the command:
 
     ./build clean
 
-Both commands can be programmed in a *crontab* to be automatically launched everyday. In order to do so, edit the user's *crontab* using the comand:
+In order to launch the backup command, you have to be in your *coog-admin*
+directory. When you are in, launch the following command:
+
+.. code-block:: bash
+
+    ./backup save
+
+This will generate an archive for the database and another one for attachments
+in *$BACKUP_DIRECTORY*.
+
+This command also does an additional backup on
+
+* The first day of the year
+* The first day of the month
+* The first day of the week
+
+Both commands (clean and save) can be programmed in a *crontab* to be
+automatically launched everyday. In order to do so, edit the user's
+*crontab* using the comand:
 
 .. code-block:: bash
 
@@ -449,13 +515,17 @@ Add the following lines:
 
 .. code-block:: bash
 
-    <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> <path/to/coog-admin/>/backup save
-    <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> <path/to/coog-admin/>/backup clean
+    <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> \
+        <path/to/coog-admin/>/backup clean
+    <min> <h> * * * USER=<username> DB_NAME=<db_name> COOG_DATA=<path_to_data> \
+        <path/to/coog-admin/>/backup save
 
 More about coog-admin commands
 ------------------------------
 
-If you want to know more about coog-admin scripts and the possibilities you have, just run the script with no arguments, they are all self documented (./coog ./redis )
+If you want to know more about coog-admin scripts and the possibilities you
+have, just run the script with no arguments, they are all self documented
+(./coog ./redis )
 
 Here are some useful comands files:
 
@@ -466,7 +536,8 @@ Here are some useful comands files:
     ./coog conf # displays workers configuration for app and batch
     ./coog env # displays environment variables for coog containers
     ./coog module list # displays coog installed modules list
-    ./coog admin -u <modules separated by commas> # installs / updates modules list
+    ./coog admin -u <modules separated by commas> # installs/ updates modules
+                                                  # list
     ./coog server [nb-workers] # launches application workers
     ./coog celery [nb-workers] # launches batch workers
 
@@ -481,6 +552,7 @@ Sentry
 ------
 
 Create a new database named *sentry*
+After that, run the following command
 
 .. code-block:: bash
 
@@ -493,6 +565,7 @@ Create an account
     ./sentry server
     ./sentry cron
     ./sentry worker
+
 Connect to localhost:9000
 
 Input your credential created earlier
@@ -537,9 +610,11 @@ More about Nginx
 
 The **nginx** script allows launching and handling the **nginx** container.
 
-All **Coog**'s HTTP traffic is done through **nginx**, which allows making a checkpoint out of it for all security rules and access control.
+All **Coog**'s HTTP traffic is done through **nginx**, which allows making a
+checkpoint out of it for all security rules and access control.
 
-A default **nginx** configuration is given and allows doing the following mapping:
+A default **nginx** configuration is given and allows doing the following
+mapping:
 
 * GET /:80 => file://coog-server:/workspace/sao => backoffice
 * GET /bench:80 => file://coog-server:/workspace:coog-bench => bench app 
@@ -554,7 +629,8 @@ This configuration can be adapeted through the edit command:
  
     ./nginx edit
 
-And it is always possible to reset the default configuration through the reset command:
+And it is always possible to reset the default configuration through the reset
+command:
 
 .. code-block:: bash
  
