@@ -646,7 +646,7 @@ This requires an additional configuration via
 
 .. code-block:: bash
  
-    ./config edit:
+    ./config edit
 
 Add the following lines:
 
