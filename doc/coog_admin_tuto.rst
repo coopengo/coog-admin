@@ -485,7 +485,7 @@ In order to delete daily backups of more than seven days, run the command:
 
 .. code-block:: bash
 
-    ./build clean
+    ./backup clean
 
 In order to launch the backup command, you have to be in your *coog-admin*
 directory. When you are in, launch the following command:
