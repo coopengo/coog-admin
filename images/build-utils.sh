@@ -15,10 +15,20 @@ repo_fetch() { # <clones> <repo> <remote>
     fi
 }
 
+guess_rev() {
+    git rev-parse --verify "origin/$1" > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        echo "origin/$1"
+    else
+        echo "$1"
+    fi
+}
+
 repo_checkout() { # <dd> <repo> <branch>
-    echo "  checkout"
-    git checkout -q "$3" \
-        && git merge -q \
+    local rev; rev=$(guess_rev "$3")
+    echo "  checkout $rev"
+    git checkout -q "$rev" \
         && git submodule update -q --init \
         && echo "$2:$3:$(git rev-parse HEAD)" >> "$1/.version" \
         || return 1
@@ -27,13 +37,14 @@ repo_checkout() { # <dd> <repo> <branch>
 repo_cp() { # <dd> <repo> <branch>
     local d; d=$(git diff --stat HEAD | wc -l)
     [ "$d" -ne 0 ] && echo "repo $2 not clean" >&2 && return 1
+    local rev; rev=$(guess_rev "$3")
 
     mkdir "$1/$2" || return 1
 
     if [ -d build ]
     then
         echo "  build and copy"
-        ./build/build "$3" > /dev/null \
+        ./build/build "$rev" > /dev/null \
             && cp -R ./dist/* "$1/$2/" \
             || return 1
     else
