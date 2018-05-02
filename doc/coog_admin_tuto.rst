@@ -53,7 +53,7 @@ Configure **git** for *coog*
 
     su - coog
     git config --global user.email "coog@<project>.local"
-    git config --global user.name coog
+    git config --global user.name Coog
 
 Open *coog* *.bashrc* file and add the following lines:
 
@@ -133,7 +133,7 @@ Once you have access
 .. code-block:: bash
 
     docker pull coopengo/coog-<customer>:<version_number>
-    docker pull coopengo/web
+    docker pull coopengo/web:coog-<version_number>
 
 Load images from archive files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,12 +186,12 @@ Then, to build a **Coog** image, run the following command
 
     ./coog build \
         coopengo/coog-<customer>:<version_number> \    # Coog image name
-        coog:master\                    # Coog repository
-        trytond-modules:master \        # Trytond native modules
-        trytond:master \                # Tryton framework engine
-        sao:master \                    # Backoffice web client
-        coog-bench:master \             # Bench utility
-        customers:master                # Customers specific repository
+        coog:coog-<version_number>\                    # Coog repository
+        trytond-modules:coog-<version_number> \        # Trytond native modules
+        trytond:coog-<version_number> \                # Tryton framework engine
+        sao:coog-<version_number> \                    # Backoffice web client
+        coog-bench:coog-<version_number> \             # Bench utility
+        customers:coog-<version_number>                # Customers specific repository
 
 If you want the image built in **python2**, add *VARIANT=2* before the build
 command, otherwide the image will be built in **python3**
@@ -202,9 +202,9 @@ If you want to build a **Web** image, follow the same logic, this time
 .. code-block:: bash
 
     ./web build \
-        coopeng/web:<version_number> \ # Web image name
-        coog-api: master \      # API repository 
-        coog-app: master \      # APP repository
+        coopeng/web:<version_number> \        # Web image name
+        coog-api:coog-<version_number> \      # API repository 
+        coog-app:coog-<version_number> \      # APP repository
 
 
 **Web** image has two components
@@ -213,7 +213,7 @@ If you want to build a **Web** image, follow the same logic, this time
   (in **Docker** network) and is like an **nginx** client for backend calls.
 * **APP**: an SPA API client
 
-Optional variables for both commands:
+Optional variables for both *build* commands:
 
 * **DB_NAME**: name of the database to use
 * **LOG_LEVEL**: python verbosity level
@@ -370,6 +370,7 @@ The environment is ready to be tested.
 * Documentation is accessible through http://hostname/doc
 * Bench tool is accessible through http://hostname/bench
 * API REST is accessible through http://hostname/web/api
+* **coog app** is accessible through http://hostname/web
 * Modules selection application is accessible through
   http://hostname/web/#install/start
 
@@ -405,7 +406,6 @@ This is an example of how to launch *Coog*'s *ir.ui.view.validate* batch:
 
    ./coog celery 1
    ./coog batch ir.ui.view.validate --job_size=10
-   echo $?
    ./coog redis celery qlist ir.ui.view.validate
    ./coog batch ir.ui.vuew.validate --job_size=100 --crash=144
    ./coog redis celery q ir.ui.view.validate 
@@ -571,7 +571,7 @@ After that, run the following command
 
     ./sentry upgrade
 
-Create an account
+Create an account:
 
 .. code-block:: bash
 
@@ -579,11 +579,11 @@ Create an account
     ./sentry cron
     ./sentry worker
 
-Connect to localhost:9000
+Connect to server-ip:9000
 
 Input your credential created earlier
 
-Root path: localhost:9000
+Root path: server-ip:9000
 
 Go to settings:
 
@@ -591,7 +591,7 @@ Go to settings:
 
 * Go to
 
-*http://localhost:9000/sentry/<project_name>/settings/keys/*
+*http://server-ip:9000/sentry/<project_name>/settings/keys/*
 
 and look at dsn key:
 
