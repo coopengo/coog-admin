@@ -1,5 +1,5 @@
 OTH#0000: Restrict access to /doc by IP address using Nginx
-OHT#0000: Set postgres version to 9.6
+OTH#0000: Set postgres version to 9.6
 FEA#8791: Increase Nginx SSL security (FS, HSTS)
 FEA#8448: Add command to dump an anonymized version of database
 FEA#7433: COOG_CODE_DIR and COOG_DATA_DIR should be set to run any command
