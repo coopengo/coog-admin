@@ -113,7 +113,7 @@ There are two kinds of images **Coog** images:
 
 There are three ways to load **Coog** images. 
 
-* Pull images using docker pull (you will need access to private repositories)
+* Pull images from dockerhub (you will need access to private repositories)
 * Load images from archived files (ask Coopengo)
 * Build images from coog-admin (you will need access to private repositories)
 
