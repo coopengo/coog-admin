@@ -6,13 +6,13 @@ Coog Deployment
 
 **coog-admin** is a utility which allows handling **Coog** deployments and
 easing its administration. In general, each Linux user gets a **Coog**
-deployment. All **Coog** deployment related data is stored in two directories:
+deployment. All **Coog** deployment related data is stored in three folders:
 
 * **~/coog-admin**: contains source files and scripts which allow launching,
 updating and watching docker containers. This directory's source files should
 never be changed.
 
-* **~/coog-data**: contains deployment overloads (specific configuration)and
+* **~/coog-data**: contains deployment overloads (specific configuration) and
 all data volumes linked to active containers.
 
 In addition to these two directories:
@@ -65,8 +65,14 @@ Open *coog* *.bashrc* file and add the following lines:
     export EDITOR=<editor>
 
 *<editor>* can either be **vi** or **nano**
-COOG_DATA_DIR contains path to *coog-admin* repository and COOG_DATA_DIR path to
-*coog-data* repository. These paths can be changed anytime in .bashrc file.
+COOG_CODE_DIR contains path to *coog-admin* repository. This repository's
+content must not be changed as it contains all necessary tools.
+
+COOG_DATA_DIR contains path to
+*coog-data* repository. This repository contains all deployment data
+(specific configuration, mapped volumes, nginx configuration, etc.).
+
+These paths can be changed anytime in .bashrc file.
 
 Do not forget running
 
@@ -95,14 +101,21 @@ if you build 2.0 images, checkout in coog-2.0 for **coog-admin**).
 Load Coog images to deploy
 --------------------------
 
-There are two possible **Coog** images: **coog** (backend and web client) and
-**web** (frontend and API).
+There are two kinds of images **Coog** images:
+
+* Standard dependencies / tools (postgres, redis, nginx, etc.)
+* Vendor images:
+
+  - **coog** image: **coog** backend and **sao** client (web page)
+  - **web** image: **coog api** and **coog app** (web app)
+  - **unoconv** image: a standalone service to convert documents based on
+  **unoconv**
 
 There are three ways to load **Coog** images. 
 
-* Pull images using docker pull
-* Load images from archived files
-* Build images
+* Pull images using docker pull (you will need access to private repositories)
+* Load images from archived files (ask Coopengo)
+* Build images from coog-admin (you will need access to private repositories)
 
 Pull images on Coopengo Docker Hub repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -325,8 +338,8 @@ commands
 
     ./coog server # Will launch Coog container
     ./coog celery # Will launch Coog Celery
-    ./coog cron # Will launch Coog Cron (optional)
     ./web server
+    ./nginx reset
     ./nginx run
 
 It can happen that containers need to be restarted. In this case
@@ -476,7 +489,7 @@ Execute
 
 .. code-block:: bash
 
-    ./config edit
+    ./conf edit
 
 Edit the environment variable *BACKUP_DIRECTORY* with the path to this
 directory.
@@ -646,7 +659,7 @@ This requires an additional configuration via
 
 .. code-block:: bash
  
-    ./config edit
+    ./conf edit
 
 Add the following lines:
 
