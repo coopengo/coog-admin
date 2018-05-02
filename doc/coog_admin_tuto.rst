@@ -9,16 +9,16 @@ easing its administration. In general, each Linux user gets a **Coog**
 deployment. All **Coog** deployment related data is stored in three folders:
 
 * **~/coog-admin**: contains source files and scripts which allow launching,
-updating and watching docker containers. This directory's source files should
-never be changed.
+ updating and watching docker containers. This directory's source files should
+ never be changed.
 
 * **~/coog-data**: contains deployment overloads (specific configuration) and
-all data volumes linked to active containers.
+ all data volumes linked to active containers.
 
 In addition to these two directories:
 
 * **~/coog-log**: contains functional logs (batch execution reports,
-backup procedure reports)
+ backup procedure reports)
 
 Prerequired setup
 -----------------
