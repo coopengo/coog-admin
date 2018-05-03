@@ -124,6 +124,49 @@ Upgrade the environment
 
   	./upgrade -p coopengo/coog-customer:2.0.0 -u -s 4 -c 4
 
+- It could happen that an error occurs when launching NGINX: *"docker: Error 
+  response from daemon: No such container: coog-web."*" This means that 
+  coopengo/web container is not running. If coog-app and coog-api are not 
+  needed in your deployment update the NGINX conf else 
+
+  		- Edit the global config ./conf edit and add the following line
+
+			.. code-block:: bash
+
+  				WEB_IMAGE=coopengo/web:<version_number>
+
+  		- Pull the web images
+
+			.. code-block:: bash
+
+  				docker pull coopengo/web:<version_number>
+
+  		- Launch the web containuer
+
+			.. code-block:: bash
+
+  				./web server
+
+  		- Launch NGINX server
+
+			.. code-block:: bash
+
+  				./nginx run
+
+- A new image is required in 2.0 in order for documents generation to work 
+  properly. Unoconv is now in a separate image. Build **unoconv** image by 
+  running
+
+  .. code-block:: bash
+
+    ./unoconv build coopengo/unoconv:latest
+
+  Run **unoconv**
+
+  .. code-block:: bash
+
+    ./unoconv run
+
 
 Clean the environment
 ------------------------
