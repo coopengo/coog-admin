@@ -1,10 +1,10 @@
 Upgrade Coog from 1.12 to 2.0
 =============================
 
-The aim of this document it's to describe the procedure to upgrade coog 
-deployment using coog-admin from coog 1.12 to coog 2.0. Instead there is a major 
+The aim of this document is to describe the procedure to upgrade coog 
+deployment using coog-admin from coog 1.12 to coog 2.0. Indeed there is a major 
 change in coog admin in 1.14: configuration are now managed via git in order to 
-improve next upgrade.
+ease next upgrade.
 
 Backup the configuration
 -------------------------
@@ -13,7 +13,6 @@ Backup the configuration
  .. code-block:: bash
 	
 	su - coog
-
 
 - Find the folder that contains the coog data. It's defined in the 
   environment variable COOG_DATA often set in the file ~/.profile or 
@@ -61,7 +60,7 @@ Upgrade coog-admin
 
   .. code-block:: bash
 	
-    ./init 1.12
+    ./init coog-1.12
 
 - The $COOG_DATA_DIR is now versioned. During initialization two branchs were 
   created:
@@ -87,7 +86,7 @@ Upgrade coog-admin
   .. code-block:: bash
 	
     cd $COOG_DATA_DIR
-    git diff 1.12 coog-2.0
+    git diff coog-1.12 coog-2.0
 
   However it's possible to copy the previous configuration in the new one by 
   running the following command:
