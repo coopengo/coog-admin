@@ -220,7 +220,7 @@ _server() {
 
 _celery() {
     local n; n="$1"
-    if [ "$n" -eq "$n" ]
+    if [ ! -z "$n" ] && [ "$n" -eq "$n" ]
     then
         shift
     else
