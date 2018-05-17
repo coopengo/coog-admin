@@ -50,7 +50,8 @@ RUN 2to3 --no-diffs -w -n /workspace 2> /dev/null \
     && ln -s /workspace/trytond/bin/trytond /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin \
-    && ep link
+    && ep link \
+    && ln -sf /dev/stderr /tmp/coog.log
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
