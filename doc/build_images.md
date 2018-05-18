@@ -1,4 +1,3 @@
-
 # Build images
 
 ## Coog backend image
