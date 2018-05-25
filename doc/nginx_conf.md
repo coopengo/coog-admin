@@ -18,7 +18,7 @@ following mapping:
 -   GET /web =\> <file://web:/web/coog-app> =\> web app
 -   \*/web/api =\> <http://web:3000> =\> REST API
 
-This configuration can be adapeted through the edit command:
+This configuration can be adapted through the edit command:
 
 ``` bash
 ./nginx edit

@@ -70,7 +70,7 @@ This command updates a running environment. It stops and drops running container
 
 ## BI
 
-Config can be find at the config file into DWH, ETL and BI section and edited.
+Config can be found and edited in config file into DWH, ETL and BI section.
 
 First of all, you have to set up a running database server to host your datawarehouse.
 
@@ -95,8 +95,8 @@ If you have the server running, you'll maybe want to import defaults reports
 and OLAP cubes : `./bi import`
 
 
-/!\ You have to add your datawarehouse connection to the server. Follow this
-step:
+/!\ You have to add your datawarehouse connection to the server. Follow these
+steps:
  - Connect to your server within your browser : `ip:port`
  - Connect as an admin login : `admin`, password : `password`
  - Wait, then click on `manage datasource`

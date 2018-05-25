@@ -6,7 +6,7 @@ the ordered steps:
 
 -   Jobs generation
 -   Batch execution
--   *Optional*: Failed batches split and wait for new jobs génération
+-   *Optional*: Failed batches split and wait for new jobs generation
 -   Return with exit status *OK* if all jobs succeed
 
 The execution of a chain and of the daily chain follow the same routine.

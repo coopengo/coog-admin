@@ -29,9 +29,9 @@ Here are **upgrade** command's options:
     -h : print upgrade command help
 ```
 
-If an error occurs during upgrade following is the command to restart a whole
-environnment. According your configuration paybox don't execute command related 
-to paybox
+If an error occurs during the upgrade process, here areicommands to restart the 
+whole environment. According to your configuration, the paybox related command 
+is optional
 
 ``` bash
 ./paybox rm -f

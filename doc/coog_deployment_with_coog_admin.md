@@ -236,8 +236,6 @@ Run **unoconv**
 
 You can either create a new database or use an existing database dump.
 
-If you want to create an empty database, run the following commands
-
 ``` bash
 ./postgres client
 create database <db_name>;
@@ -248,6 +246,7 @@ If you want to use an existing database dump, run the following commands
 ``` bash
 docker cp dump_file_path coog-postgres:/tmp
 docker exec -it coog-postgres sh
+create database <db_name>;
 psql -U postgres -d <db_name> < /tmp/<dump_file_path>
 ```
 
@@ -281,8 +280,8 @@ commands
 ./unoconv rm -f
 ```
 
-In some case according specific application need it's necessary to start coog 
-as a cron. In this case execute the following command
+In some cases, according to specific application needs, it's necessary to start 
+coog as a cron. In this case execute the following command
 
 ``` bash
 ./coog cron          # to start the container
@@ -295,8 +294,9 @@ The environment is ready to be tested.
 
 ### Test the different URL
 
-The following works is the NGINX_PUB_PORT is the default one : 80. Else URL 
-will be like http://hostname:81.
+The following URLs work if the NGINX_PUB_PORT is the default one: 80. 
+Otherwise, URLs must contain the configured nginx port: http://hostname:81 for 
+instance if the nginx port is 81.
 
 -   Backoffice is accessible through <http://hostname>
 -   Documentation is accessible through <http://hostname/doc>
@@ -315,7 +315,7 @@ If you want to check API is working, launch a Get on
 
 ### Test Batch
 
-Execute the following command and check that batch is 
+Execute the following command and check that batch finished.
 If nothing happen it's perhaps because coog celery container is not started
 
 ``` bash
