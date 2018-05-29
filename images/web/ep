@@ -3,6 +3,26 @@
 
 WEB_ROOT=/web
 
+_link() {
+    local folder;
+    cd $WEB_ROOT
+    for f in $(ls -1 .)
+    do
+        if [ $f != coog-api ] && [ $f != coog-app ]
+        then
+            folder="$WEB_ROOT/$f"
+            [ -d "$f" ] \
+                && ( [ -d "$f/api" ] \
+                    && ln -s "$folder/api" "coog-api/api/$f" \
+                    && ln -s "$WEB_ROOT/coog-api/node_modules" "$folder/api/node_modules") \
+                    || ( [ -d "$f/app" ] \
+                        && ln -s "$folder/app" "coog-app/src/$f" \
+                        && ln -s "$WEB_ROOT/coog-app/node_modules" "$folder/app/node_modules")
+        fi
+    done
+    return 0
+}
+
 _print_version() {
     cat "$WEB_ROOT/.version"
 }
@@ -25,6 +45,7 @@ usage() {
     echo
     echo "  version       -> gets image version (git trees)"
     echo "  env           -> gets container env vars"
+    echo "  link          -> link customers container"
     echo "  server        -> starts coog server"
     echo
 }
@@ -35,6 +56,7 @@ main() {
     #
     [ "$cmd" = version ] && { _print_version; return $?; }
     [ "$cmd" = env ] && { _print_env; return $?; }
+    [ "$cmd" = link ] && { _link; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     echo "Not supported command" && return 1
 }
