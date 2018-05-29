@@ -4,10 +4,9 @@ MAINTAINER Coopengo <support@coopengo.com>
 RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && mkdir /workspace && chown coog:coog /workspace \
     && apk add --no-cache \
-        python3 redis graphviz libmagic \
-        py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 \
-    && ln -s /usr/bin/python3 /usr/bin/python \
-    && pip3 install \
+        python py2-pip redis graphviz libmagic \
+        py2-lxml py2-psycopg2 py2-redis py2-ldap3 uwsgi-python \
+    && pip2 install \
         "pyflakes~=1.6.0" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
@@ -40,14 +39,13 @@ USER coog:coog
 
 RUN mkdir /workspace/bin \
     && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
-    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
+    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python_plugin.so "$@"' >> /workspace/bin/uwsgi \
     && chmod u+x /workspace/bin/uwsgi
 
 COPY --chown=coog:coog dist /workspace
 COPY --chown=coog:coog ep /workspace/bin
 
-RUN 2to3 --no-diffs -w -n /workspace 2> /dev/null \
-    && ln -s /workspace/trytond/bin/trytond /workspace/bin \
+RUN ln -s /workspace/trytond/bin/trytond /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin \
     && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin \
     && ep link \

@@ -163,12 +163,25 @@ config_check() {
     then
         ( cd "$COOG_DATA_DIR" && git checkout -q "$code" )
     else
-        ( cd "$COOG_DATA_DIR" \
-            && git checkout -q init \
-            && git checkout -q -b "$code" \
-            && config_data_reset_base \
-            && config_data_reset_coog \
-            && config_data_reset_nginx \
-            && git tag "init-$code" )
+        echo
+        echo "You are switching to a new branch: $code"
+        echo "  - This will **reset** your configuration (based on defaults)"
+        echo "  - Nothing will be lost (your configuration is **archived**)"
+        echo
+        read -p "Confirm switching? [y/N] " ok
+        case "$ok" in
+            y|Y) ( cd "$COOG_DATA_DIR" \
+                && git checkout -q init \
+                && git checkout -q -b "$code" \
+                && config_data_reset_base \
+                && config_data_reset_coog \
+                && config_data_reset_nginx \
+                && git tag "init-$code" )
+            ;;
+            n|N) echo "leaving, please switch branch on coog-admin and retry" && return 1
+                ;;
+            *) echo "leaving, please switch branch on coog-admin and retry" && return 1
+                ;;
+        esac
     fi
 }

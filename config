@@ -24,7 +24,7 @@ NETWORK_NAME=$USER
 # POSTGRES CONFIG
 #-------------------------------------------------------------------------------#
 
-POSTGRES_IMAGE=postgres:9.5-alpine      # docker image
+POSTGRES_IMAGE=postgres:9.6-alpine      # docker image
 POSTGRES_VOLUME=$COOG_DATA_DIR/postgres # docker data volume
 
 POSTGRES_USER=postgres                  # postgres user
