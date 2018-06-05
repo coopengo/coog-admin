@@ -16,7 +16,7 @@ _link() {
                     && ln -s "$folder/api" "coog-api/api/$f" \
                     && ln -s "$WEB_ROOT/coog-api/node_modules" "$folder/api/node_modules") \
                     || ( [ -d "$f/app" ] \
-                        && ln -s "$folder/app" "coog-app/src/$f" \
+                        && ln -s "$folder/app" "coog-app/src/custom/$f" \
                         && ln -s "$WEB_ROOT/coog-app/node_modules" "$folder/app/node_modules")
         fi
     done
