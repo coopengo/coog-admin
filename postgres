@@ -146,6 +146,7 @@ usage() {
     echo "  server    -> runs a postgres docker image as a server"
     echo "  client    -> runs a postgres docker image as a client"
     echo "  dump      -> creates a dump of coog database"
+    echo "  anon_dump -> creates a dump file of anonymised coog database: <level>. The database is the one defined in COOG_DB_NAME"
     echo "  <action>  -> calls docker action on server container"
     echo
 }
