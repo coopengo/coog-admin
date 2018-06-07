@@ -213,6 +213,8 @@ _server() {
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
     WSGI_LOG_FILE="/tmp/coog.log"
     export WSGI_LOG_FILE
+    COOG_IWC=1
+    export COOG_IWC
     uwsgi -T \
         --module trytond.application:app \
         --logformat "$format" \
@@ -223,7 +225,7 @@ _server() {
 
 _celery() {
     local n; n="$1"
-    if [ "$n" -eq "$n" ]
+    if [ ! -z "$n" ] && [ "$n" -eq "$n" ]
     then
         shift
     else
