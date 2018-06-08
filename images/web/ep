@@ -10,9 +10,9 @@ _link() {
     do
       f=$(dirname $f)
       f=$(basename $f)
-      folder="$WEB_ROOT/$f"
+      folder="$WEB_ROOT/$f/web_modules"
       [ -d "$folder/app" ] \
-          && ln -s "$folder/app" "$WEB_ROOT/coog-app/src/custom/$f"\
+          && ln -s "$folder/web_modules/app" "$WEB_ROOT/coog-app/src/custom/$f"\
           && ln -nsf "$WEB_ROOT/coog-app/node_modules" "$folder/app"
       [ -d "$folder/api" ] \
           && ln -s "$folder/api" "$WEB_ROOT/coog-api/api/custom/$f"\
