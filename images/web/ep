@@ -29,10 +29,10 @@ _coog_repo_link_api(){
     done
 }
 
-coog_repo_linkapi(){
+coog_repo_link_api(){
     mkdir -p "$API_ROOT/api/custom" \
         && cd "$API_ROOT/api/custom" \
-        && _coog_repo_linkapi
+        && _coog_repo_link_api
 }
 
 _coog_repo_link_app(){
@@ -49,16 +49,16 @@ _coog_repo_link_app(){
     done
 }
 
-coog_repo_linkapp(){
+coog_repo_link_app(){
     mkdir -p "$APP_ROOT/src/custom" \
         && cd "$APP_ROOT/src/custom" \
-        && _coog_repo_linkapp
+        && _coog_repo_link_app
 }
 
 
 _link() {
-    coog_repo_linkapp()
-    coog_repo_linkapi()
+    coog_repo_link_app()
+    coog_repo_link_api()
     return 0
 }
 
