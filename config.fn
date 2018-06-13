@@ -130,7 +130,8 @@ config_data_reset_nginx_sedf() {
     sed -i "s/NETWORK_NAME/$NETWORK_NAME/g" "$1" \
         && sed -i "s/NGINX_SERVER_CONF/$NGINX_SERVER_CONF/g" "$1" \
         && sed -i "s/NGINX_SSL_SERVER_NAME/$NGINX_SSL_SERVER_NAME/g" "$1" \
-        && sed -i "s/COOG_DB_NAME/$COOG_DB_NAME/g" "$1"
+        && sed -i "s/COOG_DB_NAME/$COOG_DB_NAME/g" "$1" \
+        && sed -i "s/NGINX_TIMEOUT/$NGINX_TIMEOUT/g" "$1"
 }
 
 config_data_reset_nginx_sed() {
