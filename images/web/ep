@@ -10,7 +10,7 @@ _coog_repo_list_repo(){
     local f
     for f in $WEB_ROOT/*
     do
-        f="$COOG_ROOT/$f"
+        f="$CWEB_ROOT/$f"
         [ -d "$f" ] && basename "$f"
     done
 }
