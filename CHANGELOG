@@ -1,4 +1,6 @@
 FEA#8969: Add web custom repository
+FEA#9091: Restrict access to sao and bench by IP address using Nginx
+BUG#8900: Add NGINX_TIMEOUT env variable to dynamically set the global requests timeout
 OTH#0000: Review documentation and move to markdown
 OTH#0000: Restrict access to /doc by IP address using Nginx
 OTH#0000: Set postgres version to 9.6
