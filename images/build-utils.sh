@@ -11,7 +11,7 @@ repo_fetch() { # <clones> <repo> <remote>
             && git fetch -p -q --recurse-submodules) || return 1
     else
         echo "  clone"
-        git clone -q --recurse-submodules "$3" "$1/$2" || return 1
+        git clone -q --config core.autocrlf=input --recurse-submodules "$3" "$1/$2" || return 1
     fi
 }
 
