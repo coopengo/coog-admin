@@ -253,9 +253,13 @@ _rq() {
     _init || return $?
     if [ ! -z "$1" ]
     then
-        rq worker -u "$TRYTOND_ASYNC_RQ" "$@"
+        if [ "$1" = test ]
+        then
+            unset DB_NAME
+        fi
+        rq worker  --burst -u "$TRYTOND_ASYNC_RQ" "$@"
     else
-        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker -u "$TRYTOND_ASYNC_RQ"
+        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker --burst -u "$TRYTOND_ASYNC_RQ"
     fi
 }
 
@@ -264,9 +268,18 @@ _test() {
     . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-test"
     unset COOG_CELERY_DB
-    _init && \
-        coog_test_generate "$@" && \
-        coog_test_join
+    local cmd
+    cmd="$1"
+    shift
+    if [ "$cmd" = generate ]
+    then
+        _init && coog_test_generate "$@"
+    elif [ "$cmd" = join ]
+    then
+        _init && coog_test_join "$@"
+    else
+        echo "bad command $cmd" && return 1
+    fi
 }
 
 _batch() {

@@ -82,14 +82,6 @@ start_workers() {
     done
 }
 
-rm_workers() {
-    echo "rm workers"
-    for i in $(seq 1 "$COOG_TEST_WORKERS")
-    do
-        "$COOG_CODE_DIR/coog" -- "rq-$i" rm -f
-    done
-}
-
 report_summary() {
     local ok; ok=$1; shift
     local image
@@ -175,10 +167,10 @@ main() {
 
     clear_redis || return $?
     clear_postgres || return $?
+    "$COOG_CODE_DIR/coog" test generate "$@" || return $?
     start_workers || return $?
-    "$COOG_CODE_DIR/coog" test "$@"
+    "$COOG_CODE_DIR/coog" test join
     ok=$?
-    rm_workers
     report "$ok" && email "$ok"
 }
 
