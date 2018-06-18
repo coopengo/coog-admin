@@ -175,8 +175,10 @@ main() {
 
     clear_redis || return $?
     clear_postgres || return $?
+    #"$COOG_CODE_DIR/coog" test generate "$@" || return $?
+    "$COOG_CODE_DIR/coog" test generate party party_cog || return $?
     start_workers || return $?
-    "$COOG_CODE_DIR/coog" test "$@"
+    "$COOG_CODE_DIR/coog" test join
     ok=$?
     rm_workers
     report "$ok" && email "$ok"
