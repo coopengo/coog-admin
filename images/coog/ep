@@ -135,11 +135,7 @@ _init_env() {
     export TRYTOND_BATCH_CONFIG="$COOG_CONF_BAT"
     [ ! -z "$COOG_CELERY_DB" ] && export TRYTOND_ASYNC_CELERY="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CELERY_DB"
     [ ! -z "$COOG_RQ_DB" ] && export TRYTOND_ASYNC_RQ="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_RQ_DB"
-    if [ ! -z "$COOG_TEST" ]
-    then
-        DB_CACHE=/tmp
-        export DB_CACHE
-    elif [ ! -z "$COOG_DB_NAME" ]
+    if [ ! -z "$COOG_DB_NAME" ]
     then
         export DB_NAME=$COOG_DB_NAME
     fi
