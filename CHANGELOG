@@ -1,4 +1,5 @@
 BUG#0000: Make build-util work on windows
+OTH#0000: Add default custom repositories
 FEA#8969: Add web custom repository
 FEA#9091: Restrict access to sao and bench by IP address using Nginx
 BUG#8900: Add NGINX_TIMEOUT env variable to dynamically set the global requests timeout
