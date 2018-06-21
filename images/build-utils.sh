@@ -91,7 +91,6 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
     done
 
     find "$dd" -name ".git" | xargs rm -rf
-    docker build -t "$image" "$@" "$wd"
-
+    (cd "$wd" && docker build -t "$image" "$@" "." )
     rm -rf "$dd"
 }
