@@ -9,7 +9,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
         "pyflakes~=1.6.0" \
-        "ipaddress=1.0.22" \
+        "ipaddress~=1.0.22" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
         "python-sql~=0.9" \

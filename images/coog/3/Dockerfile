@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install \
         "pyflakes~=1.6.0" \
-        "ipaddress=1.0.22" \
+        "ipaddress~=1.0.22" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
         "lxml~=3.8.0" \

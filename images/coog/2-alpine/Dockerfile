@@ -8,7 +8,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
         py2-lxml py2-psycopg2 py2-redis py2-ldap3 uwsgi-python \
     && pip2 install \
         "pyflakes~=1.6.0" \
-        "ipaddress=1.0.22" \
+        "ipaddress~=1.0.22" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
         "python-sql~=0.9" \
