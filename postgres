@@ -34,6 +34,21 @@ client() {
 }
 
 anon_dump() {
+    local dump_type
+    local suffix
+    local dump_args
+    if [ "$1" =  text ]
+    then
+        dump_type="text"
+        suffix="dump"
+        dump_args=""
+        shift
+    else
+        dump_type="text"
+        suffix="tar.gz"
+        dump_args="-Fc -Z 5"
+    fi
+
     queries=$(./coog anon_queries $@) || { echo $queries; return 1; }
     echo "Creating copy of $COOG_DB_NAME for anonymization, this can take a while"
     docker run \
@@ -83,7 +98,7 @@ anon_dump() {
         psql --quiet -d $anon_db_name -c "$queries" > /dev/null 2>&1
 
     stamp=$(date +%Y-%m-%d_%Hh%M)
-    dump_name="$anon_db_name"_"$stamp".dump
+    dump_name="$anon_db_name"_"$stamp".$suffix
 
     echo "Dumping anonymized copy"
     docker run \
@@ -94,7 +109,7 @@ anon_dump() {
         -e PGPASSWORD="$COOG_DB_PASSWORD" \
         -v "/tmp:/tmp" \
         "$POSTGRES_IMAGE" \
-        pg_dump $anon_db_name -f /tmp/$dump_name > /dev/null 2>&1
+        pg_dump $anon_db_name $dump_args -f /tmp/$dump_name > /dev/null
 
     echo "Dropping copy"
     docker run \
@@ -147,6 +162,7 @@ usage() {
         echo "  client    -> runs a postgres docker image as a client"
         echo "  dump      -> creates a dump of coog database"
         echo "  anon_dump -> creates a dump file of anonymised coog database: <level>. The database is the one defined in COOG_DB_NAME"
+        echo "               Please put \"text\" before <level> if you need a textual dump for compatibility"
         echo "  <action>  -> calls docker action on server container"
         echo
 }
