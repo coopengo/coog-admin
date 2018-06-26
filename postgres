@@ -34,18 +34,15 @@ client() {
 }
 
 anon_dump() {
-    local dump_type
     local suffix
     local dump_args
-    if [ "$1" =  text ]
+    if [ "$1" =  "text" ]
     then
-        dump_type="text"
         suffix="dump"
         dump_args=""
         shift
     else
-        dump_type="text"
-        suffix="tar.gz"
+        suffix="gz"
         dump_args="-Fc -Z 5"
     fi
 
