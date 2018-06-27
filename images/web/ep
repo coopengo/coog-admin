@@ -3,6 +3,65 @@
 
 WEB_ROOT=/web
 
+APP_ROOT="$WEB_ROOT/coog-app"
+API_ROOT="$WEB_ROOT/coog-api"
+
+_coog_repo_list_repo(){
+    local f
+    for f in $WEB_ROOT/*
+    do
+        f="$WEB_ROOT/$f"
+        [ -d "$f" ] && basename "$f"
+    done
+}
+
+_coog_repo_link_api(){
+    for repo in $(_coog_repo_list_repo)
+    do
+        if [ -d "$WEB_ROOT/$repo/api_modules" ]
+        then
+            for p in $WEB_ROOT/$repo/api_modules/*
+            do
+                [ -d "$WEB_ROOT/$repo/api_modules/$p" ] ln -s "$WEB_ROOT/$repo/api_modules/$p"
+            done
+            ln -s "$API_ROOT/node_module" "$WEB_ROOT/$repo/api_modules/node_modules"
+        fi
+    done
+}
+
+coog_repo_link_api(){
+    mkdir -p "$API_ROOT/api/custom" \
+        && cd "$API_ROOT/api/custom" \
+        && _coog_repo_link_api
+}
+
+_coog_repo_link_app(){
+    for repo in $(_coog_repo_list_repo)
+    do
+        if [ -d "$WEB_ROOT/$repo/app_modules" ]
+        then
+            for p in $WEB_ROOT/$repo/app_modules/*
+            do
+                [ -d "$WEB_ROOT/$repo/app_modules/$p" ] ln -s "$WEB_ROOT/$repo/app_modules/$p"
+            done
+            ln -s "$APP_ROOT/node_module" "$WEB_ROOT/$repo/app_modules/node_modules"
+        fi
+    done
+}
+
+coog_repo_link_app(){
+    mkdir -p "$APP_ROOT/src/custom" \
+        && cd "$APP_ROOT/src/custom" \
+        && _coog_repo_link_app
+}
+
+
+_link() {
+    coog_repo_link_app()
+    coog_repo_link_api()
+    return 0
+}
+
 _print_version() {
     cat "$WEB_ROOT/.version"
 }
@@ -25,6 +84,7 @@ usage() {
     echo
     echo "  version       -> gets image version (git trees)"
     echo "  env           -> gets container env vars"
+    echo "  link          -> link customers container"
     echo "  server        -> starts coog server"
     echo
 }
@@ -35,6 +95,7 @@ main() {
     #
     [ "$cmd" = version ] && { _print_version; return $?; }
     [ "$cmd" = env ] && { _print_env; return $?; }
+    [ "$cmd" = link ] && { _link; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     echo "Not supported command" && return 1
 }

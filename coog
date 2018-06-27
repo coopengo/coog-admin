@@ -149,12 +149,15 @@ _image() {
     local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
     local args
     args="--name $NETWORK_NAME-coog-$1"
-    if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ] || [ "$cmd" = "rq" ]
+    if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ]
     then
         args="$args $DOCKER_DAEMON_OPTS"
     elif [ "$cmd" = "admin" ]
     then
         args="$args $DOCKER_INTERACTIVE_OPTS"
+    elif [ "$cmd" = "rq" ]
+    then
+        args="$args $DOCKER_BURST_OPTS"
     else
         args="$args $DOCKER_PIPED_OPTS"
     fi

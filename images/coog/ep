@@ -206,6 +206,8 @@ _server() {
     local n; n="$1"
     [ -z "$n" ] && n="$COOG_SERVER_WORKERS"
     [ -z "$n" ] && echo "missing concurrency" && return 1
+    [ -z "$COOG_TIMEOUT" ] && COOG_TIMEOUT=600
+
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
@@ -217,12 +219,13 @@ _server() {
         --module trytond.application:app \
         --logformat "$format" \
         --http-socket :8000 \
+        --http-timeout "$COOG_TIMEOUT" \
         --processes "$n"
 }
 
 _celery() {
     local n; n="$1"
-    if [ "$n" -eq "$n" ]
+    if [ ! -z "$n" ] && [ "$n" -eq "$n" ]
     then
         shift
     else
@@ -250,9 +253,13 @@ _rq() {
     _init || return $?
     if [ ! -z "$1" ]
     then
-        rq worker -u "$TRYTOND_ASYNC_RQ" "$@"
+        if [ "$1" = test ]
+        then
+            unset DB_NAME
+        fi
+        rq worker  --burst -u "$TRYTOND_ASYNC_RQ" "$@"
     else
-        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker -u "$TRYTOND_ASYNC_RQ"
+        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker --burst -u "$TRYTOND_ASYNC_RQ"
     fi
 }
 
@@ -261,9 +268,18 @@ _test() {
     . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-test"
     unset COOG_CELERY_DB
-    _init && \
-        coog_test_generate "$@" && \
-        coog_test_join
+    local cmd
+    cmd="$1"
+    shift
+    if [ "$cmd" = generate ]
+    then
+        _init && coog_test_generate "$@"
+    elif [ "$cmd" = join ]
+    then
+        _init && coog_test_join "$@"
+    else
+        echo "bad command $cmd" && return 1
+    fi
 }
 
 _batch() {

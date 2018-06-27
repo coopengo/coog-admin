@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip install \
         "pyflakes~=1.6.0" \
+        "ipaddress~=1.0.22" \
         "dateutils~=0.6.6" \
         "num2words~=0.5.5" \
         "lxml~=3.8.0" \
@@ -48,11 +49,12 @@ RUN mkdir /workspace
 COPY ./dist /workspace
 COPY ./ep /workspace/
 
-RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
-RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
-RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
-RUN ln -s /workspace/ep /usr/local/bin/ep
-RUN ep link
+RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
+    && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
+    && ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin \
+    && ln -s /workspace/ep /usr/local/bin/ep \
+    && ep link \
+    && ln -sf /dev/stderr /tmp/coog.log
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
