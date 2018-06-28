@@ -3,9 +3,9 @@
 It is recommended to launch the command without any argument to see possible actions
 Commands wrap docker commandline to make it easy to call docker without giving the container name
 
-## edit-config
+## conf edit
 
-It customizes the environment by setting images tags, database name, or any other runtime parameter
+- `./conf edit`: It customizes the environment by setting images tags, database name, or any other runtime parameter
 
 ## net (create)
 
