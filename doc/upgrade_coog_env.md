@@ -28,10 +28,7 @@ Here are **upgrade** command's options:
     -u : update database \
     -h : print upgrade command help
 ```
-
-If an error occurs during the upgrade process, here are commands to restart the 
-whole environment. According to your configuration, the paybox related command 
-is optional
+To manually stops all containers, here are the commands in order :
 
 ``` bash
 ./paybox rm -f
@@ -40,6 +37,13 @@ is optional
 ./unoconv rm -f
 ./coog -- server rm -f
 ./coog -- celery rm -f
+```
+
+If an error occurs during the upgrade process, here are commands to restart the 
+whole environment. According to your configuration, the paybox related command 
+is optional
+
+``` bash
 ./coog celery
 ./unoconv run
 ./coog server
