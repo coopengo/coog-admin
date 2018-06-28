@@ -29,7 +29,7 @@ Here are **upgrade** command's options:
     -h : print upgrade command help
 ```
 
-If an error occurs during the upgrade process, here areicommands to restart the 
+If an error occurs during the upgrade process, here are commands to restart the 
 whole environment. According to your configuration, the paybox related command 
 is optional
 
