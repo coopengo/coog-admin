@@ -21,7 +21,7 @@ dump_attachments() {
     SECONDS=0
     docker run -i --rm \
         -v /tmp:/tmp \
-        --volumes-from "$NETWORK"-coog-server \
+        --volumes-from "$NETWORK_NAME"-coog-server \
         alpine:3.6 \
         tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
         cp /tmp/"$1" "$BACKUP_DIRECTORY/" &&
@@ -51,8 +51,8 @@ save() {
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$YEAR-db") -eq 0 ];
     then
         echo "saving yearly db and attachments"
-        dump_database "year-$YEAR-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "year-$YEAR-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "year-$YEAR-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
+        dump_attachments "year-$YEAR-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
     fi
 
     # check if there is a monthly backup
@@ -60,21 +60,21 @@ save() {
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$MONTH-db") -eq 0 ];
     then
         echo "saving monthly db and attachments"
-        dump_database "month-$MONTH-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "month-$MONTH-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "month-$MONTH-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
+        dump_attachments "month-$MONTH-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
     fi
 
     # weekly backup on Friday
     WEEK=$(date '+%V')
     if [[ $(date '+%u') == 5 ]]; then
         echo "saving weekly db and attachments"
-        dump_database "week-$WEEK-db-$USER-$COOG_DB_NAME.dump.gz"
-        dump_attachments "week-$WEEK-attachments-$USER-$COOG_DB_NAME.tar.gz"
+        dump_database "week-$WEEK-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
+        dump_attachments "week-$WEEK-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
     fi
 
     echo "saving daily db and attachments"
-    dump_database "$(date '+%Y%m%d')-daily-db-$USER-$COOG_DB_NAME.dump.gz"
-    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$USER-$COOG_DB_NAME.tar.gz"
+    dump_database "$(date '+%Y%m%d')-daily-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
+    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
 }
 
 clean() {
