@@ -50,6 +50,8 @@ Upgrade coog-admin
 	export COOG_CODE_DIR=~/coog-admin
 	export COOG_DATA_DIR=~/coog-data
 
+At this point the COOG_DATA_DIR MUST be created and should contain the previous data
+
   Update environment variables with the following command
 
   .. code-block:: bash
