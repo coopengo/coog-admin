@@ -92,7 +92,9 @@ Upgrade coog-admin
     source .bashrc 
 
   Create the folder if it does not exist
+  
   .. code-block:: bash
+  
   	mkdir $COOG_DATA_DIR
 	
 - Initialize the new coog-admin configuration. From coog-admin folder, run
