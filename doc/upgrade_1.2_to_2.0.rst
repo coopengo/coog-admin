@@ -13,10 +13,40 @@ Backup the data
  .. code-block:: bash
 	
 	su - coog
+	
+  .. code-block:: bash
+	
+	mkdir ~/backup-coog-1.12
+	
+ - Backup the database
+ 
+   .. code-block:: bash
+   
+       docker exec -it coog_recette-postgres bash
+       pg_dump -U postgres coog > /tmp/coog_dump.sql
+       
+ Exit the docker image using CTRL + D
+ Keep a copy of the database
+ 
+    .. code-block:: bash
+    
+    	cp /tmp/coog_dump.sql ~/backup-coog-1.12/
+    	
+- Stop all docker container (if they exist)
 
+  .. code-block:: bash
+  	
+	./postgres rm -f
+	./api rm -f
+	./nginx rm -f
+	./coog -- server rm -f
+	./redis rm -f
+	./coog -- celery rm -f
+	./paybox rm -f
+ 
 - Find the folder that contains the coog data. It's defined in the 
   environment variable COOG_DATA often set in the file ~/.profile or 
-  ~/.bashrc. Following in the document this folder will be call $COOG_DATA_DIR.
+  ~/.bashrc.
 
 - Backup the configuration
 
@@ -24,19 +54,18 @@ Backup the data
 	
 	mkdir ~/backup-coog-1.12
 	mkdir ~/backup-coog-1.12/conf
-	cp $COOG_DATA_DIR/config $COOG_DATA_DIR/nginx.conf ~/backup-coog-1.12/conf
+	cp $COOG_DATA/config $COOG_DATA/nginx.conf ~/backup-coog-1.12/conf
 	mkdir ~/backup-coog-1.12/conf/coog
-	cp  $COOG_DATA_DIR/coog/conf/* ~/backup-coog-1.12/conf/coog
+	cp  $COOG_DATA/coog/conf/* ~/backup-coog-1.12/conf/coog
 
   Check that there is no other configuration specific to the environment that 
   needs to be backup.
   
- - Backup the data
+ - Backup all data
  
    .. code-block:: bash
    
-       docker exec -it coog_recette-postgres bash
-       pg_dump -U postgres coog > /tmp/coog_dump.sql
+   	sudo cp -r $COOG_DATA ~/backup-coog-1.12
 
 Upgrade coog-admin
 ------------------
@@ -181,7 +210,7 @@ Clean the environment
 ------------------------
 - Remove previous $COOG_DATA environment declaration in .profile or .bashrc
 
-- Remove configuration backup
+- Remove backup
 
   .. code-block:: bash
 	
