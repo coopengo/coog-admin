@@ -98,6 +98,10 @@ At this point the COOG_DATA_DIR MUST be created and should contain the previous 
   .. code-block:: bash
 	
     ./init coog-1.12
+    ./conf edit			(command has changed in 1.12 it was ./edit-config)
+
+  Check that the configuration is empty. By doing this command coog-admin will 
+  switch coog-data to the coog-2.0 branch
 
 - The $COOG_DATA_DIR is now versioned. During initialization two branchs were 
   created:
@@ -106,16 +110,6 @@ At this point the COOG_DATA_DIR MUST be created and should contain the previous 
 	- **coog-2.0** : that contains the new configuration
 
   The configuration on coog-2.0 branch has been reinitialized.
-
-  Edit the global configuration (command has changed in 1.12 it was 
-  ./edit-config)
-
-  .. code-block:: bash
-	
-    ./conf edit
-
-  Check that the configuration is empty. By doing this command coog-admin will 
-  switch coog-data to the coog-2.0 branch
 
 - Setup the new configuration. The following command allows to see the 
   difference between the 1.12 configuration and the current 2.0 configuration.
