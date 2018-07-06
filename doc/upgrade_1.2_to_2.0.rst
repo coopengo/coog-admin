@@ -22,10 +22,11 @@ Backup the data
 
   .. code-block:: bash
 	
-	mkdir ~/backup-conf-1.12
-	cp $COOG_DATA_DIR/config $COOG_DATA_DIR/nginx.conf ~/backup-conf-1.12
-	mkdir ~/backup-conf-1.12/coog
-	cp  $COOG_DATA_DIR/coog/conf/* ~/backup-conf-1.12/coog
+	mkdir ~/backup-coog-1.12
+	mkdir ~/backup-coog-1.12/conf
+	cp $COOG_DATA_DIR/config $COOG_DATA_DIR/nginx.conf ~/backup-coog-1.12/conf
+	mkdir ~/backup-coog-1.12/conf/coog
+	cp  $COOG_DATA_DIR/coog/conf/* ~/backup-coog-1.12/conf/coog
 
   Check that there is no other configuration specific to the environment that 
   needs to be backup.
@@ -102,8 +103,8 @@ At this point the COOG_DATA_DIR MUST be created and should contain the previous 
 
   .. code-block:: bash
 
-  	cat ~/backup-conf-1.12/config >> $COOG_DATA_DIR/config
-  	cp ~/backup-conf-1.12/coog/* $COOG_DATA_DIR/coog/conf
+  	cat ~/backup-coog-1.12/conf/config >> $COOG_DATA_DIR/config
+  	cp ~/backup-coog-1.12/conf/coog/* $COOG_DATA_DIR/coog/conf
   	cd $COOG_DATA_DIR
   	git commit -am 'Update manually configuration from 1.12'
 
@@ -184,4 +185,4 @@ Clean the environment
 
   .. code-block:: bash
 	
-	rm -r ~/backup-conf-1.12
+	rm -r ~/backup-coog-1.12
