@@ -30,7 +30,7 @@ Backup the data
     
     cp /tmp/coog_dump.sql ~/backup-coog-1.12/
     	
-- Stop all docker container (if they exist)
+- Stop all dockers container (if they exist)
 
   .. code-block:: bash
   	
@@ -85,14 +85,16 @@ Upgrade coog-admin
 	export COOG_CODE_DIR=~/coog-admin
 	export COOG_DATA_DIR=~/coog-data
 
-At this point the COOG_DATA_DIR MUST be created and should contain the previous data
-
   Update environment variables with the following command
 
   .. code-block:: bash
 
     source .bashrc 
 
+  Create the folder if it does not exist
+  .. code-block:: bash
+  	mkdir $COOG_DATA_DIR
+	
 - Initialize the new coog-admin configuration. From coog-admin folder, run
 
   .. code-block:: bash
@@ -144,60 +146,80 @@ At this point the COOG_DATA_DIR MUST be created and should contain the previous 
 	 
     ./nginx edit
 
+Restore data from previous version
+----------------------------------
+
+If $COOG_DATA is different from $COOG_DATA_DIR we need to restore the data
+
+  .. code-block:: bash
+  
+  	cd $COOG_DATA_DIR/coog
+	rmdir edm		(it should be empty)
+	rmdir batch		(it should be empty)
+	sudo mv $COOG_DATA/coog/edm $COOG_DATA_DIR/coog
+	sudo mv $COOG_DATA/coog/batch $COOG_DATA_DIR/coog
+	
+Restore the database
+
+  .. code-block:: bash
+  
+  	./postgres server
+	docker cp /tmp/coog_dump.sql coog-postgres:/tmp		to adapt accordingly to coog user name
+	docker exec -it coog-postgres bash			to adapt accordingly to coog user name
+	psql -U postgres
+	create database coog					to adapt accordingly to coog db name
+	\q
+	cat /tmp/coog_dump.sql | psql -U postgres -d coog
+
+Exit the docker image using CTRL+D
 
 Upgrade the environment
 -------------------------
 
-- To upgrade your environment use the coog-admin upgrade script. Following 
-  is an example.
-
-  .. code-block:: bash
-
-  	./upgrade -p coopengo/coog-customer:2.0.0 -u -s 4 -c 4
-
-- It could happen that an error occurs when launching NGINX: *"docker: Error 
-  response from daemon: No such container: coog-web."*" This means that 
-  coopengo/web container is not running. If coog-app and coog-api are not 
-  needed in your deployment update the NGINX conf else 
-
-  		- Edit the global config ./conf edit and add the following line
-
-			.. code-block:: bash
-
-  				WEB_IMAGE=coopengo/web:<version_number>
-
-  		- Pull the web images
-
-			.. code-block:: bash
-
-  				docker pull coopengo/web:<version_number>
-
-  		- Launch the web containuer
-
-			.. code-block:: bash
-
-  				./web server
-
-  		- Launch NGINX server
-
-			.. code-block:: bash
-
-  				./nginx run
-
 - A new image is required in 2.0 in order for documents generation to work 
-  properly. Unoconv is now in a separate image. Build **unoconv** image by 
+  properly. Unoconv is now in a separate image. Pull **unoconv** image by 
   running
 
   .. code-block:: bash
 
-    ./unoconv build coopengo/unoconv:latest
+    docker pull coopengo/unoconv:2.0.X
+    
+- If you're using the web components, you need to pull the images else update the NGINX conf
 
-  Run **unoconv**
+	- Edit the global config ./conf edit and add the following line
+
+		.. code-block:: bash
+
+			WEB_IMAGE=coopengo/web:2.0.X
+
+	- Pull the web images
+
+		.. code-block:: bash
+
+			docker pull coopengo/web:2.0.X
+			
+- To upgrade your environment use the coog-admin upgrade script. Following 
+  is an example.
 
   .. code-block:: bash
+  
+	./redis server
+  	./upgrade -t coopengo/coog-customer:2.0.X -u
+	
+- Relaunch coog
 
-    ./unoconv run
+  .. code-block:: bash
+	
+	./coog server
+	./web server
+	./nginx run
+	./coog celery
+	./paybox run
+	./unoconv run
 
+Update external mounted drive
+-----------------------------
+If you had an external mounted drive or folder using fstab or alternative, you should update it to replace link pointing from $COOG_DATA to $COOG_DATA_DIR
 
 Clean the environment
 ------------------------
