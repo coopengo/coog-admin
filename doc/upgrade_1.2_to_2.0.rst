@@ -6,7 +6,7 @@ deployment using coog-admin from coog 1.12 to coog 2.0. Indeed there is a major
 change in coog admin in 1.14: configuration are now managed via git in order to 
 ease next upgrade.
 
-Backup the configuration
+Backup the data
 -------------------------
 - Log in with the user used to deploy coog.
 
@@ -29,6 +29,13 @@ Backup the configuration
 
   Check that there is no other configuration specific to the environment that 
   needs to be backup.
+  
+ - Backup the data
+ 
+   .. code-block:: bash
+   
+       docker exec -it coog_recette-postgres bash
+       pg_dump -U postgres coog > /tmp/coog_dump.sql
 
 Upgrade coog-admin
 ------------------
