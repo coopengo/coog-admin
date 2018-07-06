@@ -133,7 +133,8 @@ At this point the COOG_DATA_DIR MUST be created and should contain the previous 
 
   .. code-block:: bash
 
-  	./conf edit
+  	cd $COOG_CODE_DIR
+	./conf edit
   	./coog edit-app
   	./coog edit-batch
 
