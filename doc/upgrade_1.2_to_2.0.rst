@@ -12,18 +12,15 @@ Backup the data
 
  .. code-block:: bash
 	
-	su - coog
-	
-  .. code-block:: bash
-	
+	su - coog	
 	mkdir ~/backup-coog-1.12
 	
  - Backup the database
  
-   .. code-block:: bash
+ .. code-block:: bash
    
-       docker exec -it coog_recette-postgres bash
-       pg_dump -U postgres coog > /tmp/coog_dump.sql
+       docker exec -it **coog**-postgres bash   		to adapt accordingly to coog user name
+       pg_dump -U postgres **coog** > /tmp/coog_dump.sql	to adapt accordingly to coog db name
        
  Exit the docker image using CTRL + D
  Keep a copy of the database
