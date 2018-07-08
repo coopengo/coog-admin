@@ -139,8 +139,8 @@ Upgrade coog-admin
 
   	cd $COOG_CODE_DIR
 	./conf edit
-  	./coog edit-app
-  	./coog edit-batch
+  	./coog edit coog.conf
+  	./coog edit batch.conf
 
 - NGINX configuration can be updated according the deployment configuration.
 
