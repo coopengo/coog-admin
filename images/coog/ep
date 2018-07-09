@@ -326,6 +326,21 @@ _daily() {
         PGDATABASE="$COOG_DB_NAME" coog_daily_main "$@"
 }
 
+_daily_mail() {
+    _init || return $?
+    . "$COOG_ROOT/coog/bin/coog-redis"
+    . "$COOG_ROOT/coog/bin/coog-celery"
+    . "$COOG_ROOT/coog/bin/coog-rq"
+    . "$COOG_ROOT/coog/bin/coog-batch"
+    . "$COOG_ROOT/coog/bin/coog-chain"
+    . "$COOG_ROOT/coog/bin/coog-module"
+    . "$COOG_ROOT/coog/bin/coog-daily"
+    PGHOST="$COOG_POSTGRES_HOST" \
+        PGPASSWORD="$COOG_DB_PASSWORD" \
+        PGUSER="$COOG_DB_USER" \
+        PGDATABASE="$COOG_DB_NAME" coog_daily_mail "$@"
+}
+
 ########
 # main #
 ########
@@ -368,6 +383,7 @@ main() {
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
     [ "$cmd" = daily ] && { _daily "$@"; return $?; }
+    [ "$cmd" = daily_mail ] && { _daily_mail "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     echo "Not supported command" && return 1
