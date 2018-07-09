@@ -90,7 +90,7 @@ Upgrade coog-admin
 
   .. code-block:: bash
 
-    source .bashrc 
+    source ~/.bashrc
 
   Create the folder if it does not exist
   
