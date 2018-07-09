@@ -13,7 +13,6 @@ Backup the data
    .. code-block:: bash
   	
   	su - coog	
-  	mkdir ~/backup-coog-1.12
 	
 - Backup the database
  
