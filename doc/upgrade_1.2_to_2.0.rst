@@ -170,7 +170,7 @@ Restore the database
 	docker cp /tmp/coog_dump.sql coog-postgres:/tmp		to adapt accordingly to coog user name
 	docker exec -it coog-postgres bash			to adapt accordingly to coog user name
 	psql -U postgres
-	create database coog					to adapt accordingly to coog db name
+	create database coog;					to adapt accordingly to coog db name
 	\q
 	cat /tmp/coog_dump.sql | psql -U postgres -d coog
 
