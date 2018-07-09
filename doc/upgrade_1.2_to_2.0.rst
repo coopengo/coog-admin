@@ -33,6 +33,7 @@ Backup the data
 - Stop all dockers container (if they exist)
 
   .. code-block:: bash
+  
   	cd ~/coog-admin
 	./postgres rm -f
 	./api rm -f
