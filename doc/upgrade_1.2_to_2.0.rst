@@ -71,6 +71,7 @@ Upgrade coog-admin
 
   .. code-block:: bash
 	
+	cd ~/coog-admin
 	git fetch origin
 	git checkout coog-2.0
 
