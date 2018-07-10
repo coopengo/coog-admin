@@ -4,7 +4,7 @@ MAINTAINER Coopengo <support@coopengo.com>
 RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && mkdir /workspace && chown coog:coog /workspace \
     && apk add --no-cache \
-        python py2-pip redis graphviz libmagic \
+        bash python py2-pip redis graphviz libmagic \
         py2-lxml py2-psycopg2 py2-redis py2-ldap3 uwsgi-python \
     && pip2 install \
         "pyflakes~=1.6.0" \
