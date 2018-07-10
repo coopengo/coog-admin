@@ -10,16 +10,16 @@ Backup the data
 -------------------------
 - Log in with the user used to deploy coog.
 
-   .. code-block:: bash
+  .. code-block:: bash
   	
-  	su - coog	
+    su - coog	
 	
 - Backup the database
  
   .. code-block:: bash
   	
-  	docker exec -it coog-postgres bash   		to adapt accordingly to coog user name
-  	pg_dump -U postgres coog > /tmp/coog_dump.sql	to adapt accordingly to coog db name
+  	docker exec -it coog-postgres bash   	             to adapt accordingly to coog user name
+  	pg_dump -U postgres coog > /tmp/coog_dump.sql	     to adapt accordingly to coog db name
        
 - Exit the docker image using CTRL + D
 
@@ -59,11 +59,11 @@ Backup the data
   Check that there is no other configuration specific to the environment that 
   needs to be backup.
   
- - Backup all data
+- Backup all data
  
-   .. code-block:: bash
+  .. code-block:: bash
    
-   	sudo cp -r $COOG_DATA ~/backup-coog-1.12
+     sudo cp -r $COOG_DATA ~/backup-coog-1.12
 
 Upgrade coog-admin
 ------------------
