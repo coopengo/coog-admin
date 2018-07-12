@@ -165,7 +165,7 @@ _print_version() {
 
 _print_anon_queries() {
     . "$COOG_ROOT/coog/bin/coog-db"
-    _get_anon_queries "$@"
+    _get_anon_queries $@
 }
 
 _print_env() {
