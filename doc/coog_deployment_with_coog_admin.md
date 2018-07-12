@@ -171,6 +171,9 @@ NGINX_PUB_PORT=<host mapped port> by default 80
 
 COOG_IMAGE=coopengo/coog-<customer>:<version_number>
 WEB_IMAGE=coopengo/web:<version_number>
+
+# Default value: COOG_DATA_DIR/coog
+COOG_VOLUME=<path to coog data>
 ```
 
 You can change the number of workers for **Coog** server and **Celery**
