@@ -372,7 +372,7 @@ usage() {
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
     echo "  redis         -> executes redis script - <context> [args *]"
     echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
-    echo "  daily_mail   -> executes daily report and sends mail"
+    echo "  daily_mail    -> executes daily report and sends mail"
     echo "  cron          -> execute coog-cron"
     echo
 }
