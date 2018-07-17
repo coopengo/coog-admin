@@ -9,6 +9,8 @@ get_dir() {
         echo "$script_dir"
 }
 
+POSTGRES_IMAGE='postgres:9.5-alpine'
+
 server() {
         local args
         while [[ ! -z "$1" ]]
@@ -138,6 +140,8 @@ usage() {
         echo
         echo "  server    -> runs a postgres docker image as a server"
         echo "  client    -> runs a postgres docker image as a client"
+        echo "  anon_dump -> creates an anonymized dump of the database"
+        echo "  dump      -> creates a dump of the database"
         echo "  <action>  -> calls docker action on server container"
         echo
 }
