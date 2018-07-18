@@ -16,7 +16,7 @@ _build() {
 _run() {
     local args
     [ -d "/usr/share/fonts" ] && \`
-        args="$args -v /usr/share/fonts:/usr/share/fonts"
+        args="$args -v ${COOG_SERVER_FONTS:-/usr/share/fonts}:/usr/share/fonts"
     docker run \
         $args \
         $DOCKER_DAEMON_OPTS \
@@ -38,7 +38,8 @@ usage() {
     echo "  run       -> runs a unoconv docker image"
     echo "  <action>  -> calls docker action on unoconv container"
     echo
-    echo "Fonts installed in /usr/share/fonts will be available when printing."
+    echo "Fonts installed in \$COOG_SERVER_FONTS (default = /usr/share/fonts) "
+    echo "will be available when printing."
     echo "To install a new font, place it in the appropriate sub-folder, "
     echo "then run the \"fc-cache -f -v\" command."
     echo
