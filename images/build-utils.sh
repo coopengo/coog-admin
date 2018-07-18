@@ -11,7 +11,17 @@ repo_fetch() { # <clones> <repo> <remote>
             && git fetch -p -q --recurse-submodules) || return 1
     else
         echo "  clone"
-        git clone -q --recurse-submodules "$3" "$1/$2" || return 1
+        git clone -q --config core.autocrlf=input --recurse-submodules "$3" "$1/$2" || return 1
+    fi
+}
+
+guess_rev() {
+    git rev-parse --verify "origin/$1" > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        echo "origin/$1"
+    else
+        echo "$1"
     fi
 }
 
@@ -91,7 +101,6 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
     done
 
     find "$dd" -name ".git" | xargs rm -rf
-    docker build -t "$image" "$@" "$wd"
-
+    (cd "$wd" && docker build -t "$image" "$@" "." )
     rm -rf "$dd"
 }
