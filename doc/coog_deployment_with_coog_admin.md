@@ -183,6 +183,9 @@ units on the server
 ``` bash
 COOG_SERVER_WORKERS=<number_of_coog_workers>
 COOG_CELERY_WORKERS=<number_of_celery_workers>
+
+By defaults, fonts will be looked for in the `/usr/share/fonts` folder. This
+can be overriden by setting the `COOG_FONT_DIR` environment variable.
 ```
 
 ### Coog backend image configuration
