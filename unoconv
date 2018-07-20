@@ -15,7 +15,7 @@ _build() {
 
 _run() {
     local args
-    [ -d "$COOG_FONT_DIR" ] && \`
+    [ -d "$COOG_FONT_DIR" ] && \
         args="$args -v $COOG_FONT_DIR:/usr/share/fonts"
     docker run \
         $args \
