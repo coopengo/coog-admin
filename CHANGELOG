@@ -1,4 +1,4 @@
-BUG#9154: Set return value of save command
+BUG#9154: Set return value of backup > save command
 BUG#9459: Make host server font available in running image
 BUG#0000: Make build-util work on windows
 OTH#0000: Add default custom repositories
