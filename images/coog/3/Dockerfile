@@ -43,6 +43,7 @@ RUN pip install \
         "celery~=4.1.0" \
         "rq~=0.8.2" \
         "mock~=2.0.0" \
+        "phonenumbers~=8.9.10" \
     && rm -rf /root/.cache
 
 RUN mkdir /workspace
