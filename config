@@ -47,6 +47,7 @@ SENTRY_DB_NAME=sentry                   # sentry db db name
 
 REDIS_IMAGE=redis:3.2-alpine            # docker image
 REDIS_VOLUME=$COOG_DATA_DIR/redis       # docker data volume
+REDIS_EXTRA_ARGS=
 
 COOG_CACHE_DB=0                         # coog cache db name
 COOG_CELERY_DB=1                        # coog celery db name
