@@ -10,17 +10,16 @@ Backup the data
 -------------------------
 - Log in with the user used to deploy coog.
 
-   .. code-block:: bash
+  .. code-block:: bash
   	
-  	su - coog	
-  	mkdir ~/backup-coog-1.12
+    su - coog	
 	
 - Backup the database
  
   .. code-block:: bash
   	
-  	docker exec -it coog-postgres bash   		to adapt accordingly to coog user name
-  	pg_dump -U postgres coog > /tmp/coog_dump.sql	to adapt accordingly to coog db name
+  	docker exec -it coog-postgres bash   	             to adapt accordingly to coog user name
+  	pg_dump -U postgres coog > /tmp/coog_dump.sql	     to adapt accordingly to coog db name
        
 - Exit the docker image using CTRL + D
 
@@ -33,7 +32,8 @@ Backup the data
 - Stop all dockers container (if they exist)
 
   .. code-block:: bash
-  	
+  
+  	cd ~/coog-admin
 	./postgres rm -f
 	./api rm -f
 	./nginx rm -f
@@ -59,11 +59,11 @@ Backup the data
   Check that there is no other configuration specific to the environment that 
   needs to be backup.
   
- - Backup all data
+- Backup all data
  
-   .. code-block:: bash
+  .. code-block:: bash
    
-   	sudo cp -r $COOG_DATA ~/backup-coog-1.12
+     sudo cp -r $COOG_DATA ~/backup-coog-1.12
 
 Upgrade coog-admin
 ------------------
@@ -71,6 +71,7 @@ Upgrade coog-admin
 
   .. code-block:: bash
 	
+	cd ~/coog-admin
 	git fetch origin
 	git checkout coog-2.0
 
@@ -89,7 +90,7 @@ Upgrade coog-admin
 
   .. code-block:: bash
 
-    source .bashrc 
+    source ~/.bashrc
 
   Create the folder if it does not exist
   
@@ -169,7 +170,7 @@ Restore the database
 	docker cp /tmp/coog_dump.sql coog-postgres:/tmp		to adapt accordingly to coog user name
 	docker exec -it coog-postgres bash			to adapt accordingly to coog user name
 	psql -U postgres
-	create database coog					to adapt accordingly to coog db name
+	create database coog;					to adapt accordingly to coog db name
 	\q
 	cat /tmp/coog_dump.sql | psql -U postgres -d coog
 

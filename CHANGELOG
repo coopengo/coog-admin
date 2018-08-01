@@ -1,4 +1,5 @@
 FEA#9364: Add commands to generate batch reporting
+BUG#9459: Make host server font available in running image
 BUG#0000: Make build-util work on windows
 OTH#0000: Add default custom repositories
 FEA#8969: Add web custom repository

@@ -113,6 +113,8 @@ COOG_ADMIN_EMAIL=example@coopengo.com   # application admin email address
 COOG_TEST=                              # switch conf when not empty
 COOG_TEST_WORKERS="$(nproc)"            # test workers number
 
+COOG_FONT_DIR=/usr/local/fonts          # folder to look in for fonts
+
 #-------------------------------------------------------------------------------#
 # WEB CONFIG
 #-------------------------------------------------------------------------------#

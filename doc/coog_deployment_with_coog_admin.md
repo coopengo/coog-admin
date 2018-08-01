@@ -171,6 +171,9 @@ NGINX_PUB_PORT=<host mapped port> by default 80
 
 COOG_IMAGE=coopengo/coog-<customer>:<version_number>
 WEB_IMAGE=coopengo/web:<version_number>
+
+# Default value: COOG_DATA_DIR/coog
+COOG_VOLUME=<path to coog data>
 ```
 
 You can change the number of workers for **Coog** server and **Celery**
@@ -181,6 +184,9 @@ units on the server
 COOG_SERVER_WORKERS=<number_of_coog_workers>
 COOG_CELERY_WORKERS=<number_of_celery_workers>
 ```
+
+By defaults, fonts will be looked for in the `/usr/share/fonts` folder. This
+can be overriden by setting the `COOG_FONT_DIR` environment variable.
 
 ### Coog backend image configuration
 
