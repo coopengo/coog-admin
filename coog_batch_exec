@@ -11,7 +11,7 @@ num_workers=$2;
 shift 2;
 ./coog redis -t -v "$COOG_VOLUME:/coog/data" -- celery qremove "$batch_name"
 ./coog "celery-$batch_name" -v "$COOG_VOLUME:/coog/data" -- "$num_workers" "$batch_name"
-./coog batch -v "$COOG_VOLUME:/coog/data" --name "$NETWORK_NAME-coog-$batch_name-master" -- "$batch_name" "$@"
+./coog batch -v "$COOG_VOLUME:/coog/data" --name "$NETWORK_NAME-coog-$batch_name-master" --memory=4g --oom-kill-disable -- "$batch_name" "$@"
 ret_value=$?
 sleep 10
 
