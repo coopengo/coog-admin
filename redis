@@ -14,10 +14,11 @@ server() {
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
         --name "$NETWORK_NAME-redis" \
+        -v "$COOG_CODE_DIR/redis.conf:/usr/local/etc/redis/redis.conf:ro" \
         -v /usr/share/zoneinfo:/usr/share/zoneinfo:ro \
         -v /etc/timezone:/etc/timezone:ro \
         -v "$REDIS_VOLUME:/data" \
-        "$REDIS_IMAGE" "$@"
+        "$REDIS_IMAGE" "$@" "/usr/local/etc/redis/redis.conf"
 }
 
 client() {
