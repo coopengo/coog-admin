@@ -292,6 +292,16 @@ _batch() {
     coog_batch_exec "$@"
 }
 
+_batch_info() {
+    [ -z "$1" ] && echo "missing batch name" && return 1
+    _init || return $?
+    . "$COOG_ROOT/coog/bin/coog-redis"
+    . "$COOG_ROOT/coog/bin/coog-celery"
+    . "$COOG_ROOT/coog/bin/coog-rq"
+    . "$COOG_ROOT/coog/bin/coog-batch"
+    coog_batch_info "$@"
+}
+
 _chain() {
     [ "$#" -lt 2 ] && echo "missing arguments" && return 1
     _init || return $?
@@ -326,6 +336,21 @@ _daily() {
         PGDATABASE="$COOG_DB_NAME" coog_daily_main "$@"
 }
 
+_daily_mail() {
+    _init || return $?
+    . "$COOG_ROOT/coog/bin/coog-redis"
+    . "$COOG_ROOT/coog/bin/coog-celery"
+    . "$COOG_ROOT/coog/bin/coog-rq"
+    . "$COOG_ROOT/coog/bin/coog-batch"
+    . "$COOG_ROOT/coog/bin/coog-chain"
+    . "$COOG_ROOT/coog/bin/coog-module"
+    . "$COOG_ROOT/coog/bin/coog-daily"
+    PGHOST="$COOG_POSTGRES_HOST" \
+        PGPASSWORD="$COOG_DB_PASSWORD" \
+        PGUSER="$COOG_DB_USER" \
+        PGDATABASE="$COOG_DB_NAME" coog_daily_mail "$@"
+}
+
 ########
 # main #
 ########
@@ -343,9 +368,11 @@ usage() {
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
     echo "  rq            -> starts rq worker - <queue +>"
     echo "  batch         -> executes batch - <name> [args *]"
+    echo "  batch_info    -> append batch info in report "
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
     echo "  redis         -> executes redis script - <context> [args *]"
     echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
+    echo "  daily_mail    -> executes daily report and sends mail"
     echo "  cron          -> execute coog-cron"
     echo
 }
@@ -365,9 +392,11 @@ main() {
     [ "$cmd" = rq ] && { _rq "$@"; return $?; }
     [ "$cmd" = test ] && { _test "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
+    [ "$cmd" = batch_info ] && { _batch_info "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
     [ "$cmd" = daily ] && { _daily "$@"; return $?; }
+    [ "$cmd" = daily_mail ] && { _daily_mail "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     echo "Not supported command" && return 1
