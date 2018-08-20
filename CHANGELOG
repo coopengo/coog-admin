@@ -1,3 +1,4 @@
+BUG#9154: Set return value of backup > save command
 FEA#8448: Add command to dump an anonymized version of database
 FEA#7433: COOG_CODE_DIR and COOG_DATA_DIR should be set to run any command
 FEA#7433: COOG_DATA_DIR content is now a `git` repo (branch per code branch)
