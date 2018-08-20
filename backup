@@ -12,8 +12,10 @@ fi
 dump_database() {
     if "$COOG_CODE_DIR/postgres" dump -Fc > "$BACKUP_DIRECTORY/$1"; then
         echo "dump db -> OK"
+        return 0
     else
         echo "dump db -> KO"
+        return 1
     fi
 }
 
@@ -24,11 +26,11 @@ dump_attachments() {
         --volumes-from "$NETWORK_NAME"-coog-server \
         alpine:3.6 \
         tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
-        cp /tmp/"$1" "$BACKUP_DIRECTORY/" &&
-        echo "dump attachments -> OK" ||
-        echo "dump attachments -> KO"
+        cp /tmp/"$1" "$BACKUP_DIRECTORY/"
+    local status_code=$?
     duration=$SECONDS
     echo "job time :$(($duration / 60)) min $(($duration % 60)) s"
+    return $status_code
 }
 
 usage() {
@@ -46,13 +48,15 @@ save() {
 
     [ ! -d "$BACKUP_DIRECTORY" ] && mkdir -p "$BACKUP_DIRECTORY"
 
+    local status_code=0;
+
     # check if there is a yearly backup
     YEAR=$(date '+%Y')
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$YEAR-db") -eq 0 ];
     then
         echo "saving yearly db and attachments"
-        dump_database "year-$YEAR-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
-        dump_attachments "year-$YEAR-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
+        dump_database "year-$YEAR-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
+        dump_attachments "year-$YEAR-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     # check if there is a monthly backup
@@ -60,21 +64,23 @@ save() {
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$MONTH-db") -eq 0 ];
     then
         echo "saving monthly db and attachments"
-        dump_database "month-$MONTH-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
-        dump_attachments "month-$MONTH-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
+        dump_database "month-$MONTH-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
+        dump_attachments "month-$MONTH-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     # weekly backup on Friday
     WEEK=$(date '+%V')
     if [[ $(date '+%u') == 5 ]]; then
         echo "saving weekly db and attachments"
-        dump_database "week-$WEEK-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
-        dump_attachments "week-$WEEK-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
+        dump_database "week-$WEEK-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
+        dump_attachments "week-$WEEK-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     echo "saving daily db and attachments"
-    dump_database "$(date '+%Y%m%d')-daily-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz"
-    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz"
+    dump_database "$(date '+%Y%m%d')-daily-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
+    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
+
+    return $status_code
 }
 
 clean() {
