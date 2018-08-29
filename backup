@@ -26,7 +26,7 @@ dump_attachments() {
         --volumes-from "$NETWORK_NAME"-coog-server \
         alpine:3.6 \
         tar czf /tmp/"$1" /workspace/io/edm/"$COOG_DB_NAME" &&
-        cp /tmp/"$1" "$BACKUP_DIRECTORY/"
+        mv /tmp/"$1" "$BACKUP_DIRECTORY/"
     local status_code=$?
     duration=$SECONDS
     echo "job time :$(($duration / 60)) min $(($duration % 60)) s"
