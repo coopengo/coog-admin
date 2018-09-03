@@ -162,6 +162,12 @@ _image() {
         args="$args $DOCKER_PIPED_OPTS"
     fi
     shift
+    while [[ ! -z "$1" ]]
+    do
+            [ "$1" = "--" ] && shift && break
+            args="$args $1"
+            shift
+    done
     docker run \
         --network "$NETWORK_NAME" \
         $args \
