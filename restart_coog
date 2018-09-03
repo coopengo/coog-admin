@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /opt/coog-admin
+./stop_coog
+./start_coog
