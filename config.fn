@@ -2,17 +2,8 @@
 
 config_code_version() {
     local version
-    version=$(git describe --tags --exact-match 2> /dev/null | grep "^coog-" | head -1)
-    if [ -z "$version" ]
-    then
-        version=$(git rev-parse --abbrev-ref HEAD)
-    else
-        version=$(echo "$version" | grep -oP "coog-\d+\.\d+")
-    fi
-    if [ "$version" != HEAD ]
-    then
-        echo "$version"
-    fi
+    version=$(cat "$COOG_CODE_DIR"/VERSION)
+    echo "$version"
 }
 
 config_version() {
