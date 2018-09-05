@@ -71,6 +71,12 @@ location / {
 }
 ```
 
+Note that any configuration change requires nginx to restart to take effect:
+
+``` bash
+./nginx restart
+```
+
 Optimizing HTTPS server security requires to edit `nginx_server_ssl.conf`,
 or `nginx_server_letsencrypt.conf`. The ssl_protocols and ssl_ciphers
 directives can be used to require that clients use only the strong versions and
