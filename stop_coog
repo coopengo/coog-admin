@@ -20,6 +20,10 @@ echo ------ Arrêt du serveur applicatif 6
 ./coog -- server-6 kill
 ./coog -- server-6 rm
 
+echo ------ Arrêt du service editique
+./unoconv kill
+./unoconv rm
+
 echo ------ Arrêt de sentry
 ./sentry -- server kill
 ./sentry -- server rm

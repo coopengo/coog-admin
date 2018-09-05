@@ -1,0 +1,48 @@
+# This is the custom configuration for coog-admin
+
+#-------------------------------------------------------------------------------#
+# COOG IMAGE
+#-------------------------------------------------------------------------------#
+COOG_IMAGE=coopengo/coog-bfm:2.0.alpha
+
+#-------------------------------------------------------------------------------#
+# NETWORK CONFIG
+#-------------------------------------------------------------------------------#
+NETWORK_NAME=recette
+
+#-------------------------------------------------------------------------------#
+# DATABASE CONFIG
+#-------------------------------------------------------------------------------#
+COOG_POSTGRES_HOST=192.168.0.239           # defaults to postgres container
+COOG_POSTGRES_PORT=5432                   # defaults to postgres container
+COOG_DB_USER=postgres                     # coog pg user
+COOG_DB_PASSWORD=postgres            # coog pg password
+COOG_DB_NAME=recette                   # coog pg db name
+POSTGRES_IMAGE=postgres:9.5-alpine
+#-------------------------------------------------------------------------------#
+# SENTRY CONFIG
+#-------------------------------------------------------------------------------#
+COOG_SENTRY_PUB=e20a118681fd4e83ba9855f4a3a1699e
+COOG_SENTRY_SEC=da7d32a7878f4cdabffa77e039d342b0
+COOG_SENTRY_PROJECT=3
+SENTRY_DB_USER=postgres
+SENTRY_DB_PASSWORD=postgres
+SENTRY_DB_NAME=sentry
+
+#-------------------------------------------------------------------------------#
+# COOG CONFIG
+#-------------------------------------------------------------------------------#
+COOG_DB_LANG=fr_FR                      # database locale - eg. fr_FR
+COOG_CACHE_RECORD=50000                 # records cache size
+
+#-------------------------------------------------------------------------------#
+# NGINX CONFIG
+#-------------------------------------------------------------------------------#
+# No use of nginx
+NGINX_IMAGE=
+NGINX_CONF=
+NGINX_PUB_PORT=
+
+#-------------------------------------------------------------------------------#
+# DOCKER CONFIG FOR MEMORY ISSUES
+#-------------------------------------------------------------------------------#
