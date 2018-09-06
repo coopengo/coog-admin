@@ -65,7 +65,7 @@ UNOCONV_IMAGE=coopengo/unoconv          # docker image
 # SENTRY CONFIG
 #-------------------------------------------------------------------------------#
 
-SENTRY_IMAGE=sentry:8                   # docker image
+SENTRY_IMAGE=sentry:9                   # docker image
 SENTRY_VOLUME=$COOG_DATA_DIR/sentry     # docker data volume
 SENTRY_KEY=$COOG_DATA_DIR/sentry.key    # containers shared key
 
