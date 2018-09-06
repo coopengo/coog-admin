@@ -82,9 +82,9 @@ sentry_args() {
         COOG_SENTRY_HOST="$NETWORK_NAME-sentry"
         COOG_SENTRY_PORT=9000
     fi
-    if [ ! -z "$COOG_SENTRY_PUB" ] && [ ! -z "$COOG_SENTRY_SEC" ] && [ ! -z "$COOG_SENTRY_PROJECT" ]
+    if [ ! -z "$COOG_SENTRY_PUB" ] && [ ! -z "$COOG_SENTRY_KEY" ] && [ ! -z "$COOG_SENTRY_PROJECT" ]
     then
-        args="$args -e COOG_SENTRY=$COOG_SENTRY_PROTOCOL://$COOG_SENTRY_PUB:$COOG_SENTRY_SEC@$COOG_SENTRY_HOST:$COOG_SENTRY_PORT/$COOG_SENTRY_PROJECT"
+        args="$args -e COOG_SENTRY=$COOG_SENTRY_PROTOCOL://$COOG_SENTRY_PUB:$COOG_SENTRY_KEY@$COOG_SENTRY_HOST:$COOG_SENTRY_PORT/$COOG_SENTRY_PROJECT"
         echo "$args"
     fi
 }
