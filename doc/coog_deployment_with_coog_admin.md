@@ -338,6 +338,9 @@ Create a new database named *sentry* After that, run the following
 command
 
 ``` bash
+./sentry set-key
+cd $COOG_DATA_DIR && git add . && git commit -am 'Add sentry key'
+cd -
 ./sentry upgrade
 ```
 
