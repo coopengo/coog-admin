@@ -387,7 +387,7 @@ There, copy/paste values accordingly:
 
 ``` bash
 COOG_SENTRY_PUB=<public_key>
-COOG_SENTRY_KEY=<private_key>
+COOG_SENTRY_SEC=<private_key>
 COOG_SENTRY_PROJECT=<project_id>
 COOG_SENTRY_PROTOCOL=http
 COOG_SENTRY_HOST=<[external-]server-ip>
