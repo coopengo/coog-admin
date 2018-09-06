@@ -352,11 +352,18 @@ Create an account:
 ./sentry worker
 ```
 
-Connect to server-ip:9000
+If the server is not in you local network, you must establish a SSH tunnel:
+``` bash
+ssh -L 9000:external-server-ip:9000 user@external-server-ip
+```
+Once it is done, you can use localhost:9000 instead of the server-ip:9000 to connect and input your credential.
+
+Otherwise, if the server is in your local network:
+Connect directly to server-ip:9000
 
 Input your credential created earlier
 
-Root path: server-ip:9000
+Root url: [external-]server-ip:9000
 
 Go to settings:
 
@@ -383,7 +390,7 @@ COOG_SENTRY_PUB=<public_key>
 COOG_SENTRY_KEY=<private_key>
 COOG_SENTRY_PROJECT=<project_id>
 COOG_SENTRY_PROTOCOL=http
-COOG_SENTRY_HOST=<server-ip>
+COOG_SENTRY_HOST=<[external-]server-ip>
 COOG_SENTRY_PORT=9000
 ```
 
