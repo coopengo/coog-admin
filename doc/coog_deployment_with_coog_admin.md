@@ -382,6 +382,9 @@ There, copy/paste values accordingly:
 COOG_SENTRY_PUB=<public_key>
 COOG_SENTRY_KEY=<private_key>
 COOG_SENTRY_PROJECT=<project_id>
+COOG_SENTRY_PROTOCOL=http
+COOG_SENTRY_HOST=<server-ip>
+COOG_SENTRY_PORT=9000
 ```
 
 -   Reload **Coog** server
