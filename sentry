@@ -51,11 +51,23 @@ cache_args() {
     echo "$args"
 }
 
+env_args() {
+    local args
+    [ ! -z "$SENTRY_EMAIL_ENABLED" ] && args="$args -e SENTRY_EMAIL_ENABLED=$SENTRY_EMAIL_ENABLED"
+    [ ! -z "$SENTRY_SERVER_EMAIL" ] && args="$args -e SENTRY_SERVER_EMAIL=$SENTRY_SERVER_EMAIL"
+    [ ! -z "$SENTRY_EMAIL_HOST" ] && args="$args -e SENTRY_EMAIL_HOST=$SENTRY_EMAIL_HOST"
+    [ ! -z "$SENTRY_EMAIL_PORT" ] && args="$args -e SENTRY_EMAIL_PORT=$SENTRY_EMAIL_PORT"
+    [ ! -z "$SENTRY_EMAIL_USER" ] && args="$args -e SENTRY_EMAIL_USER=$SENTRY_EMAIL_USER"
+    [ ! -z "$SENTRY_EMAIL_PASSWORD" ] && args="$args -e SENTRY_EMAIL_PASSWORD=$SENTRY_EMAIL_PASSWORD"
+    [ ! -z "$SENTRY_EMAIL_USE_TLS" ] && args="$args -e SENTRY_EMAIL_USE_TLS=$SENTRY_EMAIL_USE_TLS"
+    echo "$args"
+}
+
 args() {
     local args
     check_key || return 1
     args="-v $SENTRY_VOLUME:/var/lib/sentry/files -e SENTRY_SECRET_KEY=$(get_key)"
-    echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args)"
+    echo "$args $(postgres_args) $(redis_args) $(db_args) $(cache_args) $(env_args)"
 }
 
 check_key() {
