@@ -394,6 +394,97 @@ COOG_SENTRY_HOST=<[external-]server-ip>
 COOG_SENTRY_PORT=9000
 ```
 
+### Add certificates to use HTTPS url with Sentry, nginx and let's encrypt:
+First, you'll need to get / generate certificates.
+Here are the commands to generate the certificates using certbot (letsencrypt):
+
+``` bash
+     docker run \
+        -d --restart always \
+        --network "<network_name>" \
+        --name "<network_name>-nginx-min" \
+        -v "$COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/html:/usr/share/nginx/html" \
+        -v "$COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/:/etc/nginx/:ro" \
+        -p "80:80" \
+        "nginx:1-alpine"
+
+     sudo certbot certonly --webroot -w $COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/html -d \
+        your.domain.name
+```
+Once you have your certificates, 
+open the nginx configuration:
+```bash
+./conf edit nginx_server_letsencrypt.conf
+```
+
+and add the following lines:
+``` bash
+upstream sentry {
+    # least_conn is the load balacing method that select a server with
+    # the less active(s) connection(s) for the next request.
+    least_conn;
+
+    server <network_name>-sentry:9000;
+}
+
+server {
+    # Entry point for acme challenge
+    server_name your.server.name;
+    listen 80;
+    location / {
+        return 301 https://your.server.name$request_uri;
+    }
+    location ~ /\.well-known/acme-challenge/ {
+        root /usr/share/nginx/html/;
+        allow all;
+    }
+}
+
+server {
+    server_name your.server.name;
+    listen 443 ssl;
+    ssl on;
+    ssl_certificate /etc/nginx/certs/live/your.server.name/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/live/your.server.name/privkey.pem;
+
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers AES256+EECDH:AES256+EDH:!aNULL;
+
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    server_tokens off;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header Referrer-Policy "no-referrer";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    gzip off;
+    gzip_proxied any;
+    gzip_types application/json;
+    gzip_min_length 1400;
+
+    index index.html;
+
+    proxy_set_header   Host                 $http_host;
+    proxy_set_header   X-Forwarded-Proto    $scheme;
+    proxy_set_header   X-Forwarded-For      $remote_addr;
+    proxy_redirect     off;
+
+    location / {
+        proxy_pass http://sentry;
+        add_header Strict-Transport-Security "max-age=31536000";
+    }
+}
+```
+
 -   Reload **Coog** server
 
 ``` bash
