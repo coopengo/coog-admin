@@ -394,6 +394,20 @@ COOG_SENTRY_HOST=<[external-]server-ip>
 COOG_SENTRY_PORT=9000
 ```
 
+If you want to configure the sentry SMTP to send mails, copy/paste values accordingly:
+
+*(replace examples values with your own)*
+```bash
+SENTRY_EMAIL_ENABLED=True
+SENTRY_SERVER_EMAIL=example@gmail.com
+SENTRY_EMAIL_HOST=smtp.gmail.com
+SENTRY_EMAIL_PORT=587
+SENTRY_EMAIL_USER=example@gmail.com
+SENTRY_EMAIL_PASSWORD=password
+SENTRY_EMAIL_USE_TLS=True
+```
+
+
 ### Add certificates to use HTTPS url with Sentry, nginx and let's encrypt:
 First, you'll need to get / generate certificates.
 Here are the commands to generate the certificates using certbot (letsencrypt):
