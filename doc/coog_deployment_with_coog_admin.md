@@ -499,6 +499,26 @@ server {
 }
 ```
 
+Then, modify the root URL and the configuration of SENTRY to avoid any unsecured traffic (directly on the port 9000):
+
+New root URL should be something like:
+https://your.secured.domain
+
+And finally, change the backend configuration:
+```bash
+./conf edit
+```
+
+```bash
+COOG_SENTRY_PROTOCOL=https
+COOG_SENTRY_HOST=your.secured.domain
+COOG_SENTRY_PORT=443
+```
+
+```bash
+sudo ufw deny in 9000/tcp
+```
+
 -   Reload **Coog** server
 
 ``` bash
