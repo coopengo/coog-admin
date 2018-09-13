@@ -60,3 +60,4 @@ it works:
 - [Build images](doc/build_images.md)
 - [Managing batch treatment with coog-admin](doc/batch.md)
 - [More on NGINX configuration](doc/nginx_conf.md)
+- [How to manage file share sharing with docker volumes](doc/manage_volumes.md)
