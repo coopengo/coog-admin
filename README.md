@@ -152,3 +152,5 @@ step:
     - Port : `<ETL_TARGET_DB_PORT>`
     - User : `<ETL_TARGET_DB_USER>`
     - Password : `<ETL_TARGET_DB_PASSWORD>`
+
+- [How to manage file sharing with docker volumes](doc/manage_volumes.rst)

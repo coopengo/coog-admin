@@ -1,4 +1,5 @@
 BUG#9961: Change attachment tar process
+FEA#9455: Add how to on volume management
 BUG#9154: Set return value of backup > save command
 BUG#9459: Make host server font available in running image
 OTH#0000: Add default custom repositories
