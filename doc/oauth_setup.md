@@ -5,7 +5,7 @@ to setup the workflow.
 
 ## Edit configuration
 
-First you need to indicate inside coog-api where he and front-end application are.
+First you need to indicate where coog-api and front-end application are.
 
 ``` bash
 ./conf edit
