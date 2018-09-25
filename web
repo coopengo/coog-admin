@@ -23,7 +23,7 @@ _args() {
         args="$args -e COOG_API_GOOGLE_SECRET=$COOG_API_GOOGLE_SECRET -e 
         COOG_API_GOOGLE_KEY=$COOG_API_GOOGLE_KEY"
     [ ! -z "$COOG_API_APP_URL" ] && args="$args -e COOG_API_APP_URL=$COOG_API_APP_URL" || \
-        args="$args -e COOG_API_APP_URL=$COOG_API_URL/web/"
+        args="$args -e COOG_API_APP_URL=http://$COOG_API_URL/web/"
     [ ! -z "$DEBUG" ] && args="$args -e DEBUG=$DEBUG"
     echo "$args"
 }
