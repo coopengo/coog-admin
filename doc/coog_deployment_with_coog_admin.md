@@ -338,6 +338,9 @@ Create a new database named *sentry* After that, run the following
 command
 
 ``` bash
+./sentry set-key
+cd $COOG_DATA_DIR && git add . && git commit -am 'Add sentry key'
+cd -
 ./sentry upgrade
 ```
 
@@ -349,11 +352,18 @@ Create an account:
 ./sentry worker
 ```
 
-Connect to server-ip:9000
+If the server is not in you local network, you must establish a SSH tunnel:
+``` bash
+ssh -L 9000:external-server-ip:9000 user@external-server-ip
+```
+Once it is done, you can use localhost:9000 instead of the server-ip:9000 to connect and input your credential.
+
+Otherwise, if the server is in your local network:
+Connect directly to server-ip:9000
 
 Input your credential created earlier
 
-Root path: server-ip:9000
+Root url: [external-]server-ip:9000
 
 Go to settings:
 
@@ -377,8 +387,136 @@ There, copy/paste values accordingly:
 
 ``` bash
 COOG_SENTRY_PUB=<public_key>
-COOG_SENTRY_KEY=<private_key>
+COOG_SENTRY_SEC=<private_key>
 COOG_SENTRY_PROJECT=<project_id>
+COOG_SENTRY_PROTOCOL=http
+COOG_SENTRY_HOST=<[external-]server-ip>
+COOG_SENTRY_PORT=9000
+```
+
+If you want to configure the sentry SMTP to send mails, copy/paste values accordingly:
+
+*(replace examples values with your own)*
+```bash
+SENTRY_EMAIL_ENABLED=True
+SENTRY_SERVER_EMAIL=example@gmail.com
+SENTRY_EMAIL_HOST=smtp.gmail.com
+SENTRY_EMAIL_PORT=587
+SENTRY_EMAIL_USER=example@gmail.com
+SENTRY_EMAIL_PASSWORD=password
+SENTRY_EMAIL_USE_TLS=True
+```
+
+
+### Add certificates to use HTTPS url with Sentry, nginx and let's encrypt:
+First, you'll need to get / generate certificates.
+Here are the commands to generate the certificates using certbot (letsencrypt):
+
+``` bash
+     docker run \
+        -d --restart always \
+        --network "<network_name>" \
+        --name "<network_name>-nginx-min" \
+        -v "$COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/html:/usr/share/nginx/html" \
+        -v "$COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/:/etc/nginx/:ro" \
+        -p "80:80" \
+        "nginx:1-alpine"
+
+     sudo certbot certonly --webroot -w $COOG_CODE_DIR/ssl/LETSENCRYPT/nginx_min/html -d \
+        your.domain.name
+```
+Once you have your certificates, 
+open the nginx configuration:
+```bash
+./conf edit nginx_server_letsencrypt.conf
+```
+
+and add the following lines:
+``` bash
+upstream sentry {
+    # least_conn is the load balacing method that select a server with
+    # the less active(s) connection(s) for the next request.
+    least_conn;
+
+    server <network_name>-sentry:9000;
+}
+
+server {
+    # Entry point for acme challenge
+    server_name your.server.name;
+    listen 80;
+    location / {
+        return 301 https://your.server.name$request_uri;
+    }
+    location ~ /\.well-known/acme-challenge/ {
+        root /usr/share/nginx/html/;
+        allow all;
+    }
+}
+
+server {
+    server_name your.server.name;
+    listen 443 ssl;
+    ssl on;
+    ssl_certificate /etc/nginx/certs/live/your.server.name/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/live/your.server.name/privkey.pem;
+
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers AES256+EECDH:AES256+EDH:!aNULL;
+
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    server_tokens off;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header Referrer-Policy "no-referrer";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    gzip off;
+    gzip_proxied any;
+    gzip_types application/json;
+    gzip_min_length 1400;
+
+    index index.html;
+
+    proxy_set_header   Host                 $http_host;
+    proxy_set_header   X-Forwarded-Proto    $scheme;
+    proxy_set_header   X-Forwarded-For      $remote_addr;
+    proxy_redirect     off;
+
+    location / {
+        proxy_pass http://sentry;
+        add_header Strict-Transport-Security "max-age=31536000";
+    }
+}
+```
+
+Then, modify the root URL and the configuration of SENTRY to avoid any unsecured traffic (directly on the port 9000):
+
+New root URL should be something like:
+https://your.secured.domain
+
+And finally, change the backend configuration:
+```bash
+./conf edit
+```
+
+```bash
+COOG_SENTRY_PROTOCOL=https
+COOG_SENTRY_HOST=your.secured.domain
+COOG_SENTRY_PORT=443
+```
+
+```bash
+sudo ufw deny in 9000/tcp
 ```
 
 -   Reload **Coog** server
