@@ -1,6 +1,6 @@
 # Oauth Setup
 
-If you want to let party watch their own data, you will have to follow this guide
+If you want to set up a b2c portal, you will have to follow this guide
 to setup the workflow.
 
 ## Edit configuration
@@ -33,7 +33,7 @@ First of all you have to go [there](https://console.developers.google.com)
 
 If you don't have any project yet, then google will ask you to create one.
 
-Name it, choose your organization, your zone and wait until he is created.
+Name it, choose your organization, your zone and wait until he it is created.
 
 Click on the notification about your created project.
 
@@ -43,12 +43,12 @@ Take a look into first step section.
 
 You will see a subsection "Activate API ...", click it, you will be redirected.
 
-You see some APIs available but maybe not the one we need "GOOGLE+ API",
+You see some available APIs but maybe not the one we need "GOOGLE+ API",
 so click on browse all and just type "GOOGLE+ API" in the search bar.
 
 Click on activate API
 
-Then a new API dashboard appear and ask you to create identifiers to start. So click it.
+Then a new API dashboard appears and ask you to create identifiers to start. So click it.
 
 #### First step
 
@@ -67,7 +67,7 @@ Then click on the button
 
 Name your client id
 
-JS Origin ahorized :
+JS Origin authorized :
 
 Enter your server address : <http://path:port>
 
@@ -79,7 +79,7 @@ Click ont he button
 
 #### Third step
 
-Select your address mail and set the name that will be displayed for your user.
+Select your mail address and set the name that will be displayed for your user.
 
 (optional) You can customize other things like CCG, Logo, HomePage and Privacy rules.
 
@@ -91,7 +91,7 @@ Download the file, open it and open coog configuration
 ./conf edit
 ```
 
-Then just type those two environment
+Then just type those two variables
 
 ```
 COOG_API_GOOGLE_SECRET=<client_secret>
