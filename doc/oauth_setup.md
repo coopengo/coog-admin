@@ -48,7 +48,7 @@ so click on browse all and just type "GOOGLE+ API" in the search bar.
 
 Click on activate API
 
-Then a new API dashboard appears and ask you to create identifiers to start. So click it.
+Then a new API dashboard appears and asks you to create identifiers to start. So click it.
 
 #### First step
 
@@ -58,7 +58,7 @@ GOOGLE+ API
 Which plateform do you use to call API ?
 Web server (example: Node.js or Tomcat)
 
-Which data would you acces ?
+Which data would you access ?
 Data user
 
 Then click on the button
@@ -75,7 +75,7 @@ Redirect URL authorized :
 
 Enter redirect address url like this : <http://path:port><API_PATH>/grant/connect/google/callback
 
-Click ont he button
+Click on the button
 
 #### Third step
 
@@ -83,7 +83,7 @@ Select your mail address and set the name that will be displayed for your user.
 
 (optional) You can customize other things like CCG, Logo, HomePage and Privacy rules.
 
-#### Forth step
+#### Fourth step
 
 Download the file, open it and open coog configuration
 
