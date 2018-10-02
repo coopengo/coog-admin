@@ -122,6 +122,7 @@ COOG_FONT_DIR=/usr/local/fonts          # folder to look in for fonts
 
 WEB_IMAGE=coopengo/web:master           # docker image
 COOG_API_API_URL=                       # server url
+COOG_API_API_PROTOCOL=                  # API protocol
 COOG_API_APP_URL=                       # front-end application url if distant
 
 COOG_API_GOOGLE_SECRET=                 # Google API Secret

@@ -19,6 +19,7 @@ _args() {
     args="$args -e COOG_API_COOG_URL=http://$NETWORK_NAME-nginx:80 -e COOG_API_COOG_DB=$COOG_DB_NAME"
     args="$args -e COOG_API_API_URL=$COOG_API_API_URL -e COOG_API_API_PATH=/web/api 
     -e COOG_API_APP_PATH=/web"
+    [ ! -z "$COOG_API_API_PROTOCOL" ] && args="$args -e COOG_API_API_PROTOCOL=$COOG_API_API_PROTOCOL"
     [ ! -z "$COOG_API_GOOGLE_SECRET" ] && [ ! -z "$COOG_API_GOOGLE_KEY" ] && \
         args="$args -e COOG_API_GOOGLE_SECRET=$COOG_API_GOOGLE_SECRET -e 
         COOG_API_GOOGLE_KEY=$COOG_API_GOOGLE_KEY"
