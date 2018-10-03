@@ -33,7 +33,7 @@ First of all you have to go [there](https://console.developers.google.com)
 
 If you don't have any project yet, then google will ask you to create one.
 
-Name it, choose your organization, your zone and wait until he it is created.
+Name it, choose your organization, your zone and wait until it is created.
 
 Click on the notification about your created project.
 
