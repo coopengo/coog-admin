@@ -12,7 +12,8 @@ First you need to indicate where coog-api and front-end application are.
 ```
 
 ``` bash
-COOG_API_URL=<server location>
+COOG_API_API_URL=<server location>
+COOG_API_API_PROTOCOL=<http or https>
 COOG_API_APP_URL=<front-end location> if different from <server location>/web/
 ```
 
