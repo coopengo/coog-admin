@@ -22,7 +22,7 @@ RUN pip install \
         "psycopg2~=2.7.3.1" \
         "polib~=1.0.8" \
         "Genshi~=0.7" \
-        "relatorio~=0.7.0" \
+        "relatorio==0.8.1" \
         "python-magic~=0.4.15" \
         "pydot~=1.2.3" \
         "pyparsing~=2.2.0" \
