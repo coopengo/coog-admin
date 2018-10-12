@@ -135,7 +135,6 @@ COOG_API_GOOGLE_KEY=                    # Google API Key
 NGINX_IMAGE=nginx:1-alpine              # docker image
 NGINX_VOLUME=$COOG_DATA_DIR/nginx       # nginx conf folder
 NGINX_PUB_PORT=80                       # host mapped port
-NGINX_TIMEOUT=$COOG_TIMEOUT             # Same Timeout as Coog
 NGINX_SSL_PUB_PORT=443                  # SSL host mapped port
 NGINX_SSL_METHOD=                       # SSL method (LETSENCRYPT or CUSTOM_KEYS)
 NGINX_SSL_SERVER_NAME=                  # SSL server name
@@ -207,14 +206,19 @@ BI_DB_NAME="$ETL_TARGET_DB_NAME"
 BI_PORT=4242
 
 #-------------------------------------------------------------------------------#
-# INIT
-#-------------------------------------------------------------------------------#
-
-source "$COOG_CODE_DIR/config.fn"
-config_check || exit 1
-
-#-------------------------------------------------------------------------------#
 # CUSTOMS
 #-------------------------------------------------------------------------------#
 
 source "$COOG_DATA_DIR/config"
+
+#-------------------------------------------------------------------------------#
+# INIT
+#-------------------------------------------------------------------------------#
+
+source "$COOG_CODE_DIR/config.fn"
+
+#-------------------------------------------------------------------------------#
+# VALIDATE CONFIG
+#-------------------------------------------------------------------------------#
+
+config_check || exit 1
