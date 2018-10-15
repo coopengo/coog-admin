@@ -32,7 +32,7 @@ RUN pip install \
         "filelock~=2.0.12" \
         "wrapt~=1.10.11" \
         "werkzeug~=0.12.2" \
-        "simpleeval~=0.9.5" \
+        "simpleeval==0.9.5" \
         "ldap3<2.0" \
         "requests~=2.18.4" \
         "raven~=6.1.0" \
