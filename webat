@@ -1,0 +1,41 @@
+#!/bin/bash
+# This script is used to init and run webat docker image.
+
+
+get_dir() {
+    local script_path; script_path=`readlink -f $0`
+    local script_dir; script_dir=`dirname $script_path`
+    echo $script_dir
+}
+
+run() {
+    CONTAINER_NAME=$1
+    [ -z "$WEBAT_PORT" ] && WEBAT_PORT=9500
+    docker run                                              \
+           $DOCKER_DAEMON_OPTS                              \
+           -e "WEBAT_COOG_API=http://$NETWORK_NAME-api:3000"\
+           -e "WEBAT_ADDR=$WEBAT_ADDR:$WEBAT_PORT"          \
+           --name "$CONTAINER_NAME"                         \
+           --network "$NETWORK_NAME"                        \
+           -p $WEBAT_PORT:3000                              \
+           "$WEBAT_IMAGE" "$@"
+}
+
+usage() {
+    echo
+    echo "  run      -> starts webAT server container"
+    echo
+}
+
+main() {
+    source `get_dir`/config
+
+    [ -z "$1" ] && usage && return 1
+    local cmd; cmd=$1; shift
+
+    CONTAINER_NAME="$NETWORK_NAME-webat"
+    [ "$cmd" = "run" ] && { run "$CONTAINER_NAME" "$@"; return $?; }
+    usage && return 1
+}
+
+main "$@"
