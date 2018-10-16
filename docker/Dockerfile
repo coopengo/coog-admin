@@ -34,7 +34,7 @@ RUN pip install \
         filelock \
         wrapt \
         werkzeug \
-        simpleeval \
+        "simpleeval==0.9.5" \
         "ldap3<2.0" \
         requests \
         raven \

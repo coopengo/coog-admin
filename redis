@@ -18,7 +18,7 @@ server() {
                 -v /etc/timezone:/etc/timezone:ro \
                 -v "$REDIS_VOLUME:/data" \
                 -v "/tmp:/tmp" \
-                "$REDIS_IMAGE" "$@"
+                "$REDIS_IMAGE" $REDIS_EXTRA_ARGS "$@"
 }
 
 client() {
