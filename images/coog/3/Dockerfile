@@ -33,7 +33,7 @@ RUN pip install \
         "wrapt~=1.10.11" \
         "werkzeug~=0.12.2" \
         "simpleeval~=0.9.5" \
-        "ldap3<2.0" \
+        "ldap3~=2.5.1" \
         "requests~=2.18.4" \
         "raven~=6.1.0" \
         "redis~=2.10.6" \
