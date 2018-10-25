@@ -263,6 +263,21 @@ _rq() {
     fi
 }
 
+_demo() {
+    _init || return $?
+    PATH="$COOG_ROOT/coog/bin:$PATH" \
+        PYTHONPATH="$COOG_ROOT/trytond:$COOG_ROOT/proteus:$COOG_ROOT/coog/bin/lib:$PYTHONPATH" \
+        PGHOST="$COOG_POSTGRES_HOST" \
+        PGPASSWORD="$COOG_DB_PASSWORD" \
+        PGUSER="$COOG_DB_USER" \
+        TRYTOND_CONFIG="$COOG_ROOT/coog.conf" \
+        GEN_RESTART_SERVER=0 \
+        GEN_CREATE_NEW_DB=1 \
+        GEN_DB_NAME=demo \
+        GEN_COOG_BINARY="$COOG_ROOT/coog/bin/coog" \
+        python "$COOG_ROOT/coog/modules/global_tests/tests/new_db.py"
+}
+
 _test() {
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-rq"
@@ -399,6 +414,7 @@ main() {
     [ "$cmd" = daily_mail ] && { _daily_mail "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
+    [ "$cmd" = demo ] && { _demo "$@"; return $?; }
     echo "Not supported command" && return 1
 }
 
