@@ -1,3 +1,4 @@
+FEA#10334: Add config for api cors
 OTH#0000: Remove NGINX_TIMEOUT
 FEA#9926: Add Config for web applications
 BUG#9961: Change attachment tar process
