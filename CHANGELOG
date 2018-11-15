@@ -1,3 +1,4 @@
+FEA#10334: Add config for api cors
 FEA#10145: Add "./coog demo" command to generate a new database
 OTH#0000: Remove NGINX_TIMEOUT
 FEA#9926: Add Config for web applications
