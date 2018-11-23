@@ -1,0 +1,49 @@
+import os
+import sys
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+
+SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
+MAIL_USER = os.environ.get('MAIL_USER', None)
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', None)
+TARGET_FOLDER = os.environ.get('TARGET_FOLDER', None)
+BRANCH = os.environ.get('BRANCH', None)
+
+if not MAIL_USER or not MAIL_PASSWORD or not TARGET_FOLDER or not BRANCH:
+    print('Please set the MAIL_USER, MAIL_PASSWORD, TARGET_FOLDER and BRANCH')
+    print('environment variables before going on')
+    sys.exit(1)
+
+server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+
+server.login(MAIL_USER, MAIL_PASSWORD)
+
+with open(os.path.join(TARGET_FOLDER, 'report.eml'), 'r') as f:
+    contents = f.read()
+
+message = MIMEMultipart('mixed')
+message.attach(MIMEText(contents))
+
+errors = False
+for error_message in os.listdir(os.path.join(TARGET_FOLDER, 'report_contents')):
+    with open(os.path.join(TARGET_FOLDER, 'report_contents', error_message),
+              'r') as f:
+        data = f.read()
+    part = MIMEApplication(data)
+    part.add_header('Content-Disposition', 'attachment',
+                    filename=error_message)
+    message.attach(part)
+    errors = True
+
+message['From'] = 'bot@coopengo.com'
+message['To'] = 'dev@coopengo.com'
+message['Subject'] = 'Tests for %s : %s' % (BRANCH, 'KO' if errors else 'OK')
+message['Charset'] = 'UTF-8'
+message['Content-Type'] = 'text/plain; charset=UTF-8'
+
+server.sendmail(message['From'], message['To'], message.as_string())
+server.quit()

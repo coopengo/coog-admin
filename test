@@ -171,7 +171,14 @@ main() {
     start_workers || return $?
     "$COOG_CODE_DIR/coog" test join
     ok=$?
-    report "$ok" && email "$ok"
+    # Mail requires a proper configuration of the server which runs the tests,
+    # python can make it work all alone
+    # report "$ok" && email "$ok"
+    local branch_name
+    branch_name=$(git -C "$COOG_CODE_DIR" branch | grep \* | cut -d ' ' -f2)
+    report "$ok" && \
+        TARGET_FOLDER=$REPORT_NAME BRANCH=$branch_name \
+        python "$COOG_CODE_DIR/send_report"
 }
 
 return 2> /dev/null # avoid exec of main when sourced
