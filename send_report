@@ -10,11 +10,11 @@ SMTP_SERVER = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
 SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
 MAIL_USER = os.environ.get('MAIL_USER', None)
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', None)
-TARGET_FOLDER = os.environ.get('TARGET_FOLDER', None)
+TARGET_RESULTS = os.environ.get('TARGET_RESULTS', None)
 BRANCH = os.environ.get('BRANCH', None)
 
-if not MAIL_USER or not MAIL_PASSWORD or not TARGET_FOLDER or not BRANCH:
-    print('Please set the MAIL_USER, MAIL_PASSWORD, TARGET_FOLDER and BRANCH')
+if not MAIL_USER or not MAIL_PASSWORD or not TARGET_RESULTS or not BRANCH:
+    print('Please set the MAIL_USER, MAIL_PASSWORD, TARGET_RESULTS and BRANCH')
     print('environment variables before going on')
     sys.exit(1)
 
@@ -22,15 +22,15 @@ server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
 
 server.login(MAIL_USER, MAIL_PASSWORD)
 
-with open('%s.eml' % TARGET_FOLDER, 'r') as f:
+with open('%s.eml' % TARGET_RESULTS, 'r') as f:
     contents = f.read()
 
 message = MIMEMultipart('mixed')
 message.attach(MIMEText(contents))
 
 errors = False
-for error_message in os.listdir(TARGET_FOLDER):
-    with open(os.path.join(TARGET_FOLDER, error_message), 'r') as f:
+for error_message in os.listdir(TARGET_RESULTS):
+    with open(os.path.join(TARGET_RESULTS, error_message), 'r') as f:
         data = f.read()
     part = MIMEApplication(data)
     part.add_header('Content-Disposition', 'attachment',
