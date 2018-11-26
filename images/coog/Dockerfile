@@ -1,11 +1,9 @@
-FROM alpine:3.7
+FROM python:3.7-alpine3.7
 MAINTAINER Coopengo <support@coopengo.com>
 
-# RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
-#     && mkdir /workspace && chown coog:coog /workspace \
 RUN mkdir /workspace \
     && apk add --no-cache \
-        bash python3 redis graphviz libmagic \
+        bash redis graphviz libmagic \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
@@ -13,9 +11,7 @@ RUN mkdir /workspace \
         "ipaddress" \
         "dateutils" \
         "num2words" \
-        # "lxml" \
         "python-sql" \
-        # "psycopg2" \
         "polib" \
         "Genshi" \
         "relatorio" \
@@ -33,9 +29,7 @@ RUN mkdir /workspace \
         "requests" \
         "raven" \
         "redis<3" \
-        # "hiredis" \
         "msgpack-python" \
-        # "uwsgi" \
         "celery" \
         "rq" \
         "mock" \
@@ -45,13 +39,6 @@ RUN mkdir /workspace \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
 ENV PATH="/workspace/bin:${PATH}"
-
-# USER coog:coog
-
-# RUN mkdir /workspace/bin \
-#     && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
-#     && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
-#     && chmod u+x /workspace/bin/uwsgi
 
 COPY dist /workspace
 COPY ep /workspace/bin/
