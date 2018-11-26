@@ -32,7 +32,7 @@ RUN pip install \
         "filelock" \
         "wrapt" \
         "werkzeug" \
-        "simpleeva" \
+        "simpleeval" \
         "ldap3" \
         "requests" \
         "raven" \
