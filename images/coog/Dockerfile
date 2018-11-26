@@ -4,15 +4,10 @@ MAINTAINER Coopengo <support@coopengo.com>
 RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && mkdir /workspace && chown coog:coog /workspace \
     && apk add --no-cache \
-RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
-    && mkdir /workspace && chown coog:coog /workspace \
-    && apk add --no-cache \
-    && mkdir /workspace && chown coog:coog /workspace \
-    && apk add --no-cache \
         bash python3 redis graphviz libmagic \
-        py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
+        py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 \
     && ln -s /usr/bin/python3 /usr/bin/python \
-RUN pip3 install \
+    pip3 install \
         "pyflakes" \
         "ipaddress" \
         "dateutils" \
