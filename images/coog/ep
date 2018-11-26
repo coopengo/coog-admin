@@ -242,7 +242,7 @@ _celery() {
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
     fi
     celery worker \
-        --app=async.broker_celery \
+        --app=coog_async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
         --queues="$q"
