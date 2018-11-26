@@ -36,7 +36,7 @@ RUN pip install \
         "ldap3" \
         "requests" \
         "raven" \
-        "redis" \
+        "redis<3" \
         "hiredis" \
         "msgpack-python" \
         "uwsgi" \
