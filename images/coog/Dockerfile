@@ -57,6 +57,7 @@ COPY dist /workspace
 COPY ep /workspace/bin
 
 RUN echo $PATH
+RUN ls /workspace/bin
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin \
