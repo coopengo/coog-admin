@@ -1,6 +1,5 @@
-FROM python:3.7-alpine3.7
+FROM alpine:3.7
 MAINTAINER Coopengo <support@coopengo.com>
-
 
 RUN mkdir /workspace \
     && apk add --no-cache \
