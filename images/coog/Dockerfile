@@ -20,7 +20,7 @@ RUN mkdir /workspace \
         "Genshi" \
         "relatorio" \
         "python-magic" \
-        # "pydot" \
+        "pydot" \
         "pyparsing" \
         "python-stdnum" \
         "unidecode" \
