@@ -1,18 +1,18 @@
-FROM python:3-slim
+FROM python:3.7-alpine3.8
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        gcc \
-        vim \
-        libpq-dev \
-        libldap2-dev \
-        libsasl2-dev \
-        redis-tools \
-        graphviz \
-        libmagic1 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN pip install \
+RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
+    && mkdir /workspace && chown coog:coog /workspace \
+    && apk add --no-cache \
+RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
+    && mkdir /workspace && chown coog:coog /workspace \
+    && apk add --no-cache \
+    && mkdir /workspace && chown coog:coog /workspace \
+    && apk add --no-cache \
+        bash python3 redis graphviz libmagic \
+        py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+RUN pip3 install \
         "pyflakes" \
         "ipaddress" \
         "dateutils" \
@@ -45,11 +45,20 @@ RUN pip install \
         "mock" \
         "phonenumbers" \
         "passlib" \
-    && rm -rf /root/.cache
+    && rm -rf /root/.cache \
+    && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
-RUN mkdir /workspace
-COPY ./dist /workspace
-COPY ./ep /workspace/
+ENV PATH="/workspace/bin:${PATH}"
+
+USER coog:coog
+
+RUN mkdir /workspace/bin \
+    && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
+    && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
+    && chmod u+x /workspace/bin/uwsgi
+
+COPY --chown=coog:coog dist /workspace
+COPY --chown=coog:coog ep /workspace/bin
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
