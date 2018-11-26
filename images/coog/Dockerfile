@@ -5,6 +5,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && mkdir /workspace && chown coog:coog /workspace \
     && apk add --no-cache \
         bash python3 redis graphviz libmagic py3-lxml py3-ldap3 \
+        postgresql-dev gcc python3-dev musl-dev vim \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
         "pyflakes" \
@@ -13,12 +14,12 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
         "num2words" \
         # "lxml" \
         "python-sql" \
-        "psycopg2-binary" \
+        "psycopg2" \
         "polib" \
         "Genshi" \
         "relatorio" \
         "python-magic" \
-        "pydot" \
+        # "pydot" \
         "pyparsing" \
         "python-stdnum" \
         "unidecode" \
