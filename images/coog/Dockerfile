@@ -46,15 +46,15 @@ RUN mkdir /workspace \
 
 ENV PATH="/workspace/bin:${PATH}"
 
-USER coog:coog
+# USER coog:coog
 
 # RUN mkdir /workspace/bin \
 #     && echo '#!/bin/sh' >> /workspace/bin/uwsgi \
 #     && echo '/usr/sbin/uwsgi --plugin /usr/lib/uwsgi/python3_plugin.so "$@"' >> /workspace/bin/uwsgi \
 #     && chmod u+x /workspace/bin/uwsgi
 
-COPY --chown=coog:coog dist /workspace
-COPY --chown=coog:coog ep /workspace/bin
+COPY dist /workspace
+COPY ep /workspace/bin
 
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
