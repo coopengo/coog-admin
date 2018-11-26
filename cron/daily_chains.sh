@@ -16,6 +16,7 @@ cd $COOG_ADMIN
 ./coog chain roederer extract_snapshot --treatment_date=$(date --iso) --flush_size='1024' --env_name='ROEDR' --output_filename="/workspace/io/batch/extractions/snapshots/snapshots_$(date --iso).txt" --email=gcyganek@roederer.fr,jmarcel@roederer.fr
 ./coog chain report_engine produce_request
 ./coog batch ftp.move --input="/workspace/io/reports/bdoc/" --output="."
+./coog chain contract terminate_contract --treatment_date=$(date --iso)
 
 # attente de 20 minutes le temps d'envoyer la bande à la banque et de recevoir l'accusé reception
 echo "##################################################"
