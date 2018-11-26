@@ -56,11 +56,12 @@ ENV PATH="/workspace/bin:${PATH}"
 COPY dist /workspace
 COPY ep /workspace/bin
 
+RUN echo $PATH
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin \
     && ln -s /workspace/ep /usr/local/bin/ep \
-    && /workspace/ep link \
+    && /workspace/bin/ep link \
     && ln -sf /dev/stderr /tmp/coog.log
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
