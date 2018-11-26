@@ -6,7 +6,7 @@ RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
     && apk add --no-cache \
         bash python3 redis graphviz libmagic py-hiredis \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
-    && ln -s /usr/bin/python3 /usr/bin/python \
+    # && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
         "pyflakes" \
         "ipaddress" \
