@@ -54,7 +54,7 @@ ENV PATH="/workspace/bin:${PATH}"
 #     && chmod u+x /workspace/bin/uwsgi
 
 COPY dist /workspace
-COPY ep /workspace/bin
+COPY ep /workspace/bin/
 
 RUN echo $PATH
 RUN ls /workspace/bin
