@@ -3,7 +3,7 @@ MAINTAINER Coopengo <support@coopengo.com>
 
 # RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
 #     && mkdir /workspace && chown coog:coog /workspace \
-RUN mkdir /workspace
+RUN mkdir /workspace \
     && apk add --no-cache \
         bash python3 redis graphviz libmagic py-hiredis \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
