@@ -106,13 +106,7 @@ _args() {
 ###############
 
 _build() {
-    [ -z "$COOG_IMAGE_VARIANT" ] && echo "no variant" >&2 && return 1
-    if [ "$COOG_IMAGE_VARIANT" = 2 ]
-    then
-        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@")
-    else
-        ( cd "$COOG_CODE_DIR/images/coog" && ./build "$@" -- -f "$COOG_IMAGE_VARIANT/Dockerfile" )
-    fi
+    cd "$COOG_CODE_DIR/images/coog" && ./build "$@"
 }
 
 _edit_ls() {
@@ -190,10 +184,6 @@ usage() {
 }
 
 set_runtime_vars() {
-    if [ ! -z "$VARIANT" ]
-    then
-        COOG_IMAGE_VARIANT=$VARIANT
-    fi
     [ ! -z "$IMAGE" ] && COOG_IMAGE="$IMAGE"
     [ ! -z "$LOG_LEVEL" ] && COOG_LOG_LEVEL="$LOG_LEVEL"
     [ ! -z "$TEST" ] && COOG_TEST="$TEST"

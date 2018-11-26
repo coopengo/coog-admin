@@ -45,9 +45,6 @@ Then, to build a **Coog** image, run the following command
     customers:coog-<version_number>                # Customers specific repository
 ```
 
-If you want the image built in **python3**, add *VARIANT=3* before the build
-command, otherwide the image will be built in **python2**
-
 Optional variables for *build* commands:
 
 * DB_NAME: name of the database to use
