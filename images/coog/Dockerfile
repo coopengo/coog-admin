@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.8
+FROM alpine:3.7
 MAINTAINER Coopengo <support@coopengo.com>
 
 RUN addgroup -S -g 1306 coog && adduser -S -u 1306 -G coog coog \
