@@ -1,0 +1,30 @@
+#!/bin/sh
+
+cd /opt/coog-admin
+
+echo ------ Création du réseau
+./net create
+
+echo ------ Lancement du service postgres local - stockage pour jobscheduler et sentry
+./postgres server -p 5432:5432
+
+echo ------ Lancement de redis - gestionnaire de cache et de jobs
+./redis server
+
+echo ------ Lancement de sentry
+./sentry server
+./sentry cron
+./sentry worker
+
+echo ------ Lancement du serveur applicatif 1
+./coog server-1 -p 8001:7999 --memory=2g --oom-kill-disable -- 1
+echo ------ Lancement du serveur applicatif 2
+./coog server-2 -p 8002:7999 --memory=2g --oom-kill-disable -- 1
+echo ------ Lancement du serveur applicatif 3
+./coog server-3 -p 8003:7999 --memory=2g --oom-kill-disable -- 1
+echo ------ Lancement du serveur applicatif 4
+./coog server-4 -p 8004:7999 --memory=2g --oom-kill-disable -- 1
+echo ------ Lancement du serveur applicatif 5
+./coog server-5 -p 8005:7999 --memory=2g --oom-kill-disable -- 1
+echo ------ Lancement du serveur applicatif 6
+./coog server-6 -p 8006:7999 --memory=2g --oom-kill-disable -- 1

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+cd /opt/coog-admin
+echo ------ Arrêt du serveur applicatif 1
+./coog -- server-1 kill
+./coog -- server-1 rm
+echo ------ Arrêt du serveur applicatif 2
+./coog -- server-2 kill
+./coog -- server-2 rm
+echo ------ Arrêt du serveur applicatif 3
+./coog -- server-3 kill
+./coog -- server-3 rm
+echo ------ Arrêt du serveur applicatif 4
+./coog -- server-4 kill
+./coog -- server-4 rm
+echo ------ Arrêt du serveur applicatif 5
+./coog -- server-5 kill
+./coog -- server-5 rm
+echo ------ Arrêt du serveur applicatif 6
+./coog -- server-6 kill
+./coog -- server-6 rm
+
+echo ------ Arrêt de sentry
+./sentry -- server kill
+./sentry -- server rm
+docker kill recette-sentry-cron recette-sentry-worker
+docker rm recette-sentry-cron recette-sentry-worker
+
+echo ------ Lancement de redis - gestionnaire de cache et de jobs
+./redis -- server kill
+./redis -- server rm
+
+echo ------ Arrêt du service postgres local - stockage pour jobscheduler et sentry
+./postgres -- server kill
+./postgres -- server rm
+
+echo ------ Suppression du réseau docker
+./net rm
