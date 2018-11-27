@@ -31,10 +31,12 @@ echo "##################################################"
 
 ./coog chain account_payment_cog payment_ack --treatment_date=$(date --iso) --journal_methods=sepa --payment_kind='payable'
 
-# lancement de la chaine de génération des rente le premier jour du mois
 if [ $TODAY_DAY = "1" ]
 then
+	# lancement de la chaine de génération des rente le premier jour du mois
 	./coog chain claim_indemnification create_indemnifications --treatment_date=$(date --iso)
+	# génération du bordereau pasrau
+	./coog chain account_invoice_slip slip --treatment_date=$(date --iso)
 else
 	echo "###################################################"
 	echo "#Pas de lancement du batch de génération des rentes"
