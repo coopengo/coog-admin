@@ -17,6 +17,7 @@ cd $COOG_ADMIN
 ./coog chain report_engine produce_request
 ./coog batch ftp.move --input="/workspace/io/reports/bdoc/" --output="."
 ./coog chain contract terminate_contract --treatment_date=$(date --iso)
+./coog chain underwriting underwriting --treatment_date=$(date --iso)
 
 # attente de 20 minutes le temps d'envoyer la bande à la banque et de recevoir l'accusé reception
 echo "##################################################"
