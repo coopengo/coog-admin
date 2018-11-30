@@ -216,10 +216,11 @@ _server() {
     COOG_IWC=1
     export COOG_IWC
     uwsgi -T \
+        --plugins python3 \
         --module trytond.application:app \
         --logformat "$format" \
         --http-socket :8000 \
-        --http-timeout "$COOG_TIMEOUT" \
+        --harakiri "$COOG_TIMEOUT" \
         --processes "$n"
 }
 
