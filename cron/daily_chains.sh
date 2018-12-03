@@ -37,7 +37,7 @@ then
 	# lancement de la chaine de génération des rente le premier jour du mois
 	./coog chain claim_indemnification create_indemnifications --treatment_date=$(date --iso)
 	# génération du bordereau pasrau
-	./coog chain account_invoice_slip slip --treatment_date=$(date --iso)
+	./coog chain account_invoice_slip slip --treatment_date=$(date --iso -d "yesterday")
 else
 	echo "###################################################"
 	echo "#Pas de lancement du batch de génération des rentes"
