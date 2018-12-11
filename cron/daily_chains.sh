@@ -13,7 +13,7 @@ cd $COOG_ADMIN
 
 ./coog chain account_payment_sepa_cog payment --treatment_date=$(date --iso) --payment_kind='payable' --journal_methods='sepa'
 ./coog chain account_aggregate snapshot
-./coog chain roederer extract_snapshot --treatment_date=$(date --iso) --flush_size='1024' --env_name='ROEDR' --output_dir="/workspace/io/batch/extractions/snapshots/" --output_filename="/snapshots_$(date --iso).txt" --email=gcyganek@roederer.fr,jmarcel@roederer.fr
+./coog chain roederer extract_snapshot --treatment_date=$(date --iso) --flush_size='1024' --env_name='ROEDR' --output_dir="/workspace/io/batch/extractions/snapshots/" --output_filename="snapshots_$(date --iso).txt" --email=gcyganek@roederer.fr,jmarcel@roederer.fr
 ./coog chain report_engine produce_request
 ./coog batch ftp.move --input="/workspace/io/reports/bdoc/" --output="."
 ./coog chain contract terminate_contract --treatment_date=$(date --iso)
