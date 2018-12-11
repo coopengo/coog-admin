@@ -24,11 +24,20 @@ server() {
 }
 
 client() {
-    docker run \
-        $DOCKER_INTERACTIVE_OPTS \
-        --network "$NETWORK_NAME" \
-        "$POSTGRES_IMAGE" \
-        psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
+    if [ -z "$COOG_POSTGRES_HOST" ]
+    then
+        docker run \
+            $DOCKER_INTERACTIVE_OPTS \
+            --network "$NETWORK_NAME" \
+            "$POSTGRES_IMAGE" \
+            psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
+    else
+        docker run \
+            $DOCKER_INTERACTIVE_OPTS \
+            --network "$NETWORK_NAME" \
+            "$POSTGRES_IMAGE" \
+            psql -h "$COOG_POSTGRES_HOST" -U "$POSTGRES_USER" "$@"
+    fi
 }
 
 anon_dump() {
@@ -65,8 +74,8 @@ anon_dump() {
         $DOCKER_PIPED_OPTS \
         --network "$NETWORK_NAME" \
         -e PGHOST="$NETWORK_NAME-postgres-tmp" \
-        -e PGUSER="$COOG_DB_USER" \
-        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -e PGUSER="$POSTGRES_USER" \
+        -e PGPASSWORD="$POSTGRES_PASSWORD" \
         "$POSTGRES_IMAGE" \
         psql --quiet -c "create database $anon_db_name;" > /dev/null 2>&1
 
@@ -76,8 +85,8 @@ anon_dump() {
         -i \
         --network "$NETWORK_NAME" \
         -e PGHOST="$NETWORK_NAME-postgres-tmp" \
-        -e PGUSER="$COOG_DB_USER" \
-        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -e PGUSER="$POSTGRES_USER" \
+        -e PGPASSWORD="$POSTGRES_PASSWORD" \
         "$POSTGRES_IMAGE" \
         psql --quiet -d $anon_db_name > /dev/null 2>&1
 
@@ -87,8 +96,8 @@ anon_dump() {
         $DOCKER_PIPED_OPTS \
         --network "$NETWORK_NAME" \
         -e PGHOST="$NETWORK_NAME-postgres-tmp" \
-        -e PGUSER="$COOG_DB_USER" \
-        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -e PGUSER="$POSTGRES_USER" \
+        -e PGPASSWORD="$POSTGRES_PASSWORD" \
         "$POSTGRES_IMAGE" \
         psql --quiet -d $anon_db_name -c "$queries" > /dev/null 2>&1
 
@@ -100,8 +109,8 @@ anon_dump() {
         $DOCKER_PIPED_OPTS \
         --network "$NETWORK_NAME" \
         -e PGHOST="$NETWORK_NAME-postgres-tmp" \
-        -e PGUSER="$COOG_DB_USER" \
-        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -e PGUSER="$POSTGRES_USER" \
+        -e PGPASSWORD="$POSTGRES_PASSWORD" \
         -v "/tmp:/tmp" \
         "$POSTGRES_IMAGE" \
         pg_dump $anon_db_name $dump_args -f /tmp/$dump_name > /dev/null
@@ -111,8 +120,8 @@ anon_dump() {
         $DOCKER_PIPED_OPTS \
         --network "$NETWORK_NAME" \
         -e PGHOST="$NETWORK_NAME-postgres-tmp" \
-        -e PGUSER="$COOG_DB_USER" \
-        -e PGPASSWORD="$COOG_DB_PASSWORD" \
+        -e PGUSER="$POSTGRES_USER" \
+        -e PGPASSWORD="$POSTGRES_PASSWORD" \
         "$POSTGRES_IMAGE" \
         psql -quiet -c "drop database $anon_db_name;" > /dev/null 2>&1
 
