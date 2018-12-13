@@ -6,7 +6,7 @@ RUN mkdir /workspace \
         bash python3 redis graphviz libmagic \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim \
     && ln -s /usr/bin/python3 /usr/bin/python \
-    && pip3 install \
+    && pip3 install --upgrade \
         "pyflakes" \
         "ipaddress" \
         "dateutils" \
