@@ -28,7 +28,7 @@ RUN mkdir /workspace \
         "ldap3" \
         "requests" \
         "raven" \
-        "redis<3" \
+        "redis" \
         "msgpack-python" \
         "celery" \
         "rq" \
