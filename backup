@@ -124,17 +124,17 @@ clean() {
 
     if [[ $stock_weekly_attach -gt 0 ]]; then
         echo "cleaning weekly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_db)
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_attach)
     fi
 
     if [[ $stock_monthly_attach -gt 0 ]]; then
         echo "cleaning monthly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_db)
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_attach)
     fi
 
     if [[ $stock_yearly_attach -gt 0 ]]; then
         echo "cleaning yearly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_db)
+        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_attach)
     fi
 }
 
