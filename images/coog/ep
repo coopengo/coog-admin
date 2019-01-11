@@ -103,6 +103,7 @@ conf_test() {
 
 _init_conf() {
     # build conf from env vars
+    echo "" > "$COOG_CONF_SRV"
     conf_postgres >> "$COOG_CONF_SRV" || return $?
     conf_redis >> "$COOG_CONF_SRV" || return $?
     conf_database >> "$COOG_CONF_SRV" || return $?
@@ -390,6 +391,7 @@ usage() {
     echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
     echo "  daily_mail    -> executes daily report and sends mail"
     echo "  cron          -> execute coog-cron"
+    echo "  shell         -> runs the arguments as a script (ex: shell bash for a shell in the container)"
     echo
 }
 
@@ -416,6 +418,7 @@ main() {
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     [ "$cmd" = demo ] && { _demo "$@"; return $?; }
+    [ "$cmd" = shell ] && { "$@"; return $?; }
     echo "Not supported command" && return 1
 }
 
