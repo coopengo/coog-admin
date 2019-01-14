@@ -31,12 +31,12 @@ Here are **upgrade** command's options:
 To manually stops all containers, here are the commands in order :
 
 ``` bash
-./paybox rm -f
-./nginx rm -f
-./web rm -f
-./unoconv rm -f
-./coog -- server rm -f
-./coog -- celery rm -f
+./paybox rm -v -f
+./nginx rm -v -f
+./web rm -v -f
+./unoconv rm -v -f
+./coog -- server rm -v -f
+./coog -- celery rm -v -f
 ```
 
 If an error occurs during the upgrade process, here are commands to restart the 
