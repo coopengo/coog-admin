@@ -126,7 +126,7 @@ main() {
     if [ ! -z "$paybox_container" ]
     then
         echo "removing paybox container"
-        "$COOG_CODE_DIR/paybox" rm -f
+        "$COOG_CODE_DIR/paybox" rm -v -f
     else
         echo "no paybox container running"
     fi
@@ -137,7 +137,7 @@ main() {
     if [ ! -z "$nginx_container" ]
     then
         echo "removing nginx container"
-        "$COOG_CODE_DIR/nginx" rm -f
+        "$COOG_CODE_DIR/nginx" rm -v -f
     else
         echo "no nginx container running"
     fi
@@ -148,7 +148,7 @@ main() {
     if [ ! -z "$web_container" ]
     then
         echo "removing web container"
-        "$COOG_CODE_DIR/web" rm -f
+        "$COOG_CODE_DIR/web" rm -v -f
     else
         echo "no web container running"
     fi
@@ -159,7 +159,7 @@ main() {
     if [ ! -z "$unoconv_container" ]
     then
         echo "removing unoconv container"
-        "$COOG_CODE_DIR/unoconv" rm -f
+        "$COOG_CODE_DIR/unoconv" rm -v -f
     else
         echo "no unoconv container running"
     fi
@@ -170,7 +170,7 @@ main() {
     if [ ! -z "$server_container" ]
     then
         echo "removing server container"
-        "$COOG_CODE_DIR/coog" -- server rm -f
+        "$COOG_CODE_DIR/coog" -- server rm -v -f
     else
         echo "no server container running"
     fi
@@ -181,7 +181,7 @@ main() {
     if [ ! -z "$celery_container" ]
     then
         echo "removing celery container"
-        "$COOG_CODE_DIR/coog" -- celery rm -f
+        "$COOG_CODE_DIR/coog" -- celery rm -v -f
     else
         echo "no celery container running"
     fi

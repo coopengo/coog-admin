@@ -34,13 +34,13 @@ Backup the data
   .. code-block:: bash
   
   	cd ~/coog-admin
-	./postgres rm -f
-	./api rm -f
-	./nginx rm -f
-	./coog -- server rm -f
-	./redis rm -f
-	./coog -- celery rm -f
-	./paybox rm -f
+	./postgres rm -v -f
+	./api rm -v -f
+	./nginx rm -v -f
+	./coog -- server rm -v -f
+	./redis rm -v -f
+	./coog -- celery rm -v -f
+	./paybox rm -v -f
  
 - Find the folder that contains the coog data. It's defined in the 
   environment variable COOG_DATA often set in the file ~/.profile or 
