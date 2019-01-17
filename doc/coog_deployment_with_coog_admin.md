@@ -277,13 +277,13 @@ Containers and applicative servers can be stopped through the following
 commands
 
 ``` bash
-./redis rm -f
-./postgres rm -f
-./nginx rm -f
-./web rm -f
-./coog -- server rm -f
-./coog -- celery rm -f
-./unoconv rm -f
+./redis rm -v -f
+./postgres rm -v -f
+./nginx rm -v -f
+./web rm -v -f
+./coog -- server rm -v -f
+./coog -- celery rm -v -f
+./unoconv rm -v -f
 ```
 
 In some cases, according to specific application needs, it's necessary to start 
@@ -291,7 +291,7 @@ coog as a cron. In this case execute the following command
 
 ``` bash
 ./coog cron          # to start the container
-./coog -- cron rm -f # to remove the container
+./coog -- cron rm -v -f # to remove the container
 ```
 
 ## Test environment
