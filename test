@@ -179,6 +179,7 @@ main() {
     report "$ok" && \
         TARGET_RESULTS=$REPORT_NAME BRANCH=$branch_name \
         python "$COOG_CODE_DIR/send_report"
+    return $ok
 }
 
 return 2> /dev/null # avoid exec of main when sourced
