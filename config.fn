@@ -1,8 +1,7 @@
 # vim: set ft=sh:
 
 config_code_version() {
-    local version
-    version=$(cat "$COOG_CODE_DIR"/VERSION)
+    local version; version=$(cat "$COOG_CODE_DIR"/VERSION)
     echo "$version"
 }
 

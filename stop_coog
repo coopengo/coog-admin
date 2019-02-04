@@ -24,11 +24,17 @@ echo ------ Arrêt du service editique
 ./unoconv kill
 ./unoconv rm
 
+echo ------ Arrêt du serveur web
+./web kill
+./web rm
+
 echo ------ Arrêt de sentry
 ./sentry -- server kill
 ./sentry -- server rm
 docker kill recette-sentry-cron recette-sentry-worker
 docker rm recette-sentry-cron recette-sentry-worker
+
+
 
 echo ------ Lancement de redis - gestionnaire de cache et de jobs
 ./redis -- server kill

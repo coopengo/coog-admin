@@ -10,7 +10,15 @@ then
 fi
 
 server() {
+    local args
+    while [[ ! -z "$1" ]]
+    do
+        [ "$1" = "--" ] && shift && break
+        args="$args $1"
+        shift
+    done
     docker run \
+        $args \
         $DOCKER_DAEMON_OPTS \
         --network "$NETWORK_NAME" \
         --name "$NETWORK_NAME-postgres" \
@@ -27,6 +35,7 @@ client() {
     docker run \
         $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
+        -v /tmp:/tmp
         "$POSTGRES_IMAGE" \
         psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
 }

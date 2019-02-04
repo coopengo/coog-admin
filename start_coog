@@ -9,7 +9,7 @@ echo ------ Lancement du service postgres local - stockage pour jobscheduler et 
 ./postgres server -p 5432:5432
 
 echo ------ Lancement de redis - gestionnaire de cache et de jobs
-./redis server
+./redis server --save "" --appendonly no
 
 echo ------ Lancement du serveur editique
 ./unoconv run
@@ -32,4 +32,6 @@ echo ------ Lancement du serveur applicatif 5
 echo ------ Lancement du serveur applicatif 6
 ./coog server-6 -p 8006:8000 -- 1
 
-./web server
+echo ------ Lancement du serveur web
+./web server -p 3000:3000
+
