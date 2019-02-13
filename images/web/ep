@@ -10,7 +10,6 @@ _coog_repo_list_repo(){
     local f
     for f in $WEB_ROOT/*
     do
-        f="$WEB_ROOT/$f"
         [ -d "$f" ] && basename "$f"
     done
 }
@@ -24,7 +23,7 @@ _coog_repo_link_api(){
             do
                 [ -d "$WEB_ROOT/$repo/api-modules/$p" ] ln -s "$WEB_ROOT/$repo/api-modules/$p"
             done
-            ln -s "$API_ROOT/node_module" "$WEB_ROOT/$repo/api-modules/node_modules"
+            ln -s "$API_ROOT/node_modules" "$WEB_ROOT/$repo/api-modules/node_modules"
         fi
     done
 }
@@ -44,7 +43,7 @@ _coog_repo_link_app(){
             do
                 [ -d "$WEB_ROOT/$repo/app-modules/$p" ] ln -s "$WEB_ROOT/$repo/app-modules/$p"
             done
-            ln -s "$APP_ROOT/node_module" "$WEB_ROOT/$repo/app-modules/node_modules"
+            ln -s "$APP_ROOT/node_modules" "$WEB_ROOT/$repo/app-modules/node_modules"
         fi
     done
 }
@@ -57,8 +56,8 @@ coog_repo_link_app(){
 
 
 _link() {
-    coog_repo_link_app()
-    coog_repo_link_api()
+    coog_repo_link_app
+    coog_repo_link_api
     return 0
 }
 
