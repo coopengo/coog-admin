@@ -21,7 +21,8 @@ _coog_repo_link_api(){
         then
             for p in $WEB_ROOT/$repo/api-modules/*
             do
-                [ -d "$WEB_ROOT/$repo/api-modules/$p" ] ln -s "$WEB_ROOT/$repo/api-modules/$p"
+                [ -d "$p" ] \
+                    && [ $(basename "$p") != "node_modules" ] && ln -s "$p" .
             done
             ln -s "$API_ROOT/node_modules" "$WEB_ROOT/$repo/api-modules/node_modules"
         fi
@@ -41,7 +42,8 @@ _coog_repo_link_app(){
         then
             for p in $WEB_ROOT/$repo/app-modules/*
             do
-                [ -d "$WEB_ROOT/$repo/app-modules/$p" ] ln -s "$WEB_ROOT/$repo/app-modules/$p"
+                [ -d "$p" ] \
+                    && [ $(basename "$p") != "node_modules" ] && ln -s "$p" .
             done
             ln -s "$APP_ROOT/node_modules" "$WEB_ROOT/$repo/app-modules/node_modules"
         fi
