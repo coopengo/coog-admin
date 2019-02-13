@@ -12,6 +12,7 @@ RUN apk add --no-cache --virtual .build-deps wget ca-certificates make gcc g++ p
 
 COPY ./ep /web/
 RUN ln -s /web/ep /usr/local/bin/ep
+RUN ep link
 
 VOLUME ["/web/coog-app"]
 ENTRYPOINT ["ep"]
