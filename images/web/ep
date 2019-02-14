@@ -10,7 +10,6 @@ _coog_repo_list_repo(){
     local f
     for f in $WEB_ROOT/*
     do
-        f="$WEB_ROOT/$f"
         [ -d "$f" ] && basename "$f"
     done
 }
@@ -18,13 +17,14 @@ _coog_repo_list_repo(){
 _coog_repo_link_api(){
     for repo in $(_coog_repo_list_repo)
     do
-        if [ -d "$WEB_ROOT/$repo/api_modules" ]
+        if [ -d "$WEB_ROOT/$repo/api-modules" ]
         then
-            for p in $WEB_ROOT/$repo/api_modules/*
+            for p in $WEB_ROOT/$repo/api-modules/*
             do
-                [ -d "$WEB_ROOT/$repo/api_modules/$p" ] ln -s "$WEB_ROOT/$repo/api_modules/$p"
+                [ -d "$p" ] \
+                    && [ $(basename "$p") != "node_modules" ] && ln -s "$p" .
             done
-            ln -s "$API_ROOT/node_module" "$WEB_ROOT/$repo/api_modules/node_modules"
+            ln -s "$API_ROOT/node_modules" "$WEB_ROOT/$repo/api-modules/node_modules"
         fi
     done
 }
@@ -38,13 +38,14 @@ coog_repo_link_api(){
 _coog_repo_link_app(){
     for repo in $(_coog_repo_list_repo)
     do
-        if [ -d "$WEB_ROOT/$repo/app_modules" ]
+        if [ -d "$WEB_ROOT/$repo/app-modules" ]
         then
-            for p in $WEB_ROOT/$repo/app_modules/*
+            for p in $WEB_ROOT/$repo/app-modules/*
             do
-                [ -d "$WEB_ROOT/$repo/app_modules/$p" ] ln -s "$WEB_ROOT/$repo/app_modules/$p"
+                [ -d "$p" ] \
+                    && [ $(basename "$p") != "node_modules" ] && ln -s "$p" .
             done
-            ln -s "$APP_ROOT/node_module" "$WEB_ROOT/$repo/app_modules/node_modules"
+            ln -s "$APP_ROOT/node_modules" "$WEB_ROOT/$repo/app-modules/node_modules"
         fi
     done
 }
@@ -57,8 +58,8 @@ coog_repo_link_app(){
 
 
 _link() {
-    coog_repo_link_app()
-    coog_repo_link_api()
+    coog_repo_link_app
+    coog_repo_link_api
     return 0
 }
 
