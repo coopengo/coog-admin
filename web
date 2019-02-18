@@ -38,14 +38,12 @@ _image() {
     else
         args=$DOCKER_INTERACTIVE_OPTS
     fi
-    echo args before "$args"
     while [[ ! -z "$1" ]]
     do
         [ "$1" = "--" ] && shift && break
         args="$args $1"
         shift
     done
-    echo args after "$args"
     docker run \
         --name "$NETWORK_NAME-$cmd" \
         --network "$NETWORK_NAME" \
