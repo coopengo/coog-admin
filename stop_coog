@@ -1,9 +1,14 @@
 #!/bin/sh
 
 cd /opt/coog-admin
+
+echo ------ Arrêt de nginx
+./nginx kill
+./nginx rm
+
 echo ------ Arrêt du serveur applicatif 1
-./coog -- server-1 kill
-./coog -- server-1 rm
+./coog -- server kill
+./coog -- server rm
 echo ------ Arrêt du serveur applicatif 2
 ./coog -- server-2 kill
 ./coog -- server-2 rm
@@ -46,3 +51,5 @@ echo ------ Arrêt du service postgres local - stockage pour jobscheduler et sen
 
 echo ------ Suppression du réseau docker
 ./net rm
+
+
