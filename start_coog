@@ -2,14 +2,14 @@
 
 cd /opt/coog-admin
 
-echo ------ Création du réseau
+echo ------ Creation du reseau
 ./net create
 
 echo ------ Lancement du service postgres local - stockage pour jobscheduler et sentry
 ./postgres server -p 5432:5432
 
 echo ------ Lancement de redis - gestionnaire de cache et de jobs
-./redis server --save "" --appendonly no
+./redis server --memory="5g" --oom-kill-disable --save "" --appendonly no
 
 echo ------ Lancement du serveur editique
 ./unoconv run
@@ -20,17 +20,17 @@ echo ------ Lancement de sentry
 ./sentry worker
 
 echo ------ Lancement du serveur applicatif 1
-./coog server-1 -p 8001:8000 -- 1
+./coog server-1 -p 8001:8000 --memory="2g" --oom-kill-disable -- 1
 echo ------ Lancement du serveur applicatif 2
-./coog server-2 -p 8002:8000 -- 1
+./coog server-2 -p 8002:8000 --memory="2g" --oom-kill-disable -- 1
 echo ------ Lancement du serveur applicatif 3
-./coog server-3 -p 8003:8000 -- 1
+./coog server-3 -p 8003:8000 --memory="2g" --oom-kill-disable -- 1
 echo ------ Lancement du serveur applicatif 4
-./coog server-4 -p 8004:8000 -- 1
+./coog server-4 -p 8004:8000 --memory="2g" --oom-kill-disable -- 1
 echo ------ Lancement du serveur applicatif 5
-./coog server-5 -p 8005:8000 -- 1
+./coog server-5 -p 8005:8000 --memory="2g" --oom-kill-disable -- 1
 echo ------ Lancement du serveur applicatif 6
-./coog server-6 -p 8006:8000 -- 1
+./coog server-6 -p 8006:8000 --memory="2g" --oom-kill-disable -- 1
 
 echo ------ Lancement du serveur web
 ./web server -p 3000:3000 -e COOG_API_IGNORE_SCHEMAS='coog-quotation-loan'

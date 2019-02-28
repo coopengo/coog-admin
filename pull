@@ -20,6 +20,8 @@ main() {
     [ ! -z "$NGINX_IMAGE" ] && docker pull "$NGINX_IMAGE"
     [ ! -z "$SENTRY_IMAGE" ] && docker pull "$SENTRY_IMAGE"
     docker pull jordanorc/docker-unoconv-flask
+    [ ! -z "$COOG_IMAGE" ] && docker pull "$COOG_IMAGE"
+    [ ! -z "$WEB_IMAGE" ] && docker pull "$WEB_IMAGE"
 }
 
 main
