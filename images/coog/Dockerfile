@@ -35,11 +35,10 @@ RUN pip install \
         "ldap3~=2.5.1" \
         "requests~=2.18.4" \
         "raven~=6.1.0" \
-        "redis~=2.10.6" \
         "hiredis~=0.2.0" \
         "msgpack-python~=0.4.8" \
         "uwsgi~=2.0.15" \
-        "celery~=4.1.0" \
+        "celery[redis]~=4.1.0" \
         "rq~=0.8.2" \
         "mock~=2.0.0" \
     && rm -rf /root/.cache
