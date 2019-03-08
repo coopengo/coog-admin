@@ -39,7 +39,7 @@ RUN pip install \
         "msgpack-python==0.4.8" \
         "uwsgi==2.0.15" \
         "celery[redis]==4.1.0" \
-        "rq==0.8.2" \
+        "rq==0.13" \
         "mock==2.0.0" \
     && rm -rf /root/.cache
 
