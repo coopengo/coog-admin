@@ -38,7 +38,7 @@ RUN pip install \
         "hiredis==0.2.0" \
         "msgpack-python==0.4.8" \
         "uwsgi==2.0.15" \
-        "celery[redis]==4.1.0" \
+        "celery[redis]==4.1.1" \
         "rq==0.13" \
         "mock==2.0.0" \
     && rm -rf /root/.cache
