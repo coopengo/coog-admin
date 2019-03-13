@@ -100,7 +100,7 @@ report_failed_job() {
     local j; j=$(echo "$line" | cut -d $'\t' -f 3)
     local m; m=$(echo "$line" | cut -d $'\t' -f 5)
     "$COOG_CODE_DIR/coog" redis rq j "$j" \
-        | grep -P "(^coog.*|created_at|started_at|ended_at)" \
+        | grep --binary-files=text -P "(^coog.*|created_at|started_at|ended_at)" \
         | sed 's/\\n/\n/g' \
         > "$REPORT_NAME/$m.txt"
 }
