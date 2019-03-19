@@ -164,6 +164,69 @@ _image() {
         "$COOG_IMAGE" "$cmd" "$@"
 }
 
+_patch() {
+    if [[ "$1" = "help" ]]; then
+        echo "Usage: coog patch <repo> <file>"
+        echo ""
+        echo "Will apply <file> as a patch on <repo>"
+        echo "For instance,"
+        echo "    coog patch coog patch_1234.diff"
+        echo "will try to apply the patch_1234.diff file as a git patch on "
+        echo "the coog repo inside the image"
+        echo ""
+        echo "This requires a running container to work. By default it will "
+        echo "be applied on the $NETWORK_NAME-coog-server container, but this "
+        echo "can be changed by setting the \$CONTAINER_NAME env variable"
+        echo ""
+        echo "Applied patches will be stored in the 'patches' folder in the "
+        echo "root folder of the container filesystem"
+        echo ""
+        echo "It will still be your responsibility to commit the container "
+        echo "in order to make the changes permanent"
+        return 0
+    fi
+    if [[ "$#" != 2 ]]; then
+        echo "Usage: coog patch <repo> <file>"
+        return 1
+    fi
+    local repo_path
+    local image_name
+    repo_path="/workspace/$1"
+    container=${CONTAINER_NAME:-$NETWORK_NAME-coog-server}
+    docker exec "$container" \
+        bash -c "git -C $repo_path init"
+    docker exec "$container" \
+        bash -c "git config --global user.email \"admin@coopengo.com\""
+    docker exec "$container" \
+        bash -c "git config --global user.name \"Admin\""
+    docker exec "$container" mkdir -p /patches
+    docker exec "$container" mkdir -p "/patches/$1"
+    docker cp "$2" "$container:/patches/$1/$(basename $2)"
+    docker exec "$container" \
+        bash -c "git config --global user.name \"Admin\""
+    docker exec "$container" \
+        bash -c "git -C $repo_path add . && git -C $repo_path commit -m Initial"
+    if [[ "$?" != 0 ]]; then
+        echo "Could not initialize git repo, aborting"
+        return 1
+    fi
+    docker exec -it "$container" \
+        bash -c "git -C $repo_path apply /patches/$1/$(basename $2)"
+    if [[ "$?" = 0 ]]; then
+        docker exec -it "$container" \
+            bash -c "git -C $repo_path add ."
+        docker exec -it "$container" \
+            bash -c "git -C $repo_path commit -m \"$(basename $2)\""
+    else
+        echo ""
+        echo "Patch application failed, you can try it manually by running the "
+        echo "following command from inside the container:"
+        echo " "
+        echo "    git -C $repo_path apply /patches/$1/$(basename $2)"
+        return 1
+    fi
+}
+
 ########
 # main #
 ########
@@ -175,6 +238,7 @@ usage() {
     echo "  build         -> build coog image: <tag> <repo:branch>+"
     echo "  reset         -> reset coog configuration"
     echo "  edit          -> edit coog configuration"
+    echo "  patch         -> apply a git patch on a part of the image"
     echo
     echo Docker commands
     echo
@@ -207,6 +271,7 @@ main() {
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "reset" ] && { ( cd "$COOG_DATA_DIR" && config_data_reset_coog "$@" ); return $?; }
     [ "$cmd" = "edit" ] && { _edit "$@"; return $?; }
+    [ "$cmd" = "patch" ] && { _patch "$@"; return $?; }
     [ "$cmd" = "--" ] && { _docker "$@"; return $?; }
     _image "$cmd" "$@"
 }
