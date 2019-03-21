@@ -23,7 +23,7 @@ RUN mkdir /workspace \
         "intervaltree" \
         "filelock" \
         "wrapt" \
-        "werkzeug" \
+        "werkzeug==0.14.1" \
         "simpleeval" \
         "ldap3" \
         "requests" \
