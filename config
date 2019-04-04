@@ -133,6 +133,7 @@ COOG_API_GOOGLE_KEY=                    # Google API Key
 #-------------------------------------------------------------------------------#
 
 PORTAL_IMAGE=coopengo/portal:master
+COOG_PORTAL_BASENAME_URL=/portal/
 
 #-------------------------------------------------------------------------------#
 # NGINX CONFIG

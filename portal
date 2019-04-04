@@ -17,6 +17,12 @@ _docker() {
     docker "$@" "$NETWORK_NAME-portal"
 }
 
+_args() {
+    local args
+    args="$args -e REACT_APP_PORTAL_NAME=$COOG_PORTAL_BASENAME_URL"
+    echo "$args"
+}
+
 _image() {
     [ -z "$1" ] && echo missing command && return 1
     local cmd; cmd="$1"
@@ -31,7 +37,8 @@ _image() {
     docker run \
         --name "$NETWORK_NAME-$cmd" \
         --network "$NETWORK_NAME" \
-        $args "$PORTAL_IMAGE" "$@"
+        $args \
+        $(_args) "$PORTAL_IMAGE" "$@"
 }
 
 ########
