@@ -1,0 +1,71 @@
+#!/bin/bash
+
+if [ -z "$COOG_CODE_DIR" ] || [ ! -d "$COOG_CODE_DIR" ] || [ -z "$COOG_DATA_DIR" ]
+then
+    {
+        echo "Please make sure that these two env vars are set:"
+        echo "  COOG_CODE_DIR: your coog-admin install folder"
+        echo "  COOG_DATA_DIR: the folder where to keep your custom config"
+    } >&2 && exit 1
+fi
+
+_build() {
+    ( cd "$COOG_CODE_DIR/images/portal" && ./build "$@" )
+}
+
+_docker() {
+    docker "$@" "$NETWORK_NAME-portal"
+}
+
+_args() {
+    local args
+    args="$args -e REACT_APP_PORTAL_URL=$COOG_PORTAL_BASENAME_URL"
+    echo "$args"
+}
+
+_image() {
+    [ -z "$1" ] && echo missing command && return 1
+    local cmd; cmd="$1"
+    local args
+    if [ "$cmd" = server ]
+    then
+        cmd=portal
+        args=$DOCKER_DAEMON_OPTS
+    else
+        args=$DOCKER_INTERACTIVE_OPTS
+    fi
+    docker run \
+        --name "$NETWORK_NAME-$cmd" \
+        --network "$NETWORK_NAME" \
+        $args \
+        $(_args) "$PORTAL_IMAGE" "$@"
+}
+
+########
+# main #
+########
+
+usage() {
+    echo
+    echo Admin commands
+    echo
+    echo "  build     -> build portal image: <tag> <repo:branch>+"
+    echo "  server    -> launch portal container"
+    echo
+    echo Docker commands
+    echo
+    echo "  <action>  -> calls docker action on web container"
+    docker run $DOCKER_PIPED_OPTS "$PORTAL_IMAGE"
+    return 0
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd="$1"; shift
+    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    [ "$cmd" = "server" ] && { _image "$cmd" "$@"; return $?; }
+    _docker "$cmd" "$@"
+}
+
+main "$@"

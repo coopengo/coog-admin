@@ -129,6 +129,15 @@ COOG_API_GOOGLE_SECRET=                 # Google API Secret
 COOG_API_GOOGLE_KEY=                    # Google API Key
 
 #-------------------------------------------------------------------------------#
+# PORTAL CONFIG
+#-------------------------------------------------------------------------------#
+
+PORTAL_IMAGE=coopengo/portal:master     # docker image
+COOG_PORTAL_BASENAME_URL=/portal/       # The basename of coog-portal url 
+                                        # Basename is at the start of the path section
+                                        # https://en.wikipedia.org/wiki/URL#Syntax
+
+#-------------------------------------------------------------------------------#
 # NGINX CONFIG
 #-------------------------------------------------------------------------------#
 

@@ -1,0 +1,34 @@
+#!/bin/sh
+# docker entrypoint
+
+_print_env() {
+    printenv
+}
+
+_server() {
+    serve -s .
+}
+
+########
+# main #
+########
+
+usage() {
+    echo
+    echo Image commands
+    echo
+    echo "  env           -> gets container env vars"
+    echo "  server        -> starts portal static server"
+    echo
+}
+
+main() {
+    [ -z "$1" ] && usage && return 1
+    local cmd; cmd="$1"; shift
+    #
+    [ "$cmd" = env ] && { _print_env; return $?; }
+    [ "$cmd" = server ] && { _server "$@"; return $?; }
+    echo "Not supported command" && return 1
+}
+
+main "$@"
