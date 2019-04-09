@@ -19,7 +19,7 @@ _docker() {
 
 _args() {
     local args
-    args="$args -e REACT_APP_PORTAL_URL=$COOG_PORTAL_BASENAME_URL -e REACT_APP_API_BASENAME=/web"
+    args="$args -e REACT_APP_PORTAL_URL=$COOG_PORTAL_BASENAME_URL"
     echo "$args"
 }
 
