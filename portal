@@ -49,7 +49,8 @@ usage() {
     echo
     echo Admin commands
     echo
-    echo "  build     -> build web image: <tag> <repo:branch>+"
+    echo "  build     -> build portal image: <tag> <repo:branch>+"
+    echo "  server    -> launch portal container"
     echo
     echo Docker commands
     echo
@@ -64,8 +65,6 @@ main() {
     local cmd; cmd="$1"; shift
     [ "$cmd" = "build" ] && { _build "$@"; return $?; }
     [ "$cmd" = "server" ] && { _image "$cmd" "$@"; return $?; }
-    [ "$cmd" = "version" ] && { _image "$cmd" "$@"; return $?; }
-    [ "$cmd" = "env" ] && { _image "$cmd" "$@"; return $?; }
     _docker "$cmd" "$@"
 }
 
