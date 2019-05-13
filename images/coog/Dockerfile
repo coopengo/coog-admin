@@ -7,34 +7,35 @@ RUN mkdir /workspace \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim git \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
-        "pyflakes" \
-        "ipaddress" \
-        "dateutils" \
-        "num2words" \
-        "python-sql" \
-        "polib" \
         "Genshi" \
-        "relatorio" \
-        "python-magic" \
-        "pydot" \
-        "pyparsing" \
-        "python-stdnum" \
-        "unidecode" \
-        "intervaltree" \
+        "celery" \
+        "dateutils" \
+        "fastjsonschema" \
         "filelock" \
-        "wrapt" \
-        "werkzeug==0.14.1" \
-        "simpleeval" \
+        "intervaltree" \
+        "ipaddress" \
         "ldap3" \
-        "requests" \
+        "mock" \
+        "msgpack-python" \
+        "num2words" \
+        "passlib" \
+        "phonenumbers" \
+        "polib" \
+        "pydot" \
+        "pyflakes" \
+        "pyparsing" \
+        "python-magic" \
+        "python-sql" \
+        "python-stdnum" \
         "raven" \
         "redis>=3" \
-        "msgpack-python" \
-        "celery" \
+        "relatorio" \
+        "requests" \
         "rq" \
-        "mock" \
-        "phonenumbers" \
-        "passlib" \
+        "simpleeval" \
+        "unidecode" \
+        "werkzeug==0.14.1" \
+        "wrapt" \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
