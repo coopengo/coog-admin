@@ -35,7 +35,7 @@ client() {
     docker run \
         $DOCKER_INTERACTIVE_OPTS \
         --network "$NETWORK_NAME" \
-        -v /tmp:/tmp
+        -v /tmp:/tmp \
         "$POSTGRES_IMAGE" \
         psql -h "$NETWORK_NAME-postgres" -U "$POSTGRES_USER" "$@"
 }
