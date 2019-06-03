@@ -1,3 +1,4 @@
+FEA#8532: Add coog patch command
 BUG#10710 Remove volumes when stopping / restarting containers
 BUG#10718: Fix clean of year/month/week(ly) attachements
 OTH#0000: Remove NGINX_TIMEOUT
