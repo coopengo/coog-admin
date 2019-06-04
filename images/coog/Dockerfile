@@ -6,36 +6,6 @@ RUN mkdir /workspace \
         bash python3 redis graphviz libmagic coreutils \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim git \
     && ln -s /usr/bin/python3 /usr/bin/python \
-    && pip3 install \
-        "Genshi" \
-        "celery" \
-        "dateutils" \
-        "fastjsonschema" \
-        "filelock" \
-        "intervaltree" \
-        "ipaddress" \
-        "ldap3" \
-        "mock" \
-        "msgpack-python" \
-        "num2words" \
-        "passlib" \
-        "phonenumbers" \
-        "polib" \
-        "pydot" \
-        "pyflakes" \
-        "pyparsing" \
-        "python-magic" \
-        "python-sql" \
-        "python-stdnum" \
-        "raven" \
-        "redis>=3" \
-        "relatorio" \
-        "requests" \
-        "rq" \
-        "simpleeval" \
-        "unidecode" \
-        "werkzeug==0.14.1" \
-        "wrapt" \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
@@ -45,6 +15,8 @@ COPY dist /workspace
 COPY ep /workspace/bin/
 
 RUN echo $PATH
+RUN ls /workspace/coog
+RUN pip3 install /workspace/coog/requirements.txt
 RUN ls /workspace/bin
 RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
     && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
