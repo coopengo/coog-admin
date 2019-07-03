@@ -142,7 +142,6 @@ _batch() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     coog_batch_exec "$@"
 }
@@ -152,7 +151,6 @@ _batch_info() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     coog_batch_info "$@"
 }
@@ -162,7 +160,6 @@ _chain() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
     [ "$1" = "--" ] && shift 1
@@ -204,7 +201,6 @@ usage() {
     echo "  admin         -> launch admin utils - <args>"
     echo "  server        -> starts coog server - <workers nb>"
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
-    echo "  rq            -> starts rq worker - <queue +>"
     echo "  batch         -> executes batch - <name> [args *]"
     echo "  batch_info    -> append batch info in report "
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
@@ -226,13 +222,11 @@ main() {
     [ "$cmd" = admin ] && { _admin "$@"; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
-    [ "$cmd" = rq ] && { _rq "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
     [ "$cmd" = batch_info ] && { _batch_info "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
     [ "$cmd" = daily ] && { _daily "$@"; return $?; }
-    [ "$cmd" = daily_mail ] && { _daily_mail "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     [ "$cmd" = demo ] && { _demo "$@"; return $?; }
