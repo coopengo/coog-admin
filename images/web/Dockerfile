@@ -9,7 +9,7 @@ RUN apk add --no-cache --virtual .build-deps wget ca-certificates make gcc g++ p
     && npm i --production \
     && npm cache clean --force \
     && rm -rf /root/.node-gyp \
-    && apk del .build-deps 
+    && apk del .build-deps
 
 COPY ./ep /web/
 RUN ln -s /web/ep /usr/local/bin/ep
