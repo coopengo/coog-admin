@@ -1,3 +1,4 @@
+FEA#12150: Change docker behavior of coog-portal repositories images
 FEA#8532: Add coog patch command
 BUG#11018: Web: Fix typo in repo link
 BUG#10710 Remove volumes when stopping / restarting containers
