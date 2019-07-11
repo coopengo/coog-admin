@@ -10,7 +10,7 @@ then
 fi
 
 _build() {
-    ( cd "$COOG_CODE_DIR/images/portal" && ./build "$@" )
+    ( cd "$COOG_CODE_DIR/images/portal" && NETWORK_NAME=$NETWORK_NAME ./build "$@" )
 }
 
 _docker() {
