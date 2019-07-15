@@ -58,7 +58,19 @@ repo_cp() { # <dd> <repo> <branch>
         ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
     fi
 
+    echo "Git clean"
     git clean -d -f -X
+}
+
+_docker_build() {
+    cd "$wd"
+    if [ -f 'docker-compose.yml' ]
+    then
+        docker-compose build --no-cache --force-rm --parallel
+    else
+        docker build -t "$image" "$@" "."
+    fi
+    cd -
 }
 
 build() { # <image-tag> <repositories> -- [docker-build-arg*]
@@ -91,6 +103,6 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
     done
 
     find "$dd" -name ".git" | xargs rm -rf
-    (cd "$wd" && docker build -t "$image" "$@" "." )
+    _docker_build()
     rm -rf "$dd"
 }
