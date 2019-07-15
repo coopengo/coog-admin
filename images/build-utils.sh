@@ -52,10 +52,20 @@ repo_cp() { # <dd> <repo> <branch>
         git archive HEAD | tar x -C "$1/$2" || return $?
         git submodule foreach "git archive HEAD | tar x -C $1/$2/\$path" || return $?
     fi
-    if [ -d doc ] && [ -f doc/build ]
+    if [ -d doc ]
     then
-        echo "build and copy doc"
-        ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
+        if [ -f doc/docker-compose.yml ]
+        then
+            echo "Dockerize doc generation and copy doc"
+            docker-compose -f doc/docker-compose.yml up
+            docker-compose -f doc/docker-compose.yml down -v --rmi all
+            chown -R ${USER}:${USER} doc/dist/
+            echo "Down ok"
+        elif [ -f doc/build ]
+        then
+            echo "build and copy doc"
+            ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
+        fi
     fi
 
     git clean -d -f -X
