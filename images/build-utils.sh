@@ -76,7 +76,7 @@ _docker_build() {
     cd "$wd"
     if [ -f 'docker-compose.yml' ]
     then
-        docker-compose build --no-cache --force-rm --parallel
+        VERSION=$image docker-compose build --no-cache --force-rm --parallel
     else
         docker build -t "$image" "$@" "."
     fi
@@ -113,6 +113,6 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
     done
 
     find "$dd" -name ".git" | xargs rm -rf
-    _docker_build()
+    _docker_build
     rm -rf "$dd"
 }
