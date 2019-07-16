@@ -112,7 +112,7 @@ services:
             COOG_WEB_TOKEN: coog-token                   # R Token utilisé pour la connection a Coog
 
             # -------------MONGO------------- #
-            MONGO_HOST: pierre-mongo                     # R URL du serveur déployant Mongo
+            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
             MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
                                                          #   à supprimer prochainement car mongodb est le protocol standard
             MONGO_DB_NAME:                               # O Nom de la base de données mongo a utiliser, default: coog-api-V2
