@@ -100,8 +100,7 @@ _server() {
         --logformat "$format" \
         --http-socket :8000 \
         --harakiri "$COOG_TIMEOUT" \
-        --processes "$n" \
-        --logto2
+        --processes "$n"
 }
 
 _celery() {
