@@ -67,7 +67,7 @@ _modules() {
 
 _admin() {
     _init || return $?
-    trytond-admin -v "$@"
+    trytond-admin -v -d "$COOG_DB_NAME" "$@"
 }
 
 _cron() {
@@ -100,7 +100,8 @@ _server() {
         --logformat "$format" \
         --http-socket :8000 \
         --harakiri "$COOG_TIMEOUT" \
-        --processes "$n"
+        --processes "$n" \
+        --logto2
 }
 
 _celery() {
