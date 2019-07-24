@@ -54,6 +54,14 @@ Environment variables to customize process exec (`DEBUG`)
 - `./web build coog/web:master coog-api:master coog-app:master`: builds a web image
 - `./web run`
 
+## portal (build, up, down)
+
+Portal script entrypoint to manage all containers related to portal
+
+- `./portal build master coog-portal:master`: build api, gateway, portal image
+- `./portal down`: Shut down container
+- `./portal up`: Runs api, gateway and portal container
+
 ## nginx (reset, run)
 
 - `./nginx reset`: resets nginx configuration

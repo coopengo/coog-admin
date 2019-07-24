@@ -9,36 +9,36 @@ then
     } >&2 && exit 1
 fi
 
-_build() {
-    ( cd "$COOG_CODE_DIR/images/portal" && NETWORK_NAME=$NETWORK_NAME ./build "$@" )
-}
-
-_docker() {
-    docker "$@" "$NETWORK_NAME-portal"
-}
-
-_args() {
-    local args
-    args="$args -e REACT_APP_PORTAL_URL=$COOG_PORTAL_BASENAME_URL"
-    echo "$args"
-}
-
-_image() {
-    [ -z "$1" ] && echo missing command && return 1
-    local cmd; cmd="$1"
-    local args
-    if [ "$cmd" = server ]
+_export_conf_docker() {
+    export PORTAL_VERSION API_VERSION GATEWAY_VERSION NETWORK_NAME
+    if [ ! -z "$CUSTOMER" ]
     then
-        cmd=portal
-        args=$DOCKER_DAEMON_OPTS
-    else
-        args=$DOCKER_INTERACTIVE_OPTS
+        echo $CUSTOMER
+        export CUSTOMER="-$CUSTOMER"
     fi
-    docker run \
-        --name "$NETWORK_NAME-$cmd" \
-        --network "$NETWORK_NAME" \
-        $args \
-        $(_args) "$PORTAL_IMAGE" "$@"
+}
+
+_build_conf_docker() {
+    export PORTAL_VERSION="$1"
+    export API_VERSION="$1"
+    export GATEWAY_VERSION="$1"
+}
+
+_build() {
+    _build_conf_docker "$@"
+    cd "$COOG_CODE_DIR/images/portal" && . ./build "$@"
+}
+
+_up() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose up -d "$@"
+}
+
+_down() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose down -v "$@"
 }
 
 ########
@@ -49,13 +49,11 @@ usage() {
     echo
     echo Admin commands
     echo
-    echo "  build     -> build portal image: <tag> <repo:branch>+"
-    echo "  server    -> launch portal container"
-    echo
-    echo Docker commands
-    echo
-    echo "  <action>  -> calls docker action on web container"
-    docker run $DOCKER_PIPED_OPTS "$PORTAL_IMAGE"
+    echo "  build                -> build portal image: <tag> <repo:branch>+"
+    echo "  down                 -> shut down all container"
+    echo "  down api gateway ... -> shut down relative container"
+    echo "  up                   -> running all container"
+    echo "  up api gateway ...   -> running relative container"
     return 0
 }
 
@@ -63,9 +61,10 @@ main() {
     source "$COOG_CODE_DIR/config"
     [ -z "$1" ] && usage && return 0
     local cmd; cmd="$1"; shift
-    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
-    [ "$cmd" = "server" ] && { _image "$cmd" "$@"; return $?; }
-    _docker "$cmd" "$@"
+    [ "$cmd" = "build" ] && { (_build "$@"); return $?; }
+    [ "$cmd" = "down" ] && { (_down "$@"); return $?; }
+    [ "$cmd" = "up" ] && { (_up "$@"); return $?; }
+    usage
 }
 
 main "$@"

@@ -8,12 +8,6 @@ available in any *Coog* repository (or you can check **github**). This is not
 mandatory as these dependencies should already be installed, but it is advised
 to at least check they are installed to avoid bad surprises.
 
-Install **rst2pdf** via **pip** (if requirement isn't already satisfied)
-
-``` bash
-pip install rst2pdf
-```
-
 The default configuration for building a **Coog** image contains **coog**,
 **trytond**, **trytond-modules**, **sao**, **coog-bench** and **proteus**
 repositories. It is the default build configuration defined in the
@@ -79,3 +73,25 @@ In order for documents generation to work properly, build **unoconv** by running
 ``` bash
 ./unoconv build coopengo/unoconv:latest
 ```
+
+## Portal image
+
+To build a portal image and relative services that this application depend on
+
+``` bash
+./wev build \
+    <version-number> \                  # Portal containers tag
+    coog-portal:coog-<version_number>   # Portal repository 
+```
+
+Here are the application and services explained:
+
+* **Portal**: a React-Redux front-end, it is self assistant
+  dedicated to insurance product.
+
+* **Gateway**: an API gateway addeds as the entrance of the external
+  request to COOG REST API. The authentication process of the user is
+  based on token authentication (JWT).
+
+* **API**: a RestAPI service that communicate to Coog, this API
+  is more oriented to buisiness kind.

@@ -37,6 +37,7 @@ To manually stops all containers, here are the commands in order :
 ./unoconv rm -v -f
 ./coog -- server rm -v -f
 ./coog -- celery rm -v -f
+./portal down -v
 ```
 
 If an error occurs during the upgrade process, here are commands to restart the 
@@ -50,4 +51,5 @@ is optional
 ./web server
 ./nginx run
 ./paybox run
+./portal up
 ```

@@ -64,8 +64,9 @@ repo_cp() { # <dd> <repo> <branch>
         elif [ -f doc/build ]
         then
             echo "build and copy doc"
-            ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
+            ./doc/build > /dev/null
         fi
+        cp -R "doc/dist/html" "$1/$2-doc"
     fi
 
     echo "Git clean"
@@ -76,7 +77,7 @@ _docker_build() {
     cd "$wd"
     if [ -f 'docker-compose.yml' ]
     then
-        VERSION=$image docker-compose build --no-cache --force-rm --parallel
+        docker-compose build --no-cache --force-rm --parallel
     else
         docker build -t "$image" "$@" "."
     fi

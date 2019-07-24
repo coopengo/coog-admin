@@ -6,7 +6,7 @@ services:
     # Else
     #   It's optionnal
     portal:
-        image: coopengo/portal:${VERSION}
+        image: coopengo/portal${CUSTOMER}:${PORTAL_VERSION}
         build:
             context: .
             dockerfile: docker/portal/Dockerfile
@@ -19,7 +19,7 @@ services:
             - server
     gateway:
         # Le containeur doit être accessible via nginx ou un outil similaire
-        image: coopengo/gateway:${VERSION}
+        image: coopengo/gateway${CUSTOMER}:${GATEWAY_VERSION}
         build:
             context: .
             dockerfile: docker/gateway/Dockerfile
@@ -80,7 +80,7 @@ services:
             FORCEDOTCOM_CLIENT_ID:                       # O Id de l'application force
             FORCEDOTCOM_CLIENT_SECRET:                   # O Hash secret de l'application force
     api:
-        image: coopengo/api:${VERSION}
+        image: coopengo/api${CUSTOMER}:${API_VERSION}
         build:
             context: .
             dockerfile: docker/api/Dockerfile
