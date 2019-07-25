@@ -22,7 +22,7 @@ In addition to these two directories:
 
 -   a server running on Linux
 -   docker
--    docker-compose
+-   docker-compose
 -   github
 -   an email utility
 
