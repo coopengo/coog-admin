@@ -51,14 +51,17 @@ _export_conf_docker() {
 }
 
 _build_conf_docker() {
+    echo "set version of images"
+
     export PORTAL_VERSION="$1"
     export API_VERSION="$1"
     export GATEWAY_VERSION="$1"
+    export MONGO_IMAGE NETWORK_NAME
 }
 
 _build() {
     _build_conf_docker "$@"
-    cd "$COOG_CODE_DIR/images/portal" && . ./build "$@"
+    cd "$COOG_CODE_DIR/images/portal" && ./build "$@"
 }
 
 _up() {
