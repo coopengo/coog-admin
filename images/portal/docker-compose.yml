@@ -42,43 +42,45 @@ services:
             ###################################
             
             # ----------FILTRE URLS---------- #
-            WHITELIST: ""                                # R URLs des connections authorisées, séparé par des virgules.
+            WHITELIST:                                   # R URLs des connections authorisées, séparé par des virgules.
             COOG_PORTAL_URL: localhost:5000              # R URL du serveur déployant portal
              
             # -------------MONGO------------- #
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo
-            MONGO_PORT: 27017                            # R Port utilisé pour la connection a mongo
-            MONGO_DB_NAME: coog-gateway                  # O Nom de la base de donnée mongo à utilisé par Gateway
+            MONGO_PORT: ${MONGO_PORT}                    # R Port utilisé pour la connection a mongo
+            MONGO_DB_NAME: ${GATEWAY_MONGO_DB_NAME}      # O Nom de la base de donnée mongo à utilisé par Gateway
+            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
 
             # --------------JWT-------------- #
-            JWT_ENCRYPTION: secret                       # R Chaine de caractère utilisé pour le hashage JWT
-            JWT_EXPIRATION: 3600                         # R Durée de vie du JWT
+            JWT_ENCRYPTION: ${JWT_SECRET}                # R Chaine de caractère utilisé pour le hashage JWT
+            JWT_EXPIRATION: ${JWT_EXPIRATION}            # R Durée de vie du JWT
 
             # -------------COOG-------------- #
-            COOG_WEB_TOKEN: 123456                       # R A récupérer après avoir lancé Coog et initier un Jeton
-            COOG_API_URL: ${NETWORK_NAME}-web:3000       # R URL du serveur déployant API V1
-            COOG_API_URL_V2: ${NETWORK_NAME}-api:3000    # R URL du serveur déployant API V2
+            COOG_WEB_TOKEN: ${GATEWAY_WEB_TOKEN}         # R A récupérer après avoir lancé Coog et initier un Jeton
+            COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
+            COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
 
             ####################################
             # -----------CONNECTION----------- #
             ####################################
 
             # -------------BASIC-------------- #
-            COOG_MODULE: "true"                          # O Basic auth via COOG
+            COOG_MODULE: ${COOG_MODULE}                  # O Basic auth via COOG
 
             # -----------PASSPORT------------- #
             # ------------OAUTH2-------------- #
-            GOOGLE_MODULE: "false"                       # O Google OAuth2 activation
-            GOOGLE_CLIENT_ID:                            # O Id de l'application google
-            GOOGLE_CLIENT_SECRET:                        # O Hash secret de l'application google
+            GOOGLE_MODULE: ${GOOGLE_MODULE}              # O Google OAuth2 activation
+            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}        # O Id de l'application google
+            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_ID}    # O Hash secret de l'application google
 
-            FACEBOOK_MODULE: "false"                     # O Facebook OAuth2
-            FACEBOOK_CLIENT_ID:                          # O Id de l'application facebook
-            FACEBOOK_CLIENT_SECRET:                      # O Hash secret de l'application facebook
+            FACEBOOK_MODULE: ${FACEBOOK_MODULE}          # O Facebook OAuth2
+            FACEBOOK_CLIENT_ID:  ${FACEBOOK_CLIENT_ID}   # O Id de l'application facebook
+            FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_ID} # O Hash secret de l'application facebook
 
-            FORCEDOTCOM_MODULE: "false"                  # O Force OAuth2 (Salesforce, Force, Database)
-            FORCEDOTCOM_CLIENT_ID:                       # O Id de l'application force
-            FORCEDOTCOM_CLIENT_SECRET:                   # O Hash secret de l'application force
+            FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
+            FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
+            FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
     api:
         image: coopengo/api${CUSTOMER}:${API_VERSION}
         build:
@@ -106,20 +108,20 @@ services:
             
             # ------------COOG--------------- #
             COOG_HOST: ${NETWORK_NAME}-coog-server       # R URL du serveur déployant Coog
-            COOG_PORT: 8000                              # R Port de connection à coog
-            COOG_DB_NAME: generated                      # R Nom de la base de donnée Coog
-            COOG_PROTOCOL: http                          # R Protocol de connection à utilisé
-            COOG_WEB_TOKEN: coog-token                   # R Token utilisé pour la connection a Coog
+            COOG_PORT: ${COOG_SERVER_PORT}               # R Port de connection à coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+            COOG_PROTOCOL: ${COOG_SERVER_PROTOCOL}       # R Protocol de connection à utilisé
+            COOG_WEB_TOKEN: ${API_WEB_TOKEN}             # R Token utilisé pour la connection a Coog
 
             # -------------MONGO------------- #
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
             MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
                                                          #   à supprimer prochainement car mongodb est le protocol standard
-            MONGO_DB_NAME:                               # O Nom de la base de données mongo a utiliser, default: coog-api-V2
-            MONGO_DB_USER:                               # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_DB_PASSWORD:                           # O Mot de passe utilisateur mongo
+            MONGO_DB_NAME: ${API_MONGO_DB_NAME}          # O Nom de la base de données mongo a utiliser, default: coog-api-V2
+            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
     mongo:
-        image: mongo
+        image: ${MONGO_IMAGE}
         container_name: ${NETWORK_NAME}-mongo
         networks:
             - main

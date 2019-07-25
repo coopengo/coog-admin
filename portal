@@ -10,12 +10,44 @@ then
 fi
 
 _export_conf_docker() {
-    export PORTAL_VERSION API_VERSION GATEWAY_VERSION NETWORK_NAME
+    echo "Export shared env"
+    export NETWORK_NAME COOG_DB_NAME
+
     if [ ! -z "$CUSTOMER" ]
     then
         echo $CUSTOMER
         export CUSTOMER="-$CUSTOMER"
     fi
+
+    echo "Export portal envs"
+    export PORTAL_VERSION 
+    
+    echo "Export api envs"
+    export API_VERSION API_WEB_TOKEN COOG_SERVER_PORT COOG_SERVER_PROTOCOL \
+        API_MONGO_DB_NAME
+    
+    echo "Export gateway envs" 
+    export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_SECRET \
+        JWT_EXPIRATION GATEWAY_WEB_TOKEN GATEWAY_MONGO_DB_NAME
+
+    if [ -z "$COOG_API_URL" ]
+    then
+        export COOG_API_URL="http://${NETWORK_NAME}-web"
+    fi
+
+    if [ -z "$COOG_API_URL_V2" ]
+    then
+        export COOG_API_URL_V2="http://${NETWORK_NAME}-api"
+    fi
+
+    echo "Export gateway authentication activation"
+    export COOG_MODULE GOOGLE_MODULE FACEBOOK_MODULE FORCEDOTCOM_MODULE \
+        GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET \
+        FACEBOOK_CLIENT_ID FACEBOOK_CLIENT_SECRET \
+        FORCEDOTCOM_CLIENT_ID FORCEDOTCOM_CLIENT_SECRET 
+
+    echo "Export mongo envs"
+    export MONGO_IMAGE MONGO_USER MONGO_PASSWORD MONGO_PORT 
 }
 
 _build_conf_docker() {
