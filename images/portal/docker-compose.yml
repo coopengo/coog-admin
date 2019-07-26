@@ -33,9 +33,6 @@ services:
               read_only: true
         depends_on:
             - mongo
-        command:
-            - npm
-            - start
         environment:
             ###################################
             # ----------PARAMETRAGE---------- #
@@ -98,9 +95,6 @@ services:
               consistency: delegated
         depends_on:
             - mongo
-        command:
-            - npm
-            - start
         environment:
             ###################################
             # ----------PARAMETRAGE---------- #

@@ -6,3 +6,6 @@ WORKDIR workspace/gateway
 COPY ./dist/coog-portal/gateway .
 
 RUN yarn --production
+
+EXPOSE 8000
+CMD ['yarn', 'start']
