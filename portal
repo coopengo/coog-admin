@@ -53,9 +53,16 @@ _export_conf_docker() {
 _build_conf_docker() {
     echo "set version of images"
 
+    if [ ! -z "$CUSTOMER" ]
+    then
+        echo $CUSTOMER
+        export CUSTOMER="-$CUSTOMER"
+    fi
+
     export PORTAL_VERSION="$1"
     export API_VERSION="$1"
     export GATEWAY_VERSION="$1"
+    export REACT_APP_PROD_API_URL REACT_APP_PORTAL_URL
     export MONGO_IMAGE NETWORK_NAME
 }
 
@@ -68,6 +75,12 @@ _up() {
     _export_conf_docker
     cd images/portal
     docker-compose up -d "$@"
+}
+
+_restart() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose restart
 }
 
 _down() {
@@ -99,6 +112,7 @@ main() {
     [ "$cmd" = "build" ] && { (_build "$@"); return $?; }
     [ "$cmd" = "down" ] && { (_down "$@"); return $?; }
     [ "$cmd" = "up" ] && { (_up "$@"); return $?; }
+    [ "$cmd" = "restart" ] && { (_restart "$@"); return $?; }
     usage
 }
 
