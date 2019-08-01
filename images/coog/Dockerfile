@@ -14,7 +14,7 @@ RUN mkdir /workspace \
         "python-sql==1.0.0" \
         "polib==1.1.0" \
         "Genshi==0.7.1" \
-        "relatorio==0.8.1" \
+        "relatorio==0.9.0" \
         "python-magic==0.4.15" \
         "pydot==1.3.0" \
         "pyparsing==2.3.0" \
