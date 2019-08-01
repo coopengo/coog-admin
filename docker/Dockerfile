@@ -24,7 +24,7 @@ RUN pip install \
         "psycopg2==2.7.5" \
         "polib==1.1.0" \
         "Genshi==0.7.1" \
-        "relatorio~=0.6.4" \
+        "relatorio==0.9.0" \
         "pydot==1.2.4" \
         "pyparsing==2.2.1" \
         "python-stdnum==1.9" \
