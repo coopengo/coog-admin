@@ -1,12 +1,12 @@
 FROM node:10.15-alpine
 
-RUN mkdir /web
-COPY ./dist /portal
-WORKDIR /portal/coog-portal
-
 RUN yarn global add serve
 
-COPY ./ep /portal/
+RUN mkdir /web
+COPY ./dist/coog-portal/portal /portal/coog-portal
+WORKDIR /portal/coog-portal
+
+COPY docker/portal/ep /portal/
 RUN ln -s /portal/ep /usr/local/bin/ep
 
 ENTRYPOINT ["ep"]

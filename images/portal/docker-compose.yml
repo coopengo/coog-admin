@@ -1,0 +1,131 @@
+version: '3.2'
+services:
+    # On sections environment,
+    # If comment start with R
+    #   It means this environment is Required
+    # Else
+    #   It's optionnal
+    portal:
+        image: coopengo/portal${CUSTOMER}:${PORTAL_VERSION}
+        build:
+            context: .
+            dockerfile: docker/portal/Dockerfile
+        container_name: ${NETWORK_NAME}-portal
+        networks:
+            - main
+        entrypoint:
+            - ep
+        command:
+            - server
+    gateway:
+        # Le containeur doit être accessible via nginx ou un outil similaire
+        image: coopengo/gateway${CUSTOMER}:${GATEWAY_VERSION}
+        build:
+            context: .
+            dockerfile: docker/gateway/Dockerfile
+        container_name: ${NETWORK_NAME}-gateway
+        networks:
+            - main 
+        volumes:
+            - type: volume
+              source: doc
+              target: /workspace/coog-api
+              read_only: true
+        depends_on:
+            - mongo
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ----------FILTRE URLS---------- #
+            WHITELIST: ${GATEWAY_WHITELIST}              # R URLs des connections authorisées, séparé par des virgules.
+            COOG_PORTAL_URL: localhost:5000              # R URL du serveur déployant portal
+             
+            # -------------MONGO------------- #
+            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo
+            MONGO_PORT: ${MONGO_PORT}                    # R Port utilisé pour la connection a mongo
+            MONGO_DB_NAME: ${GATEWAY_MONGO_DB_NAME}      # O Nom de la base de donnée mongo à utilisé par Gateway
+            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+
+            # --------------JWT-------------- #
+            JWT_ENCRYPTION: ${JWT_SECRET}                # R Chaine de caractère utilisé pour le hashage JWT
+            JWT_EXPIRATION: ${JWT_EXPIRATION}            # R Durée de vie du JWT
+
+            # -------------COOG-------------- #
+            COOG_WEB_TOKEN: ${GATEWAY_WEB_TOKEN}         # R A récupérer après avoir lancé Coog et initier un Jeton
+            COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
+            COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
+
+            ####################################
+            # -----------CONNECTION----------- #
+            ####################################
+
+            # -------------BASIC-------------- #
+            COOG_MODULE: ${COOG_MODULE}                  # O Basic auth via COOG
+
+            # -----------PASSPORT------------- #
+            # ------------OAUTH2-------------- #
+            GOOGLE_MODULE: ${GOOGLE_MODULE}              # O Google OAuth2 activation
+            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}        # O Id de l'application google
+            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_ID}    # O Hash secret de l'application google
+
+            FACEBOOK_MODULE: ${FACEBOOK_MODULE}          # O Facebook OAuth2
+            FACEBOOK_CLIENT_ID:  ${FACEBOOK_CLIENT_ID}   # O Id de l'application facebook
+            FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_ID} # O Hash secret de l'application facebook
+
+            FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
+            FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
+            FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
+    api:
+        image: coopengo/api${CUSTOMER}:${API_VERSION}
+        build:
+            context: .
+            dockerfile: docker/api/Dockerfile
+        container_name: ${NETWORK_NAME}-api
+        networks:
+            - main
+        volumes: 
+            # Ce volume permet l'acces de la doc API a gateway
+            # le container api est le container qui contient les données
+            - type: volume 
+              source: doc
+              target: /workspace/api
+              consistency: delegated
+        depends_on:
+            - mongo
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ------------COOG--------------- #
+            COOG_HOST: ${NETWORK_NAME}-coog-server       # R URL du serveur déployant Coog
+            COOG_PORT: ${COOG_SERVER_PORT}               # R Port de connection à coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+            COOG_PROTOCOL: ${COOG_SERVER_PROTOCOL}       # R Protocol de connection à utilisé
+            COOG_WEB_TOKEN: ${API_WEB_TOKEN}             # R Token utilisé pour la connection a Coog
+
+            # -------------MONGO------------- #
+            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
+            MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
+                                                         #   à supprimer prochainement car mongodb est le protocol standard
+            MONGO_DB_NAME: ${API_MONGO_DB_NAME}          # O Nom de la base de données mongo a utiliser, default: coog-api-V2
+            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+    mongo:
+        image: ${MONGO_IMAGE}
+        container_name: ${NETWORK_NAME}-mongo
+        networks:
+            - main
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+networks:
+    main:
+        external:
+            name: ${NETWORK_NAME} # Default = utilisateur courant
+volumes:
+    # Volume utilisé pour le partage de la doc
+    doc:

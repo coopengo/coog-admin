@@ -22,6 +22,7 @@ In addition to these two directories:
 
 -   a server running on Linux
 -   docker
+-   docker-compose
 -   github
 -   an email utility
 
@@ -265,6 +266,7 @@ following commands
 ./web server
 ./nginx reset
 ./nginx run
+./portal up
 ```
 
 It can happen that containers need to be restarted. In this case
@@ -284,6 +286,7 @@ commands
 ./coog -- server rm -v -f
 ./coog -- celery rm -v -f
 ./unoconv rm -v -f
+./portal down -v 
 ```
 
 In some cases, according to specific application needs, it's necessary to start 
@@ -311,6 +314,7 @@ instance if the nginx port is 81.
 -   Coog App is accessible through <http://hostname/web>
 -   Modules selection application is accessible through
     <http://hostname/web/#install/start>
+-   Portal is accessible through <http://hostname/portal>
 
 If you want to check API is working, launch a Get on
 <http://hostname/web/api/auth> check it returns

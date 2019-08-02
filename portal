@@ -9,36 +9,84 @@ then
     } >&2 && exit 1
 fi
 
-_build() {
-    ( cd "$COOG_CODE_DIR/images/portal" && ./build "$@" )
-}
+_export_conf_docker() {
+    echo "Export shared env"
+    export NETWORK_NAME COOG_DB_NAME
 
-_docker() {
-    docker "$@" "$NETWORK_NAME-portal"
-}
-
-_args() {
-    local args
-    args="$args -e REACT_APP_PORTAL_URL=$COOG_PORTAL_BASENAME_URL"
-    echo "$args"
-}
-
-_image() {
-    [ -z "$1" ] && echo missing command && return 1
-    local cmd; cmd="$1"
-    local args
-    if [ "$cmd" = server ]
+    if [ ! -z "$CUSTOMER" ]
     then
-        cmd=portal
-        args=$DOCKER_DAEMON_OPTS
-    else
-        args=$DOCKER_INTERACTIVE_OPTS
+        echo $CUSTOMER
+        export CUSTOMER="-$CUSTOMER"
     fi
-    docker run \
-        --name "$NETWORK_NAME-$cmd" \
-        --network "$NETWORK_NAME" \
-        $args \
-        $(_args) "$PORTAL_IMAGE" "$@"
+
+    echo "Export portal envs"
+    export PORTAL_VERSION 
+    
+    echo "Export api envs"
+    export API_VERSION API_WEB_TOKEN COOG_SERVER_PORT COOG_SERVER_PROTOCOL \
+        API_MONGO_DB_NAME
+    
+    echo "Export gateway envs" 
+    export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_SECRET \
+        JWT_EXPIRATION GATEWAY_WEB_TOKEN GATEWAY_MONGO_DB_NAME
+
+    if [ -z "$COOG_API_URL" ]
+    then
+        export COOG_API_URL="http://${NETWORK_NAME}-web"
+    fi
+
+    if [ -z "$COOG_API_URL_V2" ]
+    then
+        export COOG_API_URL_V2="http://${NETWORK_NAME}-api"
+    fi
+
+    echo "Export gateway authentication activation"
+    export COOG_MODULE GOOGLE_MODULE FACEBOOK_MODULE FORCEDOTCOM_MODULE \
+        GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET \
+        FACEBOOK_CLIENT_ID FACEBOOK_CLIENT_SECRET \
+        FORCEDOTCOM_CLIENT_ID FORCEDOTCOM_CLIENT_SECRET 
+
+    echo "Export mongo envs"
+    export MONGO_IMAGE MONGO_USER MONGO_PASSWORD MONGO_PORT 
+}
+
+_build_conf_docker() {
+    echo "set version of images"
+
+    if [ ! -z "$CUSTOMER" ]
+    then
+        echo $CUSTOMER
+        export CUSTOMER="-$CUSTOMER"
+    fi
+
+    export PORTAL_VERSION="$1"
+    export API_VERSION="$1"
+    export GATEWAY_VERSION="$1"
+    export REACT_APP_PROD_API_URL REACT_APP_PORTAL_URL
+    export MONGO_IMAGE NETWORK_NAME
+}
+
+_build() {
+    _build_conf_docker "$@"
+    cd "$COOG_CODE_DIR/images/portal" && ./build "$@"
+}
+
+_up() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose up -d "$@"
+}
+
+_restart() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose restart
+}
+
+_down() {
+    _export_conf_docker
+    cd images/portal
+    docker-compose down -v "$@"
 }
 
 ########
@@ -49,13 +97,11 @@ usage() {
     echo
     echo Admin commands
     echo
-    echo "  build     -> build portal image: <tag> <repo:branch>+"
-    echo "  server    -> launch portal container"
-    echo
-    echo Docker commands
-    echo
-    echo "  <action>  -> calls docker action on web container"
-    docker run $DOCKER_PIPED_OPTS "$PORTAL_IMAGE"
+    echo "  build                -> build portal image: <tag> <repo:branch>+"
+    echo "  down                 -> shut down all container"
+    echo "  down api gateway ... -> shut down relative container"
+    echo "  up                   -> running all container"
+    echo "  up api gateway ...   -> running relative container"
     return 0
 }
 
@@ -63,9 +109,11 @@ main() {
     source "$COOG_CODE_DIR/config"
     [ -z "$1" ] && usage && return 0
     local cmd; cmd="$1"; shift
-    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
-    [ "$cmd" = "server" ] && { _image "$cmd" "$@"; return $?; }
-    _docker "$cmd" "$@"
+    [ "$cmd" = "build" ] && { (_build "$@"); return $?; }
+    [ "$cmd" = "down" ] && { (_down "$@"); return $?; }
+    [ "$cmd" = "up" ] && { (_up "$@"); return $?; }
+    [ "$cmd" = "restart" ] && { (_restart "$@"); return $?; }
+    usage
 }
 
 main "$@"
