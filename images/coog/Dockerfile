@@ -1,6 +1,10 @@
 FROM python:2-slim
 MAINTAINER Coopengo <support@coopengo.com>
 
+RUN groupadd -g 999 appuser && \
+        useradd -r -u 999 -g appuser appuser
+RUN echo "root:root" | chpasswd
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
         vim \
@@ -11,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         graphviz \
         libmagic1 \
         git \
+        openssh-client \ 
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
@@ -52,7 +57,10 @@ RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
 RUN ln -s /workspace/ep /usr/local/bin/ep
-RUN ep link
+RUN ep link 
+RUN chmod 777 /workspace/ 
+
+USER appuser
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
