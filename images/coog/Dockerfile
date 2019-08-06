@@ -1,9 +1,10 @@
 FROM python:2-slim
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN groupadd -g 999 appuser && \
-        useradd -r -u 999 -g appuser appuser
-RUN echo "root:root" | chpasswd
+# ajout user appuser et mot de passe de root maintenant : root
+RUN groupadd -g 999 coog_user && \
+        useradd -r -u 999 -g coog_user coog_user && \
+        echo "root:root" | chpasswd
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
@@ -58,9 +59,9 @@ RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
 RUN ln -s /workspace/ep /usr/local/bin/ep
 RUN ep link 
-RUN chmod 777 /workspace/ 
+RUN chown -R coog_user:coog_user /workspace/ 
 
-USER appuser
+USER coog_user
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
