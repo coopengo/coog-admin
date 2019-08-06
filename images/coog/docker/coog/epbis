@@ -67,18 +67,12 @@ _modules() {
 
 _admin() {
     _init || return $?
-    trytond-admin -v -d "$COOG_DB_NAME" "$@"
+    trytond-admin -v "$@"
 }
 
 _cron() {
     _init || return $?
     trytond-cron "$@"
-}
-
-_bootstrap_db_if_needed() {
-     PATH="$COOG_ROOT/coog/bin:$PATH" \
-         PYTHONPATH="$COOG_ROOT/trytond:$COOG_ROOT/proteus:$COOG_ROOT/coog/bin/lib:$PYTHONPATH" \
-         python "$COOG_ROOT/coog/misc/bootstrap_db.py"
 }
 
 _server() {
@@ -90,10 +84,10 @@ _server() {
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
-    [ ! -z "$WSGI_LOG_FILE" ] && export WSGI_LOG_FILE
+    [ -z "$WSGI_LOG_FILE" ] && WSGI_LOG_FILE="/tmp/coog.log"
+    export WSGI_LOG_FILE
     COOG_IWC=1
     export COOG_IWC
-    _bootstrap_db_if_needed
     uwsgi -T \
         --plugins python3 \
         --module trytond.application:app \
@@ -119,19 +113,13 @@ _celery() {
     then
         q="$*"
     else
-        q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
+        q="$(python -W ignore $COOG_BIN/load_batches.py --run_specific | tr '\n' ',' 2> /dev/null)"
     fi
     celery worker \
         --app=coog_async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
         --queues="$q"
-}
-
-_celery_single() {
-    echo Welcome on board, Coog Celery is preparing to start
-    _init || return $?
-    python -W ignore $COOG_BIN/load_batches.py --run_specific
 }
 
 _demo() {
@@ -213,7 +201,6 @@ usage() {
     echo "  admin         -> launch admin utils - <args>"
     echo "  server        -> starts coog server - <workers nb>"
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
-    echo "  celery_single -> starts specific celery workers with one worker"
     echo "  batch         -> executes batch - <name> [args *]"
     echo "  batch_info    -> append batch info in report "
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
@@ -235,7 +222,6 @@ main() {
     [ "$cmd" = admin ] && { _admin "$@"; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
-    [ "$cmd" = celery_single ] && { _celery_single "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
     [ "$cmd" = batch_info ] && { _batch_info "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
