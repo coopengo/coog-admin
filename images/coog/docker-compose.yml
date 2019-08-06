@@ -1,0 +1,22 @@
+version: '3.2'
+services:
+    coog:
+        image: coopengo/coog${CUSTOMER}:${COOG_VERSION}
+        build:
+            context: .
+            dockerfile: docker/coog/Dockerfile
+        container_name: ${NETWORK_NAME}-coog-${FUNCTION}
+        networks:
+            - main
+    coog-static:
+        image: coopengo/coog-static:${COOG_STATIC_VERSION}
+        build:
+            context: .
+            dockerfile: docker/coog-static/Dockerfile
+        container_name: ${NETWORK_NAME}-coog-static
+        networks:
+            - main
+networks:
+    main:
+        external:
+            name: ${NETWORK_NAME} # Default = utilisateur courant
