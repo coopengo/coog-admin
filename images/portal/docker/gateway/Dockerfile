@@ -10,4 +10,4 @@ USER node
 WORKDIR workspace/gateway
 
 EXPOSE 8000
-CMD ['yarn', 'start']
+CMD yarn start
