@@ -7,5 +7,6 @@ RUN addgroup -g 1000 unoconv \
 RUN sed -i -e 's/workers 100/workers 4/g' circus.ini \
     && sed -i -e 's/cheaper-initial 5/cheaper-initial 1/g' circus.ini \
     && sed -i -e 's/cheaper-initial 5/cheaper-initial 1/g' circus.ini
+    && sed -i -e 's/--logto \/var\/log\/unoconv.log //g' circus.ini
 
 USER unoconv
