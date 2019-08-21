@@ -247,7 +247,8 @@ _celery() {
         --app=coog_async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
-        --queues="$q"
+        --queues="$q" \
+        --pidfile /tmp/celerybeat.pid
 }
 
 _rq() {
