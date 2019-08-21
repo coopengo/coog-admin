@@ -46,6 +46,7 @@ COPY dist/trytond/ /workspace/trytond/
 COPY dist/trytond-modules/ /workspace/trytond-modules/ 
 COPY dist/coog/ /workspace/coog/
 COPY dist/proteus/ /workspace/proteus/
+COPY dist/customers/ /workspace/customers/
 
 COPY docker/coog/ep /workspace/bin/
 

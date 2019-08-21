@@ -10,4 +10,4 @@ RUN yarn --production
 USER node
 
 EXPOSE 8000
-CMD ['yarn', 'start']
+CMD yarn start
