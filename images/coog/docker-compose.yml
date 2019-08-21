@@ -9,10 +9,10 @@ services:
         networks:
             - main
     coog-static:
-        image: coopengo/coog-static:${COOG_STATIC_VERSION}
+        image: coopengo/static:${COOG_STATIC_VERSION}
         build:
             context: .
-            dockerfile: docker/coog-static/Dockerfile
+            dockerfile: docker/static/Dockerfile
         container_name: ${NETWORK_NAME}-coog-static
         networks:
             - main
