@@ -17,7 +17,6 @@ USER node
 WORKDIR workspace/
 
 USER node
-WORKDIR workspace/gateway
 
 EXPOSE 8000
 ENTRYPOINT ["/workspace/launcher"]
