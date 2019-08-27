@@ -132,8 +132,6 @@ COOG_API_GOOGLE_KEY=                    # Google API Key
 # PORTAL CONFIG
 #-------------------------------------------------------------------------------#
 
-CUSTOMER=                               # Customer custom image
-
 PORTAL_VERSION=master                   # Portal image tag
 API_VERSION=master                      # Api image tag
 GATEWAY_VERSION=master                  # Gateway image tag
