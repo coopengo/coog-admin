@@ -123,7 +123,6 @@ _celery() {
 }
 
 _celery_single() {
-    fi
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
     python -W ignore $COOG_BIN/load_batches.py --run_specific
