@@ -16,7 +16,5 @@ RUN cd workspace/gateway \
 USER node
 WORKDIR workspace/
 
-USER node
-
 EXPOSE 8000
 ENTRYPOINT ["/workspace/launcher"]
