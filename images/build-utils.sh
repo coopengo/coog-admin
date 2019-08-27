@@ -34,24 +34,17 @@ repo_checkout() { # <dd> <repo> <branch>
         || return 1
 }
 
-repo_cp() { # <dd> <repo> <branch>
+pre_repo_cp() {
     local d; d=$(git diff --stat HEAD | wc -l)
     [ "$d" -ne 0 ] && echo "repo $2 not clean" >&2 && return 1
     local rev; rev=$(guess_rev "$3")
 
     mkdir "$1/$2" || return 1
 
-    if [ -d build ]
-    then
-        echo "  build and copy"
-        ./build/build "$rev" \
-            && cp -R ./dist/* "$1/$2/" \
-            || return 1
-    else
-        echo "  copy"
-        git archive HEAD | tar x -C "$1/$2" || return $?
-        git submodule foreach "git archive HEAD | tar x -C $1/$2/\$path" || return $?
-    fi
+    echo "$rev"
+}
+
+post_repo_cp() {
     if [ -d doc ]
     then
         if [ -f doc/docker-compose.yml ]
@@ -68,9 +61,43 @@ repo_cp() { # <dd> <repo> <branch>
         fi
         cp -R "doc/dist/html" "$1/$2-doc"
     fi
-
     echo "Git clean"
     git clean -d -f -X
+}
+
+repo_cp_archive() {
+    echo "  copy"
+    git archive HEAD | tar x -C "$1/$2" || return $?
+    git submodule foreach "git archive HEAD | tar x -C $1/$2/\$path" || return $?
+}
+
+repo_cp_build() {
+    echo "  build and copy"
+    ./build/build "$rev" \
+        && cp -R ./dist/* "$1/$2/" \
+        || return 1
+}
+
+repo_cp_customer() {
+    local rev; rev=$(pre_repo_cp "$@");
+    if [ -z "$BUILD_STEP" ]
+    then
+        repo_cp_archive "$@";
+    else
+        repo_cp_build "$@";
+    fi
+    post_repo_cp "$@";
+}
+
+repo_cp() { # <dd> <repo> <branch>
+    local rev; rev=$(pre_repo_cp "$@");
+    if [ -d build ]
+    then
+        repo_cp_build "$@";
+    else
+        repo_cp_archive "$@";
+    fi
+    post_repo_cp "$@";
 }
 
 _docker_build() {
@@ -81,22 +108,17 @@ _docker_build() {
     else
         docker build -t "$image" "$@" "."
     fi
+    if [ -n "$CUSTOMER" ]
+    then
+        if [ -e "docker-compose-customer.yml" ]
+        then
+            docker-compose -f docker-compose-customer.yml build  --no-cache --force-rm --parallel
+        fi
+    fi
     cd -
 }
 
-build() { # <image-tag> <repositories> -- [docker-build-arg*]
-    local script_path; script_path=$(readlink -f "$0")
-    local wd; wd=$(dirname "$script_path")
-    local dd; dd="$wd/dist"
-    local clones; clones="$wd/clones"
-
-    touch "$wd/repos.custom"
-    mkdir -p "$clones" || return 1
-    mkdir "$dd" || return 1
-
-    local image; image="$1"
-    shift
-
+build_loop() {
     while [ ! -z "$1" ]
     do
         [ "$1" = "--" ] && shift && break
@@ -109,11 +131,45 @@ build() { # <image-tag> <repositories> -- [docker-build-arg*]
             && return 1
         repo_fetch "$clones" "$repo" "$remote" || return 1
         (cd "$clones/$repo" && repo_checkout "$dd" "$repo" "$branch") || return 1
-        (cd "$clones/$repo" && repo_cp "$dd" "$repo" "$branch") || return 1
+        if [ "$repo" = "customers" ]
+        then
+            (cd "$clones/$repo" && repo_cp_customer "$dd" "$repo" "$branch") || return 1
+        else
+            (cd "$clones/$repo" && repo_cp "$dd" "$repo" "$branch") || return 1
+        fi
         shift
     done
+}
 
+build_static_finalize() {
+    cd "$clones/$MAIN_DIRECTORY" && repo_cp_build "$dd" "$repo"
+}
+
+post_build() {
     find "$dd" -name ".git" | xargs rm -rf
     _docker_build
     rm -rf "$dd"
+}
+
+build() { # <image-tag> <repositories> -- [docker-build-arg*]
+    local script_path; script_path=$(readlink -f "$0")
+    local wd; wd=$(dirname "$script_path")
+    local dd; dd="$wd/dist"
+    local clones; clones="$wd/clones"
+
+    touch "$wd/repos.custom"
+    mkdir -p "$clones" || return 1
+    rm -rf "$dd"
+    mkdir "$dd" || return 1
+
+    local image; image="$1"
+    shift
+    if [ -n "$MAIN_DIRECTORY" ]
+    then
+        (export BUILD_STEP=1 && build_loop "$@";) || return 1;
+        (export BUILD_STEP=2 && build_static_finalize;) || return 1;
+    else
+        build_loop "$@" || return 1
+    fi
+    post_build;
 }
