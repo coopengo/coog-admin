@@ -1,0 +1,4 @@
+#!/bin/sh
+
+(cd api-identity-manager && yarn start &)
+cd gateway && yarn start
