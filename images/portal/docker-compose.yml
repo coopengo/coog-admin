@@ -11,6 +11,8 @@ services:
             context: .
             dockerfile: docker/portal/Dockerfile
         container_name: ${NETWORK_NAME}-portal
+        ports:
+            - "5000:5000"
         networks:
             - main
         entrypoint:
@@ -24,6 +26,8 @@ services:
             context: .
             dockerfile: docker/gateway/Dockerfile
         container_name: ${NETWORK_NAME}-gateway
+        env_file:
+            - .env
         networks:
             - main 
         volumes:
@@ -40,7 +44,9 @@ services:
             
             # ----------FILTRE URLS---------- #
             WHITELIST: ${GATEWAY_WHITELIST}              # R URLs des connections authorisées, séparé par des virgules.
-            COOG_PORTAL_URL: localhost:5000              # R URL du serveur déployant portal
+            COOG_PORTAL_URL: ${COOG_PORTAL_URL}              # R URL du serveur déployant portal
+            COOG_GATEWAY_URL: ${COOG_GATEWAY_URL}              # R URL du serveur déployant portal
+            BASE_PATH: ${BASE_PATH}              # R URL du serveur déployant portal
              
             # -------------MONGO------------- #
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo
@@ -50,13 +56,17 @@ services:
             MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
 
             # --------------JWT-------------- #
-            JWT_ENCRYPTION: ${JWT_SECRET}                # R Chaine de caractère utilisé pour le hashage JWT
+            JWT_ENCRYPTION: ${JWT_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
             JWT_EXPIRATION: ${JWT_EXPIRATION}            # R Durée de vie du JWT
 
             # -------------COOG-------------- #
+            COOG_URL: ${COOG_URL}
+            COOG_DB_NAME: ${COOG_DB_NAME}
             COOG_WEB_TOKEN: ${GATEWAY_WEB_TOKEN}         # R A récupérer après avoir lancé Coog et initier un Jeton
             COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
             COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
+            COOG_API_IDENTITY_MANAGER_URL: http://localhost:3000                # R URL du serveur déployant API V1
 
             ####################################
             # -----------CONNECTION----------- #
@@ -101,12 +111,10 @@ services:
             ###################################
             
             # ------------COOG--------------- #
-            COOG_HOST: ${NETWORK_NAME}-coog-server       # R URL du serveur déployant Coog
-            COOG_PORT: ${COOG_SERVER_PORT}               # R Port de connection à coog
+            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
             COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
-            COOG_PROTOCOL: ${COOG_SERVER_PROTOCOL}       # R Protocol de connection à utilisé
-            COOG_WEB_TOKEN: ${API_WEB_TOKEN}             # R Token utilisé pour la connection a Coog
 
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
             # -------------MONGO------------- #
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
             MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,

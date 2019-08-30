@@ -13,31 +13,56 @@ _export_conf_docker() {
     echo "Export shared env"
     export NETWORK_NAME COOG_DB_NAME
 
+    export COOG_URL COOG_DB_NAME
+
     if [ ! -z "$CUSTOMER" ]
     then
         echo $CUSTOMER
         export CUSTOMER="-$CUSTOMER"
     fi
 
+    export JWT_INTERNAL_ENCRYPTION
+
     echo "Export portal envs"
     export PORTAL_VERSION 
     
     echo "Export api envs"
-    export API_VERSION API_WEB_TOKEN COOG_SERVER_PORT COOG_SERVER_PROTOCOL \
+    export API_VERSION API_WEB_TOKEN \
         API_MONGO_DB_NAME
     
     echo "Export gateway envs" 
-    export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_SECRET \
-        JWT_EXPIRATION GATEWAY_WEB_TOKEN GATEWAY_MONGO_DB_NAME
+    export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
+        JWT_EXPIRATION GATEWAY_WEB_TOKEN GATEWAY_MONGO_DB_NAME COOG_GATEWAY_URL
+
+    if [ -z "$BASE_PATH" ]
+    then
+        export BASE_PATH=""
+    else
+        export BASE_PATH
+    fi
 
     if [ -z "$COOG_API_URL" ]
     then
         export COOG_API_URL="http://${NETWORK_NAME}-web"
+    else
+        export COOG_API_URL
     fi
 
     if [ -z "$COOG_API_URL_V2" ]
     then
         export COOG_API_URL_V2="http://${NETWORK_NAME}-api"
+    else
+        export COOG_API_URL_V2
+    fi
+
+    if [ -z "$API_MONGO_DB_NAME" ]
+    then
+        export API_MONGO_DB_NAME=coog-api-v2
+    fi
+
+    if [ -z "$GATEWAY_MONGO_DB_NAME" ]
+    then
+        export GATEWAY_MONGO_DB_NAME=coog-gateway
     fi
 
     echo "Export gateway authentication activation"

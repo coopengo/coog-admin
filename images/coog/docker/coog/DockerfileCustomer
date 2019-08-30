@@ -1,0 +1,7 @@
+ARG IMAGE
+
+FROM $IMAGE
+
+COPY dist/customers/ /workspace/customers/
+
+RUN ep link
