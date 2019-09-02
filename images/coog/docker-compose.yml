@@ -5,18 +5,8 @@ services:
         build:
             context: .
             dockerfile: docker/coog/Dockerfile
-        container_name: ${NETWORK_NAME}-coog-${FUNCTION}
-        networks:
-            - main
     coog-static:
         image: coopengo/static${CUSTOMER}:${COOG_STATIC_VERSION}
         build:
             context: .
             dockerfile: docker/static/Dockerfile
-        container_name: ${NETWORK_NAME}-coog-static
-        networks:
-            - main
-networks:
-    main:
-        external:
-            name: ${NETWORK_NAME} # Default = utilisateur courant
