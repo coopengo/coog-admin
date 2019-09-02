@@ -126,7 +126,7 @@ build_loop() {
 }
 
 build_static_finalize() {
-    cd "$clones/$MAIN_DIRECTORY" && repo_cp_build "$dd" "$repo"
+    cd "$clones/$MAIN_DIRECTORY" && repo_cp_build "$dd" "$MAIN_DIRECTORY"
 }
 
 post_build() {
