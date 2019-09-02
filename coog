@@ -101,11 +101,25 @@ _args() {
     echo "$args $(session_args) $(postgres_args) $(redis_args) $(report_args) $(db_args) $(cache_args) $(celery_args) $(rq_args) $(sentry_args)"
 }
 
+_build_args() {
+    local VERSION;
+    VERSION=$1
+    export COOG_VERSION=$1
+    export COOG_STATIC_VERSION=$1
+    export NETWORK_NAME
+    if [ ! -z "$CUSTOMER" ]
+    then
+        echo $CUSTOMER
+        export CUSTOMER="-$CUSTOMER"
+    fi
+}
+
 ###############
 # entrypoints #
 ###############
 
 _build() {
+    _build_args $1
     cd "$COOG_CODE_DIR/images/coog" && ./build "$@"
 }
 
@@ -268,7 +282,7 @@ main() {
     set_runtime_vars
     [ -z "$1" ] && usage && return 1
     local cmd; cmd="$1"; shift
-    [ "$cmd" = "build" ] && { _build "$@"; return $?; }
+    [ "$cmd" = "build" ] && { (_build "$@"); return $?; }
     [ "$cmd" = "reset" ] && { ( cd "$COOG_DATA_DIR" && config_data_reset_coog "$@" ); return $?; }
     [ "$cmd" = "edit" ] && { _edit "$@"; return $?; }
     [ "$cmd" = "patch" ] && { _patch "$@"; return $?; }

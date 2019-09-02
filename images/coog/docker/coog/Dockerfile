@@ -1,8 +1,11 @@
 FROM alpine:3.7
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN mkdir /workspace \
-    && apk add --no-cache \
+RUN addgroup -g 1000 coog \
+    && adduser -u 1000 -G coog -s /bin/sh -D coog \
+    && mkdir /workspace
+
+RUN apk add --no-cache \
         bash python3 redis graphviz libmagic coreutils \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim git \
     && ln -s /usr/bin/python3 /usr/bin/python \
@@ -39,19 +42,24 @@ RUN mkdir /workspace \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
-ENV PATH="/workspace/bin:${PATH}"
+COPY dist/trytond/ /workspace/trytond/
+COPY dist/trytond-modules/ /workspace/trytond-modules/ 
+COPY dist/coog/ /workspace/coog/
+COPY dist/proteus/ /workspace/proteus/
+COPY dist/customers/ /workspace/customers/
 
-COPY dist /workspace
-COPY ep /workspace/bin/
+COPY docker/coog/ep /workspace/bin/
 
-RUN echo $PATH
-RUN ls /workspace/bin
-RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin \
-    && ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin \
-    && ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin \
-    && ln -s /workspace/ep /usr/local/bin/ep \
+
+RUN ln -s /workspace/trytond/bin/trytond /workspace/bin/trytond \
+    && ln -s /workspace/trytond/bin/trytond-admin /workspace/bin/trytond-admin \
+    && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin/trytond-cron \
     && /workspace/bin/ep link
 
-VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
+RUN chown coog /workspace -R 
+USER coog
+
+ENV PATH="/workspace/bin:${PATH}"
+
 ENTRYPOINT ["ep"]
 EXPOSE 8000

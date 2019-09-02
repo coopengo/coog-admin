@@ -14,6 +14,8 @@ COPY ./ep /web/
 RUN ln -s /web/ep /usr/local/bin/ep
 RUN ep link
 
+USER node
+
 VOLUME ["/web/coog-app"]
 ENTRYPOINT ["ep"]
 EXPOSE 3000

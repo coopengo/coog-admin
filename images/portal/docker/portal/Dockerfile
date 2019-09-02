@@ -9,5 +9,7 @@ WORKDIR /portal/coog-portal
 COPY docker/portal/ep /portal/
 RUN ln -s /portal/ep /usr/local/bin/ep
 
+USER node
+
 ENTRYPOINT ["ep"]
 EXPOSE 5000

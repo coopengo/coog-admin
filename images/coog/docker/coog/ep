@@ -14,141 +14,23 @@ COOG_IO=$COOG_ROOT/io
 # init container #
 ##################
 
-conf_postgres() {
-    [ -z "$COOG_POSTGRES_HOST" ] && echo "missing -e COOG_POSTGRES_HOST" && return 1
-    [ -z "$COOG_POSTGRES_PORT" ] && COOG_POSTGRES_PORT=5432
-    return 0
-}
-
-conf_redis() {
-    [ ! -z "$COOG_REDIS_HOST" ] && [ -z "$COOG_REDIS_PORT" ] && COOG_REDIS_PORT=6379
-    return 0
-}
-
-conf_database() {
-    echo "[database]"
-    echo "path = $COOG_IO/edm"
-    [ ! -z "$COOG_DB_LANG" ] && echo "language = $COOG_DB_LANG"
-    [ -z "$COOG_DB_USER" ] && echo "missing DB user" && return 1
-    [ -z "$COOG_DB_PASSWORD" ] && echo "missing DB password" && return 1
-    echo "uri = postgresql://$COOG_DB_USER:$COOG_DB_PASSWORD@$COOG_POSTGRES_HOST:$COOG_POSTGRES_PORT"
-    return 0
-}
-
-conf_cache() {
-    echo "[cache]"
-    [ ! -z "$COOG_CACHE_MODEL" ] && echo "model = $COOG_CACHE_MODEL"
-    [ ! -z "$COOG_CACHE_RECORD" ] && echo "record = $COOG_CACHE_RECORD"
-    [ ! -z "$COOG_CACHE_FIELD" ] && echo "field = $COOG_CACHE_FIELD"
-    [ ! -z "$COOG_CACHE_COOG" ] && echo "coog_cache_size = $COOG_CACHE_COOG"
-    if [ ! -z "$COOG_CACHE_DB" ]
-    then
-        [ -z "$COOG_REDIS_HOST" ] && echo "no redis configured" && return 1
-        echo "class = trytond.cache_redis.RedisCache"
-        echo "uri = redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CACHE_DB"
-    fi
-    return 0
-}
-
-conf_async() {
-    echo "[async]"
-    if [ ! -z "$COOG_CELERY_DB" ]
-    then
-        [ -z "$COOG_REDIS_HOST" ] && echo "no redis configured" && return 1
-        echo "celery = redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CELERY_DB"
-    fi
-    if [ ! -z "$COOG_RQ_DB" ]
-    then
-        [ -z "$COOG_REDIS_HOST" ] && echo "no redis configured" && return 1
-        echo "rq = redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_RQ_DB"
-    fi
-    return 0
-}
-
-hash_pwd() {
-    python -c "import crypt,random,string; print(crypt.crypt('$1', ''.join(random.sample(string.ascii_letters + string.digits, 8))))"
-}
-
-conf_session() {
-    echo "[session]"
-    [ -z "$COOG_SESSION_SUPERPWD" ] && return 0
-    local password
-    password=$(hash_pwd "$COOG_SESSION_SUPERPWD")
-    echo "super_pwd = $password"
-    return 0
-}
-
-conf_report() {
-    [ -z "$COOG_REPORT_API" ] && return 0
-    echo "[report]"
-    echo "api = $COOG_REPORT_API"
-}
-
-conf_sentry() {
-    echo "[sentry]"
-    [ ! -z "$COOG_SENTRY" ] && echo "dsn = $COOG_SENTRY"
-    return 0
-}
-
-conf_batch() {
-    echo "[batch]"
-    echo "root_dir = $COOG_IO/batch"
-}
-
-conf_test() {
-    [ -z "$COOG_TEST" ] && return 0
-    echo "[env]"
-    echo "testing = True"
-}
-
-_init_conf() {
-    # build conf from env vars
-    echo "" > "$COOG_CONF_SRV"
-    conf_postgres >> "$COOG_CONF_SRV" || return $?
-    conf_redis >> "$COOG_CONF_SRV" || return $?
-    conf_database >> "$COOG_CONF_SRV" || return $?
-    conf_cache >> "$COOG_CONF_SRV" || return $?
-    conf_async >> "$COOG_CONF_SRV" || return $?
-    conf_session >> "$COOG_CONF_SRV" || return $?
-    conf_report >> "$COOG_CONF_SRV" || return $?
-    conf_sentry >> "$COOG_CONF_SRV" || return $?
-    conf_batch >> "$COOG_CONF_SRV" || return $?
-    conf_test >> "$COOG_CONF_SRV" || return $?
-    # append override
-    local override
-    override="$COOG_IO/conf/coog.conf"
-    [ -f "$override" ] && cat "$override" >> $COOG_CONF_SRV
-    # set batch conf
-    touch "$COOG_CONF_BAT"
-    local batch_conf
-    batch_conf="$COOG_IO/conf/batch.conf"
-    [ -f "$batch_conf" ] && cat "$batch_conf" >> "$COOG_CONF_BAT"
-    return 0
-}
-
 _init_env() {
     export PYTHONUNBUFFERED=1
     export PYTHONPATH="$COOG_LIB:$COOG_TRYTOND:$PYTHONPATH"
     [ -d "$COOG_PROTEUS" ] && export PYTHONPATH="$COOG_PROTEUS:$PYTHONPATH"
     [ -z "$LOG_LEVEL" ] && LOG_LEVEL=ERROR
+    export DB_NAME="$COOG_DB_NAME"
     export LOG_LEVEL
-    export TRYTOND_CONFIG="$COOG_CONF_SRV"
-    export TRYTOND_BATCH_CONFIG="$COOG_CONF_BAT"
-    [ ! -z "$COOG_CELERY_DB" ] && export TRYTOND_ASYNC_CELERY="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CELERY_DB"
-    [ ! -z "$COOG_RQ_DB" ] && export TRYTOND_ASYNC_RQ="redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_RQ_DB"
-    if [ ! -z "$COOG_TEST" ]
-    then
-        DB_CACHE=/tmp
-        export DB_CACHE
-    elif [ ! -z "$COOG_DB_NAME" ]
-    then
-        export DB_NAME=$COOG_DB_NAME
-    fi
+    # Nowaday we need files to be physically created even if it is empty.
+    # (i.e: see coog-daily script)
+    # TODO: Remove totally depency to these files
+    echo "" > $COOG_CONF_SRV
+    echo "" > $COOG_CONF_BAT
     return 0
 }
 
 _init() {
-    _init_conf && _init_env
+    _init_env
 }
 
 ###############
@@ -175,14 +57,6 @@ _print_env() {
     printenv
 }
 
-_print_conf() {
-    _init || return $?
-    echo '# COOG_CONF_SRV'
-    cat $COOG_CONF_SRV
-    echo '# COOG_CONF_BAT'
-    cat $COOG_CONF_BAT
-}
-
 _modules() {
     . "$COOG_ROOT/coog/bin/coog-module"
     PGHOST="$COOG_POSTGRES_HOST" \
@@ -193,14 +67,12 @@ _modules() {
 
 _admin() {
     _init || return $?
-    [ -z "$COOG_DB_NAME" ] && echo missing db name && return 1
-    trytond-admin -v -c "$COOG_CONF_SRV" -d "$COOG_DB_NAME" "$@"
+    trytond-admin -v "$@"
 }
 
 _cron() {
     _init || return $?
-    [ -z "$COOG_DB_NAME" ] && echo missing db name && return 1
-    trytond-cron -c "$COOG_CONF_SRV" -d "$COOG_DB_NAME" "$@"
+    trytond-cron "$@"
 }
 
 _server() {
@@ -212,7 +84,7 @@ _server() {
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
-    WSGI_LOG_FILE="/tmp/coog.log"
+    [ -z "$WSGI_LOG_FILE" ] && WSGI_LOG_FILE="/tmp/coog.log"
     export WSGI_LOG_FILE
     COOG_IWC=1
     export COOG_IWC
@@ -247,23 +119,13 @@ _celery() {
         --app=coog_async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
-        --queues="$q" \
-        --pidfile /tmp/celerybeat.pid
+        --queues="$q"
 }
 
-_rq() {
-    echo Welcome on board, Coog RQ is preparing to start
+_celery_single() {
+    echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
-    if [ ! -z "$1" ]
-    then
-        if [ "$1" = test ]
-        then
-            unset DB_NAME
-        fi
-        rq worker  --burst -u "$TRYTOND_ASYNC_RQ" "$@"
-    else
-        python -W ignore $COOG_BIN/load_batches.py | tr '\n' ' ' 2> /dev/null | xargs rq worker --burst -u "$TRYTOND_ASYNC_RQ"
-    fi
+    python -W ignore $COOG_BIN/load_batches.py --run_specific
 }
 
 _demo() {
@@ -281,31 +143,11 @@ _demo() {
         python "$COOG_ROOT/coog/modules/global_tests/tests/new_db.py"
 }
 
-_test() {
-    . "$COOG_ROOT/coog/bin/coog-redis"
-    . "$COOG_ROOT/coog/bin/coog-rq"
-    . "$COOG_ROOT/coog/bin/coog-test"
-    unset COOG_CELERY_DB
-    local cmd
-    cmd="$1"
-    shift
-    if [ "$cmd" = generate ]
-    then
-        _init && coog_test_generate "$@"
-    elif [ "$cmd" = join ]
-    then
-        _init && coog_test_join "$@"
-    else
-        echo "bad command $cmd" && return 1
-    fi
-}
-
 _batch() {
     [ -z "$1" ] && echo "missing batch name" && return 1
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     coog_batch_exec "$@"
 }
@@ -315,7 +157,6 @@ _batch_info() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     coog_batch_info "$@"
 }
@@ -325,7 +166,6 @@ _chain() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
     [ "$1" = "--" ] && shift 1
@@ -343,7 +183,6 @@ _daily() {
     _init || return $?
     . "$COOG_ROOT/coog/bin/coog-redis"
     . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
     . "$COOG_ROOT/coog/bin/coog-batch"
     . "$COOG_ROOT/coog/bin/coog-chain"
     . "$COOG_ROOT/coog/bin/coog-module"
@@ -352,21 +191,6 @@ _daily() {
         PGPASSWORD="$COOG_DB_PASSWORD" \
         PGUSER="$COOG_DB_USER" \
         PGDATABASE="$COOG_DB_NAME" coog_daily_main "$@"
-}
-
-_daily_mail() {
-    _init || return $?
-    . "$COOG_ROOT/coog/bin/coog-redis"
-    . "$COOG_ROOT/coog/bin/coog-celery"
-    . "$COOG_ROOT/coog/bin/coog-rq"
-    . "$COOG_ROOT/coog/bin/coog-batch"
-    . "$COOG_ROOT/coog/bin/coog-chain"
-    . "$COOG_ROOT/coog/bin/coog-module"
-    . "$COOG_ROOT/coog/bin/coog-daily"
-    PGHOST="$COOG_POSTGRES_HOST" \
-        PGPASSWORD="$COOG_DB_PASSWORD" \
-        PGUSER="$COOG_DB_USER" \
-        PGDATABASE="$COOG_DB_NAME" coog_daily_mail "$@"
 }
 
 ########
@@ -379,18 +203,16 @@ usage() {
     echo
     echo "  version       -> gets image version (git trees)"
     echo "  env           -> gets container env vars"
-    echo "  conf          -> gets container coog configuration"
     echo "  module        -> gets list of installed modules"
     echo "  admin         -> launch admin utils - <args>"
     echo "  server        -> starts coog server - <workers nb>"
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
-    echo "  rq            -> starts rq worker - <queue +>"
+    echo "  celery_single -> starts specific celery workers with one worker"
     echo "  batch         -> executes batch - <name> [args *]"
     echo "  batch_info    -> append batch info in report "
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
     echo "  redis         -> executes redis script - <context> [args *]"
     echo "  daily         -> executes daily_chains.sh - <work days> <work days conf> <extract output>"
-    echo "  daily_mail    -> executes daily report and sends mail"
     echo "  cron          -> execute coog-cron"
     echo "  shell         -> runs the arguments as a script (ex: shell bash for a shell in the container)"
     echo
@@ -403,24 +225,21 @@ main() {
     [ "$cmd" = link ] && { _link; return $?; }
     [ "$cmd" = version ] && { _print_version; return $?; }
     [ "$cmd" = env ] && { _print_env; return $?; }
-    [ "$cmd" = conf ] && { _print_conf; return $?; }
     [ "$cmd" = module ] && { _modules "$@"; return $?; }
     [ "$cmd" = admin ] && { _admin "$@"; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
-    [ "$cmd" = rq ] && { _rq "$@"; return $?; }
-    [ "$cmd" = test ] && { _test "$@"; return $?; }
+    [ "$cmd" = celery_single ] && { _celery_single "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
     [ "$cmd" = batch_info ] && { _batch_info "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
     [ "$cmd" = redis ] && { _redis "$@"; return $?; }
     [ "$cmd" = daily ] && { _daily "$@"; return $?; }
-    [ "$cmd" = daily_mail ] && { _daily_mail "$@"; return $?; }
     [ "$cmd" = cron ] && { _cron "$@"; return $?; }
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     [ "$cmd" = demo ] && { _demo "$@"; return $?; }
     [ "$cmd" = shell ] && { "$@"; return $?; }
-    echo "Not supported command" && return 1
+    echo "Not supported command" && usage &&  return 1
 }
 
 main "$@"

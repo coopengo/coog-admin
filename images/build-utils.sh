@@ -44,7 +44,7 @@ repo_cp() { # <dd> <repo> <branch>
     if [ -d build ]
     then
         echo "  build and copy"
-        ./build/build "$rev" > /dev/null \
+        ./build/build "$rev" \
             && cp -R ./dist/* "$1/$2/" \
             || return 1
     else
@@ -64,7 +64,7 @@ repo_cp() { # <dd> <repo> <branch>
         elif [ -f doc/build ]
         then
             echo "build and copy doc"
-            ./doc/build > /dev/null
+            ./doc/build
         fi
         cp -R "doc/dist/html" "$1/$2-doc"
     fi

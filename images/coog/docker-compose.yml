@@ -1,0 +1,12 @@
+version: '3.2'
+services:
+    coog:
+        image: coopengo/coog${CUSTOMER}:${COOG_VERSION}
+        build:
+            context: .
+            dockerfile: docker/coog/Dockerfile
+    coog-static:
+        image: coopengo/static${CUSTOMER}:${COOG_STATIC_VERSION}
+        build:
+            context: .
+            dockerfile: docker/static/Dockerfile
