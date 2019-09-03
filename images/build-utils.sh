@@ -86,6 +86,12 @@ repo_cp() { # <dd> <repo> <branch>
 
 _docker_build() {
     cd "$wd"
+    if [ "$KUBERNETES" = "false" ]
+    then
+        export ep=ep
+    else
+        export ep=ep_kubernetes
+    fi
     if [ -f 'docker-compose.yml' ]
     then
         docker-compose build --no-cache --force-rm --parallel

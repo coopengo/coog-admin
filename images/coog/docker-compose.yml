@@ -4,6 +4,8 @@ services:
         image: coopengo/coog:${COOG_VERSION}
         build:
             context: .
+            args:
+                - ep=$ep
             dockerfile: docker/coog/Dockerfile
     coog-static:
         image: coopengo/static${CUSTOMER}:${COOG_STATIC_VERSION}
