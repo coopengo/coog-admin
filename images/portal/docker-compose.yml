@@ -11,8 +11,6 @@ services:
             context: .
             dockerfile: docker/portal/Dockerfile
         container_name: ${NETWORK_NAME}-portal
-        ports:
-            - "5000:5000"
         networks:
             - main
         entrypoint:
