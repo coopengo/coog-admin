@@ -7,6 +7,7 @@ COPY ./dist/coog-portal/portal /portal/coog-portal
 WORKDIR /portal/coog-portal
 
 COPY docker/portal/ep /portal/
+COPY docker/portal/serve.json /portal/
 RUN ln -s /portal/ep /usr/local/bin/ep
 
 USER node

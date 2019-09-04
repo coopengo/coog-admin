@@ -1,0 +1,31 @@
+#!/bin/bash
+
+_up() {
+  docker run \
+    $DOCKER_DAEMON_OPTS \
+    --network "$NETWORK_NAME" \
+    --name "$NETWORK_NAME-static" \
+    "$STATIC_IMAGE"
+}
+
+usage() {
+    echo
+    echo Admin commands
+    echo
+    echo "  up                   -> running static container"
+    return 0
+}
+
+_image() {
+    docker "$@" "$NETWORK_NAME-static"
+}
+
+main() {
+    source "$COOG_CODE_DIR/config"
+    [ -z "$1" ] && usage && return 0
+    local cmd; cmd="$1"; shift
+    [ "$cmd" = "up" ] && { (_up "$@"); return $?; }
+    _image "$cmd" "$@"
+}
+
+main "$@"

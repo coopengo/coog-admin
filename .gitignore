@@ -1,3 +1,3 @@
 /data
-./images/portal/dist
-./images/portal/clones
+images/**/dist/
+images/**/clones/
