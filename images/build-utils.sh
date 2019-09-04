@@ -46,6 +46,22 @@ pre_repo_cp() {
 
 post_repo_cp() {
     echo "Git clean"
+    if [ -d "doc" ]
+    then
+        if [ -f doc/docker-compose.yml ]
+        then
+            echo "Dockerize doc generation and copy doc"
+            docker-compose -f doc/docker-compose.yml up
+            docker-compose -f doc/docker-compose.yml down -v --rmi all
+            chown -R ${USER}:${USER} doc/dist/
+            echo "Down ok"
+        elif [ -f doc/build ]
+        then
+            echo "build and copy doc"
+            ./doc/build
+        fi
+        cp -R "doc/dist/html" "$1/$2-doc"
+    fi
     git clean -d -f -X
 }
 
