@@ -150,7 +150,7 @@ main() {
     pull || return $?
     local ok
     source "$COOG_CODE_DIR/config"
-    export IMAGE="$1"
+    export IMAGE="coopengo/coog:${1##coopengo/coog:}"
     check || return $?
 
     local args
