@@ -110,7 +110,7 @@ _docker_build() {
     fi
     if [ -f 'docker-compose.yml' ]
     then
-        docker-compose build --no-cache --force-rm --parallel
+        docker-compose build --no-cache --force-rm
     else
         docker build -t "$image" "$@" "."
     fi
@@ -118,7 +118,7 @@ _docker_build() {
     then
         if [ -e "docker-compose-customer.yml" ]
         then
-            docker-compose -f docker-compose-customer.yml build  --no-cache --force-rm --parallel
+            docker-compose -f docker-compose-customer.yml build  --no-cache --force-rm
         fi
     fi
     cd -
