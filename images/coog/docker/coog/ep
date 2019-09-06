@@ -117,7 +117,7 @@ _init_conf() {
     # append override
     local override
     override="$COOG_IO/conf/coog.conf"
-    [ -f "$override" ] && cat "$override" > $COOG_CONF_SRV
+    [ -f "$override" ] && cat "$override" >> $COOG_CONF_SRV
     # set batch conf
     touch "$COOG_CONF_BAT"
     local batch_conf
