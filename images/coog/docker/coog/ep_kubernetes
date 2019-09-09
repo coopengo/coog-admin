@@ -122,6 +122,12 @@ _celery() {
         --queues="$q"
 }
 
+_celery_single() {
+    echo Welcome on board, Coog Celery is preparing to start
+    _init || return $?
+    python -W ignore $COOG_BIN/load_batches.py --run_specific
+}
+
 _demo() {
     _init || return $?
     PATH="$COOG_ROOT/coog/bin:$PATH" \
@@ -201,6 +207,7 @@ usage() {
     echo "  admin         -> launch admin utils - <args>"
     echo "  server        -> starts coog server - <workers nb>"
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
+    echo "  celery_single -> starts specific celery workers with one worker"
     echo "  batch         -> executes batch - <name> [args *]"
     echo "  batch_info    -> append batch info in report "
     echo "  chain         -> executes batch chain - <module> <chain> [args *]"
@@ -222,6 +229,7 @@ main() {
     [ "$cmd" = admin ] && { _admin "$@"; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
+    [ "$cmd" = celery_single ] && { _celery_single "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
     [ "$cmd" = batch_info ] && { _batch_info "$@"; return $?; }
     [ "$cmd" = chain ] && { _chain "$@"; return $?; }
