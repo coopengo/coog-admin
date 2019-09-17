@@ -136,7 +136,7 @@ PORTAL_VERSION=master                   # Portal image tag
 API_VERSION=master                      # Api image tag
 GATEWAY_VERSION=master                  # Gateway image tag
 
-REACT_APP_PORTAL_URL=/portal/           # The basename of coog-portal url 
+REACT_APP_PORTAL_URL=/portal           # The basename of coog-portal url 
                                         # Basename is at the start of the path section
                                         # https://en.wikipedia.org/wiki/URL#Syntax
 REACT_APP_PROD_API_URL=/gateway

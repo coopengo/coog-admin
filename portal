@@ -27,8 +27,8 @@ _export_conf_docker() {
     export PORTAL_VERSION 
     
     echo "Export api envs"
-    export API_VERSION API_WEB_TOKEN \
-        API_MONGO_DB_NAME
+    export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
+        API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET
     
     echo "Export gateway envs" 
     export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
@@ -53,6 +53,20 @@ _export_conf_docker() {
         export COOG_API_URL_V2="http://${NETWORK_NAME}-api"
     else
         export COOG_API_URL_V2
+    fi
+
+    if [ -z "$COOG_API_B2C_URL" ]
+    then
+        export COOG_API_B2C_URL="http://${NETWORK_NAME}-api-b2c"
+    else
+        export COOG_API_B2C_URL
+    fi
+
+    if [ -z "$COOG_API_B2B_CONFIG_URL" ]
+    then
+        export COOG_API_B2B_CONFIG_URL="http://${NETWORK_NAME}-api-b2b-config"
+    else
+        export COOG_API_B2B_CONFIG_URL
     fi
 
     if [ -z "$API_MONGO_DB_NAME" ]
@@ -86,6 +100,8 @@ _build_conf_docker() {
 
     export PORTAL_VERSION="$1"
     export API_VERSION="$1"
+    export API_B2C_VERSION="$1"
+    export API_B2B_CONFIG_VERSION="$1"
     export GATEWAY_VERSION="$1"
     export REACT_APP_PROD_API_URL REACT_APP_PORTAL_URL
     export MONGO_IMAGE NETWORK_NAME
