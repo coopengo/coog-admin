@@ -93,6 +93,7 @@ _build_conf_docker() {
 
     export PORTAL_VERSION="$1"
     export API_VERSION="$1"
+    export API_B2C_VERSION="$1"
     export GATEWAY_VERSION="$1"
     export REACT_APP_PROD_API_URL REACT_APP_PORTAL_URL
     export MONGO_IMAGE NETWORK_NAME
