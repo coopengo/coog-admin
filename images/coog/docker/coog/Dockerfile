@@ -26,6 +26,7 @@ RUN apk add --no-cache \
         "polib" \
         "pydot" \
         "pyflakes" \
+        "pyjwt" \
         "pyparsing" \
         "python-magic" \
         "python-sql" \
