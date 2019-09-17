@@ -27,7 +27,7 @@ _export_conf_docker() {
     export PORTAL_VERSION 
     
     echo "Export api envs"
-    export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
+    export API_VERSION API_WEB_TOKEN \
         API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET
     
     echo "Export gateway envs" 
