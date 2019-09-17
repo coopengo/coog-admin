@@ -63,6 +63,7 @@ services:
             COOG_DB_NAME: ${COOG_DB_NAME}
             COOG_WEB_TOKEN: ${GATEWAY_WEB_TOKEN}         # R A récupérer après avoir lancé Coog et initier un Jeton
             COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
+            COOG_API_B2C_URL: ${COOG_API_B2C_URL}        # R URL du serveur déployant API B2C
             COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
             COOG_API_IDENTITY_MANAGER_URL: http://localhost:3000                # R URL du serveur déployant API V1
 
@@ -120,6 +121,25 @@ services:
             MONGO_DB_NAME: ${API_MONGO_DB_NAME}          # O Nom de la base de données mongo a utiliser, default: coog-api-V2
             MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
             MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+    api-b2c:
+        image: coopengo/api-b2c${CUSTOMER}:${API_B2C_VERSION}
+        build:
+            context: .
+            dockerfile: docker/api-b2c/Dockerfile
+        container_name: ${NETWORK_NAME}-api-b2c
+        networks:
+            - main
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ------------COOG--------------- #
+            COOG_URL: ${COOG_URL}                                      # R URL du serveur déployant Coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                              # R Nom de la base de donnée Coog
+
+            COOG_DOCUMENT_TOKEN_SECRET: ${COOG_DOCUMENT_TOKEN_SECRET}  # O 
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}        # R Chaine de caractère utilisé pour le hashage JWT
     mongo:
         image: ${MONGO_IMAGE}
         container_name: ${NETWORK_NAME}-mongo
