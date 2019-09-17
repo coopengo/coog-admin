@@ -43,28 +43,28 @@ _export_conf_docker() {
 
     if [ -z "$COOG_API_URL" ]
     then
-        export COOG_API_URL="http://${NETWORK_NAME}-web"
+        export COOG_API_URL="http://${NETWORK_NAME}-web:3000"
     else
         export COOG_API_URL
     fi
 
     if [ -z "$COOG_API_URL_V2" ]
     then
-        export COOG_API_URL_V2="http://${NETWORK_NAME}-api"
+        export COOG_API_URL_V2="http://${NETWORK_NAME}-api:3000"
     else
         export COOG_API_URL_V2
     fi
 
     if [ -z "$COOG_API_B2C_URL" ]
     then
-        export COOG_API_B2C_URL="http://${NETWORK_NAME}-api-b2c"
+        export COOG_API_B2C_URL="http://${NETWORK_NAME}-api-b2c:3000"
     else
         export COOG_API_B2C_URL
     fi
 
     if [ -z "$COOG_API_B2B_CONFIG_URL" ]
     then
-        export COOG_API_B2B_CONFIG_URL="http://${NETWORK_NAME}-api-b2b-config"
+        export COOG_API_B2B_CONFIG_URL="http://${NETWORK_NAME}-api-b2b-config:3000"
     else
         export COOG_API_B2B_CONFIG_URL
     fi
