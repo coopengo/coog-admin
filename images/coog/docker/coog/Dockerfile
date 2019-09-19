@@ -11,7 +11,8 @@ RUN apk add --no-cache \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install \
         "Genshi" \
-        "celery" \
+        "kombu==4.6.3" \
+        "celery==4.3.0" \
         "dateutils" \
         "fastjsonschema" \
         "filelock" \
