@@ -65,6 +65,7 @@ services:
             COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
             COOG_API_B2C_URL: ${COOG_API_B2C_URL}        # R URL du serveur déployant API B2C
             COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
+            COOG_API_B2B_CONFIG_URL: ${COOG_API_B2B_CONFIG_URL}          # R URL du serveur déployant API V2
             COOG_API_IDENTITY_MANAGER_URL: http://localhost:3000                # R URL du serveur déployant API V1
 
             ####################################
@@ -87,6 +88,25 @@ services:
             FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
             FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
             FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
+    api-b2b-config:
+        image: coopengo/api-b2b-config${CUSTOMER}:${API_B2B_CONFIG_VERSION}
+        build:
+            context: .
+            dockerfile: docker/api-b2b-config/Dockerfile
+        container_name: ${NETWORK_NAME}-api-b2b-config
+        networks:
+            - main
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ------------COOG--------------- #
+            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
+            # -------------MONGO------------- #
     api:
         image: coopengo/api${CUSTOMER}:${API_VERSION}
         build:
