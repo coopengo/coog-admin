@@ -240,7 +240,7 @@ main() {
         "$COOG_CODE_DIR/paybox" run
     fi
 
-    "$COOG_CODE_DIR/portal restart"
+    "$COOG_CODE_DIR/portal" restart
 }
 
 echo "This command is about to **upgrade** your Coog installation!"
