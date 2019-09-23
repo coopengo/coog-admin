@@ -39,6 +39,7 @@ RUN pip install \
         "hiredis==0.2.0" \
         "msgpack-python==0.4.8" \
         "uwsgi==2.0.15" \
+        "kombu==4.6.3" \
         "celery[redis]==4.3.0" \
         "rq==0.13" \
         "mock==2.0.0" \
