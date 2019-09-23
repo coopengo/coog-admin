@@ -79,7 +79,7 @@ In order for documents generation to work properly, build **unoconv** by running
 To build a portal image and relative services that this application depend on
 
 ``` bash
-./wev build \
+./portal build \
     <version-number> \                  # Portal containers tag
     coog-portal:coog-<version_number>   # Portal repository 
 ```
