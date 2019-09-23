@@ -29,6 +29,7 @@ RUN mkdir /workspace \
         "requests==2.20.1" \
         "raven==6.9.0" \
         "msgpack-python==0.5.6" \
+        "kombu==4.6.3" \
         "celery[redis]==4.3.0" \
         "rq==0.13" \
         "mock==2.0.0" \
