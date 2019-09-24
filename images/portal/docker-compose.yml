@@ -50,8 +50,8 @@ services:
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo
             MONGO_PORT: ${MONGO_PORT}                    # R Port utilisé pour la connection a mongo
             MONGO_DB_NAME: ${GATEWAY_MONGO_DB_NAME}      # O Nom de la base de donnée mongo à utilisé par Gateway
-            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+            MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
 
             # --------------JWT-------------- #
             JWT_ENCRYPTION: ${JWT_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
@@ -140,8 +140,8 @@ services:
             MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
                                                          #   à supprimer prochainement car mongodb est le protocol standard
             MONGO_DB_NAME: ${API_MONGO_DB_NAME}          # O Nom de la base de données mongo a utiliser, default: coog-api-V2
-            MONGO_DB_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_DB_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+            MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
+            MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
     api-b2c:
         image: coopengo/api-b2c${CUSTOMER}:${API_B2C_VERSION}
         build:
