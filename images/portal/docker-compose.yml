@@ -132,6 +132,7 @@ services:
             # ------------COOG--------------- #
             COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
             COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+            COOG_API_V1_URL: ${COOG_API_URL}
 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
             # -------------MONGO------------- #
