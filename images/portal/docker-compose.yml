@@ -44,7 +44,7 @@ services:
             WHITELIST: ${GATEWAY_WHITELIST}              # R URLs des connections authorisées, séparé par des virgules.
             COOG_PORTAL_URL: ${COOG_PORTAL_URL}              # R URL du serveur déployant portal
             COOG_GATEWAY_URL: ${COOG_GATEWAY_URL}              # R URL du serveur déployant portal
-            BASE_PATH: ${BASE_PATH}              # R URL du serveur déployant portal
+            COOG_GATEWAY_BASE_PATH: ${COOG_GATEWAY_BASE_PATH}              # R URL du serveur déployant portal
              
             # -------------MONGO------------- #
             MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo

@@ -34,11 +34,11 @@ _export_conf_docker() {
     export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
         JWT_EXPIRATION GATEWAY_WEB_TOKEN GATEWAY_MONGO_DB_NAME COOG_GATEWAY_URL
 
-    if [ -z "$BASE_PATH" ]
+    if [ -z "$COOG_GATEWAY_BASE_PATH" ]
     then
-        export BASE_PATH=""
+        export COOG_GATEWAY_BASE_PATH=""
     else
-        export BASE_PATH
+        export COOG_GATEWAY_BASE_PATH
     fi
 
     if [ -z "$COOG_API_URL" ]
