@@ -251,6 +251,12 @@ _celery() {
         --pidfile /tmp/celerybeat.pid
 }
 
+_celery_single() {
+    echo Welcome on board, Coog Celery is preparing to start
+    _init || return $?
+    python -W ignore $COOG_BIN/load_batches.py --run_specific
+}
+
 _rq() {
     echo Welcome on board, Coog RQ is preparing to start
     _init || return $?
@@ -384,6 +390,7 @@ usage() {
     echo "  admin         -> launch admin utils - <args>"
     echo "  server        -> starts coog server - <workers nb>"
     echo "  celery        -> starts celery workers - <workers nb> <queue,+>"
+    echo "  celery_single -> starts specific celery workers with one worker"
     echo "  rq            -> starts rq worker - <queue +>"
     echo "  batch         -> executes batch - <name> [args *]"
     echo "  batch_info    -> append batch info in report "
@@ -408,6 +415,7 @@ main() {
     [ "$cmd" = admin ] && { _admin "$@"; return $?; }
     [ "$cmd" = server ] && { _server "$@"; return $?; }
     [ "$cmd" = celery ] && { _celery "$@"; return $?; }
+    [ "$cmd" = celery_single ] && { _celery_single "$@"; return $?; }
     [ "$cmd" = rq ] && { _rq "$@"; return $?; }
     [ "$cmd" = test ] && { _test "$@"; return $?; }
     [ "$cmd" = batch ] && { _batch "$@"; return $?; }
@@ -420,7 +428,7 @@ main() {
     [ "$cmd" = anon_queries ] && { _print_anon_queries "$@"; return $?; }
     [ "$cmd" = demo ] && { _demo "$@"; return $?; }
     [ "$cmd" = shell ] && { "$@"; return $?; }
-    echo "Not supported command" && return 1
+    echo "Not supported command" && usage && return 1
 }
 
 main "$@"
