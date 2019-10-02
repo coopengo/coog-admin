@@ -84,8 +84,7 @@ _server() {
     echo Welcome on board, Coog Server is preparing to start
     _init || return $?
     local format; format="%(wid) %(ltime) %(rpc) %(status) %(rsize)B %(msecs)ms"
-    [ -z "$WSGI_LOG_FILE" ] && WSGI_LOG_FILE="/tmp/coog.log"
-    export WSGI_LOG_FILE
+    [ ! -z "$WSGI_LOG_FILE" ] && export WSGI_LOG_FILE
     COOG_IWC=1
     export COOG_IWC
     uwsgi -T \
