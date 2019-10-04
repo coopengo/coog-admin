@@ -29,6 +29,7 @@ RUN apk add --no-cache \
         "pyflakes" \
         "pyjwt" \
         "pyparsing" \
+        "PyPDF2" \
         "python-magic" \
         "python-sql" \
         "python-stdnum" \
