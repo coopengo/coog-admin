@@ -14,7 +14,7 @@ RUN apk add --no-cache \
         "kombu==4.6.3" \
         "celery==4.3.0" \
         "dateutils" \
-        "fastjsonschema" \
+        "fastjsonschema==2.13" \
         "filelock" \
         "intervaltree" \
         "ipaddress" \
