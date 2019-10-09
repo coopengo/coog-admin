@@ -13,7 +13,7 @@ RUN apk add --no-cache \
         "Genshi" \
         "celery" \
         "dateutils" \
-        "fastjsonschema" \
+        "fastjsonschema==2.13" \
         "filelock" \
         "intervaltree" \
         "ipaddress" \
