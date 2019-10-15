@@ -56,7 +56,6 @@ save() {
     then
         echo "saving yearly db and attachments"
         dump_database "year-$YEAR-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
-        dump_attachments "year-$YEAR-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     # check if there is a monthly backup
@@ -65,7 +64,6 @@ save() {
     then
         echo "saving monthly db and attachments"
         dump_database "month-$MONTH-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
-        dump_attachments "month-$MONTH-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     # weekly backup on Friday
@@ -73,7 +71,6 @@ save() {
     if [[ $(date '+%u') == 5 ]]; then
         echo "saving weekly db and attachments"
         dump_database "week-$WEEK-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
-        dump_attachments "week-$WEEK-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
     fi
 
     echo "saving daily db and attachments"
@@ -120,21 +117,6 @@ clean() {
     if [[ $stock_daily_attach -gt 0 ]]; then
         echo "clean daily attachments"
         cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*daily-attachments* | tail -$stock_daily_attach)
-    fi
-
-    if [[ $stock_weekly_attach -gt 0 ]]; then
-        echo "cleaning weekly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*week*attachments* | tail -$stock_weekly_attach)
-    fi
-
-    if [[ $stock_monthly_attach -gt 0 ]]; then
-        echo "cleaning monthly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*month*attachments* | tail -$stock_monthly_attach)
-    fi
-
-    if [[ $stock_yearly_attach -gt 0 ]]; then
-        echo "cleaning yearly attachments"
-        cd $BACKUP_DIRECTORY && rm $(ls -t $BACKUP_DIRECTORY/*year*attachments* | tail -$stock_yearly_attach)
     fi
 }
 
