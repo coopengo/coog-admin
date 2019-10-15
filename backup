@@ -78,7 +78,7 @@ save() {
 
     echo "saving daily db and attachments"
     dump_database "$(date '+%Y%m%d')-daily-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
-    dump_attachments "$(date '+%Y%m%d')-daily-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
+    dump_attachments "daily-attachments-$NETWORK_NAME-$COOG_DB_NAME.tar.gz" || status_code=$?
 
     return $status_code
 }
