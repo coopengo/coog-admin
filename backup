@@ -54,7 +54,7 @@ save() {
     YEAR=$(date '+%Y')
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "year-$YEAR-db") -eq 0 ];
     then
-        echo "saving yearly db and attachments"
+        echo "saving yearly db"
         dump_database "year-$YEAR-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
     fi
 
@@ -62,14 +62,14 @@ save() {
     MONTH=$(date '+%Y%m')
     if [ $(ls -1 $BACKUP_DIRECTORY/ | grep -c "month-$MONTH-db") -eq 0 ];
     then
-        echo "saving monthly db and attachments"
+        echo "saving monthly db"
         dump_database "month-$MONTH-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
     fi
 
     # weekly backup on Friday
     WEEK=$(date '+%V')
     if [[ $(date '+%u') == 5 ]]; then
-        echo "saving weekly db and attachments"
+        echo "saving weekly db"
         dump_database "week-$WEEK-db-$NETWORK_NAME-$COOG_DB_NAME.dump.gz" || status_code=$?
     fi
 
@@ -90,9 +90,6 @@ clean() {
     stock_yearly_db="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'year.*db') - 2)"
 
     stock_daily_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'daily\-attachments') - 7)"
-    stock_weekly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'week.*attachments') - 4)"
-    stock_monthly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'month.*attachments') - 3)"
-    stock_yearly_attach="$(expr $(ls -1 $BACKUP_DIRECTORY/ | grep -c 'year.*attachments') - 2)"
 
     if [[ $stock_daily_db -gt 0 ]]; then
         echo "cleaning daily db"
