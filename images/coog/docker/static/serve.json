@@ -4,5 +4,6 @@
         { "source": "sao/**", "destination": "/sao/index.html" },
         { "source": "bench/**", "destination": "/bench/index.html" },
         { "source": "doc/**", "destination": "/doc/index.html" }
-    ]
+    ],
+    "cleanUrls": false
 }
