@@ -40,7 +40,8 @@ RUN pip install \
         "msgpack-python==0.4.8" \
         "uwsgi==2.0.15" \
         "kombu==4.6.3" \
-        "celery[redis]==4.3.0" \
+        "celery==4.3.0" \
+        "redis==3.3.8" \
         "rq==0.13" \
         "mock==2.0.0" \
     && rm -rf /root/.cache
