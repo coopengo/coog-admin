@@ -30,7 +30,8 @@ RUN mkdir /workspace \
         "raven==6.9.0" \
         "msgpack-python==0.5.6" \
         "kombu==4.6.3" \
-        "celery[redis]==4.3.0" \
+        "celery==4.3.0" \
+        "redis==3.3.8" \
         "rq==0.13" \
         "mock==2.0.0" \
         "phonenumbers==8.10.0" \
