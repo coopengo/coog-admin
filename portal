@@ -25,6 +25,7 @@ _export_conf_docker() {
 
     echo "Export portal envs"
     export PORTAL_VERSION 
+    export APP_B2C_VERSION 
     
     echo "Export api envs"
     export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
@@ -99,6 +100,7 @@ _build_conf_docker() {
     fi
 
     export PORTAL_VERSION="$1"
+    export APP_B2C_VERSION="$1"
     export API_VERSION="$1"
     export API_B2C_VERSION="$1"
     export API_B2B_CONFIG_VERSION="$1"
@@ -121,13 +123,13 @@ _up() {
 _restart() {
     _export_conf_docker
     cd images/portal
-    docker-compose restart
+    docker-compose restart "$@"
 }
 
 _down() {
     _export_conf_docker
     cd images/portal
-    docker-compose down -v "$@"
+    docker-compose down "$@"
 }
 
 ########
