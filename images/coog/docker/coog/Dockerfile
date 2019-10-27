@@ -42,6 +42,8 @@ RUN apk add --no-cache \
         "unidecode" \
         "werkzeug==0.14.1" \
         "wrapt" \
+        "requests-mock" \
+        "zeep" \
     && rm -rf /root/.cache \
     && find / -name "__pycache__" -prune -exec rm -rf {} \;
 
