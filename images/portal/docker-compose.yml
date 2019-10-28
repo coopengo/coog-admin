@@ -17,6 +17,18 @@ services:
             - ep
         command:
             - server
+    app-b2c:
+        image: coopengo/app-b2c${CUSTOMER}:${APP_B2C_VERSION}
+        build:
+            context: .
+            dockerfile: docker/app-b2c/Dockerfile
+        container_name: ${NETWORK_NAME}-app-b2c
+        networks:
+            - main
+        entrypoint:
+            - ep
+        command:
+            - server
     gateway:
         # Le containeur doit être accessible via nginx ou un outil similaire
         image: coopengo/gateway${CUSTOMER}:${GATEWAY_VERSION}
