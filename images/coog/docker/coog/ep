@@ -99,6 +99,8 @@ conf_test() {
     [ -z "$COOG_TEST" ] && return 0
     echo "[env]"
     echo "testing = True"
+    echo "[cache]"
+    echo "clean_timeout = 0"
 }
 
 _init_conf() {
