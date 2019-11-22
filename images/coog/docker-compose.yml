@@ -8,7 +8,7 @@ services:
                 - ep=$ep
             dockerfile: docker/coog/Dockerfile
     coog-static:
-        image: coopengo/static${CUSTOMER}:${COOG_STATIC_VERSION}
+        image: coopengo/static:${COOG_STATIC_VERSION}
         build:
             context: .
             dockerfile: docker/static/Dockerfile
