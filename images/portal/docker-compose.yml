@@ -100,6 +100,24 @@ services:
             FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
             FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
             FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
+    api-referential:
+        image: coopengo/api-referential${CUSTOMER}:${API_REFERENTIAL_VERSION}
+        build:
+            context: .
+            dockerfile: docker/api-referential/Dockerfile
+        container_name: ${NETWORK_NAME}-api-referential
+        networks:
+            - main
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ------------COOG--------------- #
+            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
     api-b2b-config:
         image: coopengo/api-b2b-config${CUSTOMER}:${API_B2B_CONFIG_VERSION}
         build:

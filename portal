@@ -29,7 +29,7 @@ _export_conf_docker() {
     
     echo "Export api envs"
     export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
-        API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET
+        API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET API_REFERENTIAL_VERSION 
     
     echo "Export gateway envs" 
     export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
@@ -102,6 +102,7 @@ _build_conf_docker() {
     export PORTAL_VERSION="$1"
     export APP_B2C_VERSION="$1"
     export API_VERSION="$1"
+    export API_REFERENTIAL_VERSION="$1"
     export API_B2C_VERSION="$1"
     export API_B2B_CONFIG_VERSION="$1"
     export GATEWAY_VERSION="$1"
