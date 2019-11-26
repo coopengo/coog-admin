@@ -245,6 +245,7 @@ _celery() {
         --app=async.broker_celery \
         --loglevel="$LOG_LEVEL" \
         --concurrency="$n" \
+        --max-tasks-per-child=1 \
         --queues="$q"
 }
 
