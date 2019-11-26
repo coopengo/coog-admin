@@ -67,7 +67,7 @@ cache_args() {
 }
 
 celery_args() {
-    [ ! -z "$COOG_CELERY_DB" ] && echo "-e COOG_CELERY_DB=$COOG_CELERY_DB"
+    [ ! -z "$COOG_CELERY_DB" ] && echo "-e COOG_CELERY_DB=$COOG_CELERY_DB -e COOG_CELERY_MAX_TASKS_PER_CHILD=$COOG_CELERY_MAX_TASKS_PER_CHILD"
 }
 
 rq_args() {
