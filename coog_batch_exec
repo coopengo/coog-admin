@@ -10,7 +10,7 @@ batch_name=$1;
 num_workers=$2;
 shift 2;
 ./coog redis -t -v "$COOG_VOLUME:/coog/data" --memory="5g" --oom-kill-disable -- celery qremove "$batch_name"
-./coog "celery-$batch_name" -v "$COOG_VOLUME:/coog/data" --memory="16g" --oom-kill-disable -- "$num_workers" "$batch_name"
+./coog "celery-$batch_name" -e "COOG_CELERY_MAX_TASKS_PER_CHILD=$MAX_TASKS_PER_CHILD" -v "$COOG_VOLUME:/coog/data" --memory="16g" --oom-kill-disable -- "$num_workers" "$batch_name"
 ./coog batch -v "$COOG_VOLUME:/coog/data" --name "$NETWORK_NAME-coog-$batch_name-master" --memory="16g" --oom-kill-disable -- "$batch_name" "$@"
 ret_value=$?
 sleep 10
