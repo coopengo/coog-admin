@@ -77,6 +77,7 @@ services:
             COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
             COOG_API_B2C_URL: ${COOG_API_B2C_URL}        # R URL du serveur déployant API B2C
             COOG_API_URL_V2: ${COOG_API_URL_V2}          # R URL du serveur déployant API V2
+            COOG_API_REFERENTIAL_URL: ${COOG_API_REFERENTIAL_URL}          # R URL du serveur déployant API V2
             COOG_API_B2B_CONFIG_URL: ${COOG_API_B2B_CONFIG_URL}          # R URL du serveur déployant API V2
             COOG_API_IDENTITY_MANAGER_URL: http://localhost:3000                # R URL du serveur déployant API V1
 
