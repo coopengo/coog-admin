@@ -89,7 +89,8 @@ COOG_REDIS_HOST=                        # defaults to redis container
 COOG_REDIS_PORT=                        # defaults to redis container
 
 COOG_SERVER_WORKERS="$(nproc)"          # server workers
-COOG_CELERY_WORKERS="$(nproc)"          # celery workers
+COOG_CELERY_WORKERS="$(nproc)"          # celery worker concurrency
+COOG_CELERY_MAX_TASKS_PER_CHILD=        # celery worker max tasks per child
 
 COOG_SENTRY_PROTOCOL=                   # defaults to http
 COOG_SENTRY_HOST=                       # defaults to sentry container

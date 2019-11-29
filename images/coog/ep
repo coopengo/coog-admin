@@ -243,11 +243,25 @@ _celery() {
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py --run_specific | tr '\n' ',' 2> /dev/null)"
     fi
-    celery worker \
-        --app=coog_async.broker_celery \
-        --loglevel="$LOG_LEVEL" \
-        --concurrency="$n" \
-        --queues="$q"
+
+    local max_tasks
+    max_tasks="$COOG_CELERY_MAX_TASKS_PER_CHILD"
+
+    if [ -z "$max_tasks" ]
+    then
+        celery worker \
+            --app=coog_async.broker_celery \
+            --loglevel="$LOG_LEVEL" \
+            --concurrency="$n" \
+            --queues="$q"
+    else
+        celery worker \
+            --app=coog_async.broker_celery \
+            --loglevel="$LOG_LEVEL" \
+            --concurrency="$n" \
+            --max-tasks-per-child="$max_tasks" \
+            --queues="$q"
+    fi
 }
 
 _rq() {
