@@ -176,7 +176,15 @@ main() {
     report "$ok" && \
         TARGET_RESULTS=$REPORT_NAME BRANCH=$branch_name \
         python "$COOG_CODE_DIR/send_report"
-    return $ok
+
+    # $ok does not actually mean that the tests are ok. What matters is whether
+    # the $REPORT_NAME folder is empty or not
+    if [[ ! -e "$REPORT_NAME" ]] || [[ "$(ls "$REPORT_NAME" | wc -l)" = 0 ]]
+    then
+        return 0
+    else
+        return 1
+    fi
 }
 
 return 2> /dev/null # avoid exec of main when sourced
