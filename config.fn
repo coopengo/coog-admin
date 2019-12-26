@@ -55,6 +55,7 @@ config_data_gitignore() {
         echo "/dwh"
         echo "/coog/edm"
         echo "/coog/batch"
+        echo "/mongo"
     } >> .gitignore
 }
 

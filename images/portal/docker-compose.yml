@@ -195,6 +195,8 @@ services:
     mongo:
         image: ${MONGO_IMAGE}
         container_name: ${NETWORK_NAME}-mongo
+        volumes:
+            - ${COOG_DATA_DIR}/mongo:/data/db
         networks:
             - main
         environment:
