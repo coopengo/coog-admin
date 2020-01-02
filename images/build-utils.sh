@@ -91,7 +91,7 @@ repo_cp_customer() {
 
 repo_cp() { # <dd> <repo> <branch>
     local rev; rev=$(pre_repo_cp "$@");
-    if [ -d build ]
+    if [ -d build ] && [ -f build/build ]
     then
         repo_cp_build "$@";
     else
