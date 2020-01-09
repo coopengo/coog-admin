@@ -29,7 +29,8 @@ _export_conf_docker() {
     
     echo "Export api envs"
     export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
-        API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET API_REFERENTIAL_VERSION 
+        API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET API_REFERENTIAL_VERSION \
+        API_IDENTITY_VERSION 
     
     echo "Export gateway envs" 
     export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
@@ -61,6 +62,13 @@ _export_conf_docker() {
         export COOG_API_B2C_URL="http://${NETWORK_NAME}-api-b2c:3000"
     else
         export COOG_API_B2C_URL
+    fi
+
+    if [ -z "$COOG_API_IDENTITY_URL" ]
+    then
+        export COOG_API_IDENTITY_URL="http://${NETWORK_NAME}-api-identity:3000"
+    else
+        export COOG_API_IDENTITY_URL
     fi
 
     if [ -z "$COOG_API_B2B_CONFIG_URL" ]
@@ -110,6 +118,7 @@ _build_conf_docker() {
     export APP_B2C_VERSION="$1"
     export API_VERSION="$1"
     export API_REFERENTIAL_VERSION="$1"
+    export API_IDENTITY_VERSION="$1"
     export API_B2C_VERSION="$1"
     export API_B2B_CONFIG_VERSION="$1"
     export GATEWAY_VERSION="$1"
