@@ -1,20 +1,12 @@
 FROM node:10.15-alpine
 
-RUN mkdir -p workspace/gateway
-RUN mkdir -p workspace/api-identity-manager
+WORKDIR workspace/gateway
 
-COPY ./docker/gateway/launcher workspace/
+COPY ./dist/coog-portal/gateway /workspace/gateway
 
-COPY ./dist/coog-portal/gateway workspace/gateway
-COPY ./dist/coog-portal/api-identity-manager workspace/api-identity-manager
-
-RUN cd workspace/gateway \
-    && yarn --production \
-    && cd ../api-identity-manager \
-    && yarn --production
-
+RUN yarn --production \
+    yarn global add nodemon
+    
 USER node
-WORKDIR workspace/
 
 EXPOSE 8000
-ENTRYPOINT ["/workspace/launcher"]
