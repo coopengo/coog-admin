@@ -93,8 +93,6 @@ _server() {
         --logformat "$format" \
         --http-socket :8000 \
         --harakiri "$COOG_TIMEOUT" \
-        --offload-threads="$n" \
-        --threads="$n" \
         --processes "$n"
 }
 
