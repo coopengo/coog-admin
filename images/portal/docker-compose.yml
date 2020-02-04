@@ -180,12 +180,12 @@ services:
 
             COOG_DOCUMENT_TOKEN_SECRET: ${COOG_DOCUMENT_TOKEN_SECRET}  # O 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}        # R Chaine de caractère utilisé pour le hashage JWT
-    api-identity:
-        image: coopengo/api-identity${CUSTOMER}:${API_IDENTITY_VERSION}
+    api-identity-manager:
+        image: coopengo/api-identity-manager${CUSTOMER}:${API_IDENTITY_VERSION}
         build:
             context: .
-            dockerfile: docker/api-identity/Dockerfile
-        container_name: ${NETWORK_NAME}-api-identity
+            dockerfile: docker/api-identity-manager/Dockerfile
+        container_name: ${NETWORK_NAME}-api-identity-manager
         networks:
             - main
         depends_on:
