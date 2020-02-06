@@ -85,6 +85,11 @@ _export_conf_docker() {
         export COOG_API_REFERENTIAL_URL
     fi
 
+    if [ -z "$API_IDENTITY_MONGO_DB_NAME" ]
+    then
+        export API_IDENTITY_MONGO_DB_NAME=coog-identity-manager
+    fi
+
     if [ -z "$API_MONGO_DB_NAME" ]
     then
         export API_MONGO_DB_NAME=coog-api-v2
