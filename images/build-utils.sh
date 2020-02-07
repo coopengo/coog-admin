@@ -66,6 +66,7 @@ repo_cp() { # <dd> <repo> <branch>
             echo "build and copy doc"
             ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
         fi
+        cp -R "doc/dist/html" "(/[-doc""])"
     fi
 
     git clean -d -f -X
