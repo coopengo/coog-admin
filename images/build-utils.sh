@@ -64,9 +64,9 @@ repo_cp() { # <dd> <repo> <branch>
         elif [ -f doc/build ]
         then
             echo "build and copy doc"
-            ./doc/build > /dev/null && cp -R "doc/dist/html" "$1/$2-doc"
+            ./doc/build > /dev/null
         fi
-        cp -R "doc/dist/html" "(/[-doc""])"
+        cp -R "doc/dist/html" "$1/$2-doc"
     fi
 
     git clean -d -f -X
