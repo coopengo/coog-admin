@@ -1,8 +1,8 @@
 FROM alpine:3.7
 MAINTAINER Coopengo <support@coopengo.com>
 
-RUN addgroup -g 1000 coog \
-    && adduser -u 1000 -G coog -s /bin/sh -D coog \
+RUN addgroup -g 1003 coog \
+    && adduser -u 1003 -G coog -s /bin/sh -D coog \
     && mkdir /workspace
 
 RUN apk add --no-cache \
@@ -50,7 +50,6 @@ RUN apk add --no-cache \
 COPY dist/trytond/ /workspace/trytond/
 COPY dist/trytond-modules/ /workspace/trytond-modules/ 
 COPY dist/coog/ /workspace/coog/
-COPY dist/proteus/ /workspace/proteus/
 
 ARG ep
 COPY docker/coog/${ep} /workspace/bin/ep
@@ -61,7 +60,7 @@ RUN ln -s /workspace/trytond/bin/trytond /workspace/bin/trytond \
     && ln -s /workspace/trytond/bin/trytond-cron /workspace/bin/trytond-cron \
     && /workspace/bin/ep link
 
-RUN chown coog /workspace -R 
+RUN chown -R coog:coog /workspace
 USER coog
 
 ENV PATH="/workspace/bin:${PATH}"
