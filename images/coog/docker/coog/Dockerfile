@@ -57,6 +57,7 @@ RUN apk add --no-cache \
 COPY dist/trytond/ /workspace/trytond/
 COPY dist/trytond-modules/ /workspace/trytond-modules/ 
 COPY dist/coog/ /workspace/coog/
+COPY dist/proteus/ /workspace/proteus/
 
 ARG ep
 COPY docker/coog/${ep} /workspace/bin/ep
