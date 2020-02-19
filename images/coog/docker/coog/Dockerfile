@@ -5,6 +5,15 @@ RUN addgroup -g 1003 coog \
     && adduser -u 1003 -G coog -s /bin/sh -D coog \
     && mkdir /workspace
 
+RUN adduser \
+    -D \
+    -g "" \
+    -G coog \
+    -H \
+    -u 1000 \
+    coog_saas
+
+
 RUN apk add --no-cache \
         bash python3 redis graphviz libmagic coreutils \
         py3-lxml py3-psycopg2 py3-redis py3-ldap3 uwsgi-python3 vim git \
@@ -59,6 +68,7 @@ RUN ln -s /workspace/trytond/bin/trytond /workspace/bin/trytond \
     && /workspace/bin/ep link
 
 RUN chown -R coog:coog /workspace
+RUN chmod -R 771 /workspace
 USER coog
 
 ENV PATH="/workspace/bin:${PATH}"
