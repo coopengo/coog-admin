@@ -64,11 +64,11 @@ _export_conf_docker() {
         export COOG_API_B2C_URL
     fi
 
-    if [ -z "$COOG_API_IDENTITY_URL" ]
+    if [ -z "$COOG_API_IDENTITY_MANAGER_URL" ]
     then
-        export COOG_API_IDENTITY_URL="http://${NETWORK_NAME}-api-identity-manager:3000"
+        export COOG_API_IDENTITY_MANAGER_URL="http://${NETWORK_NAME}-api-identity-manager:3000"
     else
-        export COOG_API_IDENTITY_URL
+        export COOG_API_IDENTITY_MANAGER_URL
     fi
 
     if [ -z "$COOG_API_B2B_CONFIG_URL" ]
