@@ -8,7 +8,7 @@ repo_fetch() { # <clones> <repo> <remote>
         echo "  fetch"
         (cd "$1/$2" \
             && git remote set-url origin "$3" \
-            && git fetch -p -q --recurse-submodules) || return 1
+            && git fetch -p --tags -q --recurse-submodules) || return 1
     else
         echo "  clone"
         git clone -q --config core.autocrlf=input --recurse-submodules "$3" "$1/$2" || return 1
