@@ -139,19 +139,19 @@ _build() {
 _up() {
     _export_conf_docker
     cd images/portal
-    docker-compose up -d "$@"
+    docker-compose -p "$NETWORK_NAME-portal" up -d "$@"
 }
 
 _restart() {
     _export_conf_docker
     cd images/portal
-    docker-compose restart "$@"
+    docker-compose -p "$NETWORK_NAME-portal" restart "$@"
 }
 
 _down() {
     _export_conf_docker
     cd images/portal
-    docker-compose down "$@"
+    docker-compose -p "$NETWORK_NAME-portal" down "$@"
 }
 
 ########
