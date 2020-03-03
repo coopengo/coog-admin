@@ -41,6 +41,13 @@ conf_cache() {
     [ ! -z "$COOG_CACHE_RECORD" ] && echo "record = $COOG_CACHE_RECORD"
     [ ! -z "$COOG_CACHE_FIELD" ] && echo "field = $COOG_CACHE_FIELD"
     [ ! -z "$COOG_CACHE_COOG" ] && echo "coog_cache_size = $COOG_CACHE_COOG"
+    if [ -z "$COOG_CACHE_DB" ]
+    then
+        echo "no redis db cache configured" && return 1
+    else
+        [ -z "$COOG_REDIS_HOST" ] && echo "no redis configured" && return 1
+        echo "uri = redis://$COOG_REDIS_HOST:$COOG_REDIS_PORT/$COOG_CACHE_DB"
+    fi
     echo "class = trytond.cache.SerializableMemoryCache"
     echo "clean_timeout = 0"
     return 0
