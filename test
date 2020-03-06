@@ -40,10 +40,16 @@ check() {
 
 build() {
     echo "clean old images"
-    docker rmi -f "$1" || return 1
-    rm -rf "$COOG_CODE_DIR/images/coog/dist" || return 1
+    docker rmi -f $IMAGE || return 1
     echo "build image"
-    "$COOG_CODE_DIR/coog" build "$@"
+    rm -rf /tmp/coog
+    cd /tmp/
+    git clone https://x-token-auth:${GITHUB_API_TOKEN}@github.com/coopengo/coog.git -b test_docker_file_and_entry_point
+    cd coog
+    docker build --no-cache --build-arg VERSION=$VERSION --build-arg TOKEN=${GITHUB_API_TOKEN} -f build/test.Dockerfile -t $IMAGE . || return 1
+    cd -
+    rm /tmp/coog/ -rf
+    return 0
 }
 
 clear_redis() {
@@ -151,6 +157,7 @@ main() {
     local ok
     source "$COOG_CODE_DIR/config"
     export IMAGE="coopengo/coog:${1##coopengo/coog:}"
+    export VERSION="${2}"
     check || return $?
 
     local args
@@ -160,7 +167,7 @@ main() {
         args+=($1) && shift
     done
     shift
-    build "${args[@]}" || return $?
+    build || return $?
 
     clear_redis || return $?
     clear_postgres || return $?
