@@ -113,6 +113,7 @@ _celery() {
         q="$*"
     else
         q="$(python -W ignore $COOG_BIN/load_batches.py | tr '\n' ',' 2> /dev/null)"
+        q+=",api_offloading"
     fi
     celery worker \
         --app=coog_async.broker_celery \
