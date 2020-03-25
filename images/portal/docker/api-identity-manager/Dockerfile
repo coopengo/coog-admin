@@ -4,7 +4,7 @@ WORKDIR workspace/api-identity-manager
 
 COPY ./dist/coog-portal/api-identity-manager .
 
-RUN yarn --production \
+RUN yarn --production; \
   yarn global add nodemon
 
 USER node
