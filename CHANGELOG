@@ -1,3 +1,4 @@
+FEA#15526: Add b2b document service to portal docker compose
 FEA#12150: Change docker behavior of coog-portal repositories images
 FEA#11411: Add documentation generation with docker
 FEA#8532: Add coog patch command

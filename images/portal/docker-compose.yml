@@ -96,6 +96,7 @@ services:
             FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
             FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
             FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
+            MAX_LIMIT_FILE_SIZE_UPLOAD: ${MAX_LIMIT_FILE_SIZE_UPLOAD}
     api-referential:
         image: coopengo/api-referential${CUSTOMER}:${API_REFERENTIAL_VERSION}
         build:
@@ -132,7 +133,22 @@ services:
             COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
-            # -------------MONGO------------- #
+    api-b2b-document:
+        image: coopengo/api-b2b-document${CUSTOMER}:${API_B2B_DOCUMENT_VERSION}
+        container_name: ${NETWORK_NAME}-api-b2b-document
+        networks:
+            - main
+        environment:
+            ###################################
+            # ----------PARAMETRAGE---------- #
+            ###################################
+            
+            # ------------COOG--------------- #
+            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
+            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
+
+            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
+            MAX_LIMIT_FILE_SIZE_UPLOAD: ${MAX_LIMIT_FILE_SIZE_UPLOAD}
     api:
         image: coopengo/api${CUSTOMER}:${API_VERSION}
         build:
@@ -182,6 +198,7 @@ services:
 
             COOG_DOCUMENT_TOKEN_SECRET: ${COOG_DOCUMENT_TOKEN_SECRET}  # O 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}        # R Chaine de caractère utilisé pour le hashage JWT
+            MAX_LIMIT_FILE_SIZE_UPLOAD: ${MAX_LIMIT_FILE_SIZE_UPLOAD}
     api-identity-manager:
         image: coopengo/api-identity-manager${CUSTOMER}:${API_IDENTITY_VERSION}
         build:

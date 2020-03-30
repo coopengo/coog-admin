@@ -22,6 +22,7 @@ _export_conf_docker() {
     fi
 
     export JWT_INTERNAL_ENCRYPTION
+    export MAX_LIMIT_FILE_SIZE_UPLOAD
 
     echo "Export portal envs"
     export PORTAL_VERSION 
@@ -30,7 +31,7 @@ _export_conf_docker() {
     echo "Export api envs"
     export API_VERSION API_WEB_TOKEN API_B2C_VERSION API_B2B_CONFIG_VERSION \
         API_MONGO_DB_NAME COOG_DOCUMENT_TOKEN_SECRET API_REFERENTIAL_VERSION \
-        API_IDENTITY_VERSION 
+        API_IDENTITY_VERSION API_B2B_CONFIG_VERSION
     
     echo "Export gateway envs" 
     export GATEWAY_VERSION GATEWAY_WHITELIST COOG_PORTAL_URL JWT_ENCRYPTION \
@@ -76,6 +77,13 @@ _export_conf_docker() {
         export COOG_API_B2B_CONFIG_URL="http://${NETWORK_NAME}-api-b2b-config:3000"
     else
         export COOG_API_B2B_CONFIG_URL
+    fi
+
+    if [ -z "$COOG_API_B2B_DOCUMENT_URL" ]
+    then
+        export COOG_API_B2B_DOCUMENT_URL="http://${NETWORK_NAME}-api-b2b-document:3000"
+    else
+        export COOG_API_B2B_DOCUMENT_URL
     fi
 
     if [ -z "$COOG_API_REFERENTIAL_URL" ]
