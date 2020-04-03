@@ -41,7 +41,7 @@ repo_cp() { # <dd> <repo> <branch>
 
     mkdir "$1/$2" || return 1
 
-    if [ -d build ]
+    if [ -d build ] && [ -f build/build ]
     then
         echo "  build and copy"
         ./build/build "$rev" > /dev/null \
