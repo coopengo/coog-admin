@@ -51,7 +51,7 @@ post_repo_cp() {
         if [ -f doc/docker-compose.yml ]
         then
             echo "Dockerize doc generation and copy doc"
-            docker-compose -f doportalc/docker-compose.yml up
+            docker-compose -f doc/docker-compose.yml up
             docker-compose -f doc/docker-compose.yml down -v --rmi all
             chown -R ${USER}:${USER} doc/dist/
             echo "Down ok"
