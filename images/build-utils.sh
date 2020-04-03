@@ -51,7 +51,7 @@ post_repo_cp() {
         if [ -f doc/docker-compose.yml ]
         then
             echo "Dockerize doc generation and copy doc"
-            docker-compose -f doc/docker-compose.yml up
+            docker-compose -f doportalc/docker-compose.yml up
             docker-compose -f doc/docker-compose.yml down -v --rmi all
             chown -R ${USER}:${USER} doc/dist/
             echo "Down ok"
@@ -91,7 +91,7 @@ repo_cp_customer() {
 
 repo_cp() { # <dd> <repo> <branch>
     local rev; rev=$(pre_repo_cp "$@");
-    if [ -d build ]
+    if [ -d build ] && [ -f build/build ]
     then
         repo_cp_build "$@";
     else
