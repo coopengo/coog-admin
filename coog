@@ -157,7 +157,7 @@ _image() {
     [ -z "$1" ] && echo missing command && return 1
     local cmd; cmd=$(echo "$1" | cut -d "-" -f "1")
     local args
-    args="--name $NETWORK_NAME-coog-$1"
+    args="--name $NETWORK_NAME-coog-$1 --entrypoint legacy.ep"
     if [ "$cmd" = "server" ] || [ "$cmd" = "celery" ]
     then
         args="$args $DOCKER_DAEMON_OPTS"
