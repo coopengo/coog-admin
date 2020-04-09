@@ -153,14 +153,18 @@ main() {
     export IMAGE="coopengo/coog:${1##coopengo/coog:}"
     check || return $?
 
-    local args
-    args=()
-    while [ ! -z "$1" ] && [ "$1" != "--" ]
-    do
-        args+=($1) && shift
-    done
-    shift
-    build "${args[@]}" || return $?
+    if [[ "${NO_BUILD:-yes_do_build}" = "yes_do_build" ]]; then
+        local args
+        args=()
+        while [ ! -z "$1" ] && [ "$1" != "--" ]
+        do
+            args+=($1) && shift
+        done
+        shift
+        build "${args[@]}" || return $?
+    else
+        shift
+    fi
 
     clear_redis || return $?
     clear_postgres || return $?
