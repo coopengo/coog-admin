@@ -129,7 +129,7 @@ _celery_single() {
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
     [ -z "$COOG_CELERY_DEFAULT_CONCURRENCY" ] && COOG_CELERY_DEFAULT_CONCURRENCY=1
-    python -W ignore $COOG_BIN/load_batches.py --run_specific --concurrency=$COOG_CELERY_DEFAULT_CONCURRENCY
+    python -W ignore $COOG_BIN/load_batches.py --run_specific --default_concurrency=$COOG_CELERY_DEFAULT_CONCURRENCY
 }
 
 _demo() {
