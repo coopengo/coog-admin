@@ -96,6 +96,9 @@ _server() {
         --processes "$n"
 }
 
+
+# TO BE REMOVED
+# LEGACY CELERY LAUNCH COMMAND
 _celery() {
     local n; n="$1"
     if [ ! -z "$n" ] && [ "$n" -eq "$n" ]
@@ -125,7 +128,8 @@ _celery() {
 _celery_single() {
     echo Welcome on board, Coog Celery is preparing to start
     _init || return $?
-    python -W ignore $COOG_BIN/load_batches.py --run_specific
+    [ -z "$COOG_CELERY_DEFAULT_CONCURRENCY" ] && COOG_CELERY_DEFAULT_CONCURRENCY=1
+    python -W ignore $COOG_BIN/load_batches.py --run_specific --default_concurrency=$COOG_CELERY_DEFAULT_CONCURRENCY
 }
 
 _demo() {
