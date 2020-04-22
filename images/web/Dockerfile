@@ -5,6 +5,7 @@ COPY ./dist /web
 WORKDIR /web/coog-api
 
 RUN apk add --no-cache --virtual .build-deps wget ca-certificates make gcc g++ python linux-headers musl-dev \
+    && apk add -qU openssh git \
     && npm i --production \
     && npm cache clean --force \
     && rm -rf /root/.node-gyp \
