@@ -82,20 +82,6 @@ services:
 
             # -------------BASIC-------------- #
             COOG_MODULE: ${COOG_MODULE}                  # O Basic auth via COOG
-
-            # -----------PASSPORT------------- #
-            # ------------OAUTH2-------------- #
-            GOOGLE_MODULE: ${GOOGLE_MODULE}              # O Google OAuth2 activation
-            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}        # O Id de l'application google
-            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_ID}    # O Hash secret de l'application google
-
-            FACEBOOK_MODULE: ${FACEBOOK_MODULE}          # O Facebook OAuth2
-            FACEBOOK_CLIENT_ID:  ${FACEBOOK_CLIENT_ID}   # O Id de l'application facebook
-            FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_ID} # O Hash secret de l'application facebook
-
-            FORCEDOTCOM_MODULE: ${FORCEDOTCOM_MODULE}    # O Force OAuth2 (Salesforce, Force, Database)
-            FORCEDOTCOM_CLIENT_ID:  ${FORCEDOTCOM_CLIENT_ID}     # O Id de l'application force
-            FORCEDOTCOM_CLIENT_SECRET:  ${FORCEDOTCOM_CLIENT_ID} # O Hash secret de l'application force
     api-referential:
         image: coopengo/api-referential${CUSTOMER}:${API_REFERENTIAL_VERSION}
         build:
