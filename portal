@@ -101,10 +101,7 @@ _export_conf_docker() {
     fi
 
     echo "Export gateway authentication activation"
-    export COOG_MODULE GOOGLE_MODULE FACEBOOK_MODULE FORCEDOTCOM_MODULE \
-        GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET \
-        FACEBOOK_CLIENT_ID FACEBOOK_CLIENT_SECRET \
-        FORCEDOTCOM_CLIENT_ID FORCEDOTCOM_CLIENT_SECRET 
+    export COOG_MODULE
 
     echo "Export mongo envs"
     export MONGO_IMAGE MONGO_USER MONGO_PASSWORD MONGO_PORT 
