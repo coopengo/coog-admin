@@ -37,7 +37,11 @@ services:
             dockerfile: docker/gateway/Dockerfile
         container_name: ${NETWORK_NAME}-gateway
         env_file:
-            - .env
+          - gateway.env
+          - security.env
+          - mongo.env
+          - coog.env
+          - document.env
         networks:
             - main 
         depends_on:
@@ -54,20 +58,13 @@ services:
             COOG_GATEWAY_BASE_PATH: ${COOG_GATEWAY_BASE_PATH}              # R URL du serveur déployant portal
              
             # -------------MONGO------------- #
-            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur mongo
-            MONGO_PORT: ${MONGO_PORT}                    # R Port utilisé pour la connection a mongo
             MONGO_DB_NAME: ${GATEWAY_MONGO_DB_NAME}      # O Nom de la base de donnée mongo à utilisé par Gateway
-            MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
 
             # --------------JWT-------------- #
             JWT_ENCRYPTION: ${JWT_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
             JWT_EXPIRATION: ${JWT_EXPIRATION}            # R Durée de vie du JWT
 
             # -------------COOG-------------- #
-            COOG_URL: ${COOG_URL}
-            COOG_DB_NAME: ${COOG_DB_NAME}
             COOG_WEB_TOKEN: ${GATEWAY_WEB_TOKEN}         # R A récupérer après avoir lancé Coog et initier un Jeton
             COOG_API_URL: ${COOG_API_URL}                # R URL du serveur déployant API V1
             COOG_API_B2C_URL: ${COOG_API_B2C_URL}        # R URL du serveur déployant API B2C
@@ -90,16 +87,9 @@ services:
         container_name: ${NETWORK_NAME}-api-referential
         networks:
             - main
-        environment:
-            ###################################
-            # ----------PARAMETRAGE---------- #
-            ###################################
-            
-            # ------------COOG--------------- #
-            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
-            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
-
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
+        env_file:
+          - security.env
+          - coog.env
     api-b2b-config:
         image: coopengo/api-b2b-config${CUSTOMER}:${API_B2B_CONFIG_VERSION}
         build:
@@ -108,17 +98,9 @@ services:
         container_name: ${NETWORK_NAME}-api-b2b-config
         networks:
             - main
-        environment:
-            ###################################
-            # ----------PARAMETRAGE---------- #
-            ###################################
-            
-            # ------------COOG--------------- #
-            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
-            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
-
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
-            # -------------MONGO------------- #
+        env_file:
+          - security.env
+          - coog.env
     api:
         image: coopengo/api${CUSTOMER}:${API_VERSION}
         build:
@@ -131,24 +113,15 @@ services:
             - main
         depends_on:
             - mongo
+        env_file:
+          - security.env
+          - coog.env
+          - mongo.env
+          - document.env
         environment:
-            ###################################
-            # ----------PARAMETRAGE---------- #
-            ###################################
-            
-            # ------------COOG--------------- #
-            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
-            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
             COOG_API_V1_URL: ${COOG_API_URL}
 
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
-            # -------------MONGO------------- #
-            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
-            MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
-                                                         #   à supprimer prochainement car mongodb est le protocol standard
-            MONGO_DB_NAME: ${API_MONGO_DB_NAME}          # O Nom de la base de données mongo a utiliser, default: coog-api-V2
-            MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+            MONGO_DB_NAME: ${API_MONGO_DB_NAME}
     api-b2c:
         image: coopengo/api-b2c${CUSTOMER}:${API_B2C_VERSION}
         build:
@@ -156,18 +129,11 @@ services:
             dockerfile: docker/api-b2c/Dockerfile
         container_name: ${NETWORK_NAME}-api-b2c
         networks:
-            - main
-        environment:
-            ###################################
-            # ----------PARAMETRAGE---------- #
-            ###################################
-            
-            # ------------COOG--------------- #
-            COOG_URL: ${COOG_URL}                                      # R URL du serveur déployant Coog
-            COOG_DB_NAME: ${COOG_DB_NAME}                              # R Nom de la base de donnée Coog
-
-            COOG_DOCUMENT_TOKEN_SECRET: ${COOG_DOCUMENT_TOKEN_SECRET}  # O 
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}        # R Chaine de caractère utilisé pour le hashage JWT
+          - main
+        env_file:
+          - security.env
+          - coog.env
+          - document.env
     api-identity-manager:
         image: coopengo/api-identity-manager${CUSTOMER}:${API_IDENTITY_VERSION}
         build:
@@ -178,23 +144,22 @@ services:
             - main
         depends_on:
             - mongo
+            - api-identity-manager-migrator
+        env_file:
+          - coog.env
+          - security.env
+          - mongo.env
         environment:
-            ###################################
-            # ----------PARAMETRAGE---------- #
-            ###################################
-            
-            # ------------COOG--------------- #
-            COOG_URL: ${COOG_URL}       # R URL du serveur déployant Coog
-            COOG_DB_NAME: ${COOG_DB_NAME}                # R Nom de la base de donnée Coog
-
-            JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
-            # -------------MONGO------------- #
-            MONGO_HOST: ${NETWORK_NAME}-mongo            # R URL du serveur déployant Mongo
-            MONGO_DB_PROTOCOL: mongodb                   # R Protocol de connection a Mongo,
-                                                         #   à supprimer prochainement car mongodb est le protocol standard
-            MONGO_DB_NAME: ${API_IDENTITY_MONGO_DB_NAME} # O Nom de la base de données mongo a utiliser, default: coog-api-identity-manager
-            MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
-            MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
+          MONGO_DB_NAME: ${API_MONGO_DB_NAME}
+    api-identity-manager-migrator:
+      image: coopengo/api-identity-manager-migrator:${API_IDENTITY_VERSION}
+      container_name: ${NETWORK_NAME}-api-identity-manager-migrator
+      networks:
+        - main
+      depends_on:
+        - mongo
+      env_file:
+        - mongo.env
     mongo:
         image: ${MONGO_IMAGE}
         container_name: ${NETWORK_NAME}-mongo

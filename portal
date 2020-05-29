@@ -104,7 +104,19 @@ _export_conf_docker() {
     export COOG_MODULE
 
     echo "Export mongo envs"
-    export MONGO_IMAGE MONGO_USER MONGO_PASSWORD MONGO_PORT 
+    export MONGO_IMAGE MONGO_PORT 
+    if [ ! -z "$MONGO_USER" ]
+    then
+        export MONGO_USER=$MONGO_USER
+    fi
+    if [ ! -z "$MONGO_PASSWORD" ]
+    then
+        export MONGO_PASSWORD=$MONGO_PASSWORD
+    fi
+    if [ ! -z "$MAX_LIMIT_FILE_SIZE_UPLOAD" ]
+    then
+        export MAX_LIMIT_FILE_SIZE_UPLOAD=$MAX_LIMIT_FILE_SIZE_UPLOAD
+    fi
 }
 
 _build_conf_docker() {
