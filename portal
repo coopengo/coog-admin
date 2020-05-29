@@ -105,6 +105,12 @@ _export_conf_docker() {
 
     echo "Export mongo envs"
     export MONGO_IMAGE MONGO_PORT 
+    if [ -z "$MONGO_HOST" ]
+    then
+        export MONGO_HOST="$NETWORK_NAME-mongo"
+    else
+        export MONGO_HOST
+    fi
     if [ ! -z "$MONGO_USER" ]
     then
         export MONGO_USER=$MONGO_USER
