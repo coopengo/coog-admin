@@ -207,7 +207,7 @@ Upgrade the environment
   .. code-block:: bash
   
 	./redis server
-	./upgrade -t coopengohub/coog-customer:2.0.X -u
+  	./upgrade -t coopengohub/coog-customer:2.0.X -u
 	
 - Relaunch coog
 
