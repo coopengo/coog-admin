@@ -59,7 +59,7 @@ WEB_REDIS_DB=7                          # web db name
 # UNOCONV CONFIG
 #-------------------------------------------------------------------------------#
 
-UNOCONV_IMAGE=coopengo/unoconv          # docker image
+UNOCONV_IMAGE=coopengohub/unoconv          # docker image
 
 #-------------------------------------------------------------------------------#
 # SENTRY CONFIG
@@ -79,7 +79,7 @@ SENTRY_REDIS_PORT=                      # defaults to redis container
 # COOG CONFIG
 #-------------------------------------------------------------------------------#
 
-COOG_IMAGE=coopengo/coog:master         # docker image
+COOG_IMAGE=coopengohub/coog:master         # docker image
 COOG_VOLUME=$COOG_DATA_DIR/coog         # docker data volume
 
 COOG_POSTGRES_HOST=                     # defaults to postgres container
@@ -119,7 +119,7 @@ COOG_FONT_DIR=/usr/local/fonts          # folder to look in for fonts
 # WEB CONFIG
 #-------------------------------------------------------------------------------#
 
-WEB_IMAGE=coopengo/web:master           # docker image
+WEB_IMAGE=coopengohub/web:master           # docker image
 COOG_API_API_URL=                       # server url
 COOG_API_API_PROTOCOL=                  # API protocol
 COOG_API_APP_URL=                       # front-end application url if distant
@@ -201,7 +201,7 @@ NGINX_SSL_SERVER_NAME=                  # SSL server name
 # PAYBOX CONFIG
 #-------------------------------------------------------------------------------#
 
-PAYBOX_IMAGE=coopengo/paybox:master
+PAYBOX_IMAGE=coopengohub/paybox:master
 PAYBOX_PUB_PORT=3000
 PAYBOX_COOG_USER=admin
 PAYBOX_COOG_PASS=admin
@@ -210,7 +210,7 @@ PAYBOX_COOG_PASS=admin
 # SYNC CONFIG
 #-------------------------------------------------------------------------------#
 
-SYNC_IMAGE=coopengo/sync:master         # docker image
+SYNC_IMAGE=coopengohub/sync:master         # docker image
 SYNC_SRC=$COOG_VOLUME                   # source volume
 SYNC_DEST=/home/$USER/.sync             # destination volume
 
@@ -236,7 +236,7 @@ DWH_DB_NAME=coog_dwh                    # datawarehouse database
 # ETL CONFIG
 #-------------------------------------------------------------------------------#
 
-ETL_IMAGE=coopengo/etl:master
+ETL_IMAGE=coopengohub/etl:master
 
 ETL_ORIGIN_DB_HOST="$COOG_POSTGRES_HOST"
 ETL_ORIGIN_DB_PORT="$COOG_POSTGRES_PORT"
@@ -254,7 +254,7 @@ ETL_TARGET_DB_NAME="$DWH_DB_NAME"
 # BI SERVER CONFIG
 #-------------------------------------------------------------------------------#
 
-BI_IMAGE=coopengo/bi:master
+BI_IMAGE=coopengohub/bi:master
 
 BI_DB_HOST="$ETL_TARGET_DB_HOST"
 BI_DB_PORT="$ETL_TARGET_DB_PORT"

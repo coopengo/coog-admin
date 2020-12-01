@@ -6,7 +6,7 @@ services:
     # Else
     #   It's optionnal
     portal:
-        image: coopengo/portal${CUSTOMER}:${PORTAL_VERSION}
+        image: coopengohub/portal${CUSTOMER}:${PORTAL_VERSION}
         build:
             context: .
             dockerfile: docker/portal/Dockerfile
@@ -18,7 +18,7 @@ services:
         command:
             - server
     app-b2c:
-        image: coopengo/app-b2c${CUSTOMER}:${APP_B2C_VERSION}
+        image: coopengohub/app-b2c${CUSTOMER}:${APP_B2C_VERSION}
         build:
             context: .
             dockerfile: docker/app-b2c/Dockerfile
@@ -31,7 +31,7 @@ services:
             - server
     gateway:
         # Le containeur doit être accessible via nginx ou un outil similaire
-        image: coopengo/gateway${CUSTOMER}:${GATEWAY_VERSION}
+        image: coopengohub/gateway${CUSTOMER}:${GATEWAY_VERSION}
         build:
             context: .
             dockerfile: docker/gateway/Dockerfile
@@ -83,7 +83,7 @@ services:
             # -------------BASIC-------------- #
             COOG_MODULE: ${COOG_MODULE}                  # O Basic auth via COOG
     api-referential:
-        image: coopengo/api-referential${CUSTOMER}:${API_REFERENTIAL_VERSION}
+        image: coopengohub/api-referential${CUSTOMER}:${API_REFERENTIAL_VERSION}
         build:
             context: .
             dockerfile: docker/api-referential/Dockerfile
@@ -101,7 +101,7 @@ services:
 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
     api-b2b-config:
-        image: coopengo/api-b2b-config${CUSTOMER}:${API_B2B_CONFIG_VERSION}
+        image: coopengohub/api-b2b-config${CUSTOMER}:${API_B2B_CONFIG_VERSION}
         build:
             context: .
             dockerfile: docker/api-b2b-config/Dockerfile
@@ -120,7 +120,7 @@ services:
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}                # R Chaine de caractère utilisé pour le hashage JWT
             # -------------MONGO------------- #
     api:
-        image: coopengo/api${CUSTOMER}:${API_VERSION}
+        image: coopengohub/api${CUSTOMER}:${API_VERSION}
         build:
             context: .
             dockerfile: docker/api/Dockerfile
@@ -150,7 +150,7 @@ services:
             MONGO_USER: ${MONGO_USER}                 # O Utilisateur de connection à mongo si l'accès est protégé
             MONGO_PASSWORD: ${MONGO_PASSWORD}         # O Mot de passe utilisateur mongo
     api-b2c:
-        image: coopengo/api-b2c${CUSTOMER}:${API_B2C_VERSION}
+        image: coopengohub/api-b2c${CUSTOMER}:${API_B2C_VERSION}
         build:
             context: .
             dockerfile: docker/api-b2c/Dockerfile
@@ -169,7 +169,7 @@ services:
             COOG_DOCUMENT_TOKEN_SECRET: ${COOG_DOCUMENT_TOKEN_SECRET}  # O 
             JWT_INTERNAL_ENCRYPTION: ${JWT_INTERNAL_ENCRYPTION}        # R Chaine de caractère utilisé pour le hashage JWT
     api-identity-manager:
-        image: coopengo/api-identity-manager${CUSTOMER}:${API_IDENTITY_VERSION}
+        image: coopengohub/api-identity-manager${CUSTOMER}:${API_IDENTITY_VERSION}
         build:
             context: .
             dockerfile: docker/api-identity-manager/Dockerfile

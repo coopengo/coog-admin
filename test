@@ -150,7 +150,7 @@ main() {
     pull || return $?
     local ok
     source "$COOG_CODE_DIR/config"
-    export IMAGE="coopengo/coog:${1##coopengo/coog:}"
+    export IMAGE="coopengohub/coog:${1##coopengohub/coog:}"
     check || return $?
 
     if [[ "${NO_BUILD:-yes_do_build}" = "yes_do_build" ]]; then

@@ -1,9 +1,9 @@
 version: '3.2'
 services:
     coog:
-        image: coopengo/coog${CUSTOMER}:${COOG_VERSION}
+        image: coopengohub/coog${CUSTOMER}:${COOG_VERSION}
         build:
             context: .
             dockerfile: docker/coog/DockerfileCustomer
             args:
-                IMAGE: coopengo/coog:${COOG_VERSION}
+                IMAGE: coopengohub/coog:${COOG_VERSION}
