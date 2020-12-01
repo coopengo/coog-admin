@@ -1,14 +1,14 @@
 version: '3.2'
 services:
     coog:
-        image: coopengo/coog:${COOG_VERSION}
+        image: coopengohub/coog:${COOG_VERSION}
         build:
             context: .
             args:
                 - ep=$ep
             dockerfile: docker/coog/Dockerfile
     coog-static:
-        image: coopengo/static:${COOG_STATIC_VERSION}
+        image: coopengohub/static:${COOG_STATIC_VERSION}
         build:
             context: .
             dockerfile: docker/static/Dockerfile

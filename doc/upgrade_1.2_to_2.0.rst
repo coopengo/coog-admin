@@ -185,7 +185,7 @@ Upgrade the environment
 
   .. code-block:: bash
 
-    docker pull coopengo/unoconv:2.0.X
+    docker pull coopengohub/unoconv:2.0.X
     
 - If you're using the web components, you need to pull the images else update the NGINX conf
 
@@ -193,13 +193,13 @@ Upgrade the environment
 
 		.. code-block:: bash
 
-			WEB_IMAGE=coopengo/web:2.0.X
+			WEB_IMAGE=coopengohub/web:2.0.X
 
 	- Pull the web images
 
 		.. code-block:: bash
 
-			docker pull coopengo/web:2.0.X
+			docker pull coopengohub/web:2.0.X
 			
 - To upgrade your environment use the coog-admin upgrade script. Following 
   is an example.
@@ -207,7 +207,7 @@ Upgrade the environment
   .. code-block:: bash
   
 	./redis server
-  	./upgrade -t coopengo/coog-customer:2.0.X -u
+		./upgrade -t coopengohub/coog-customer:2.0.X -u
 	
 - Relaunch coog
 

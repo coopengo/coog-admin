@@ -129,9 +129,9 @@ First of all, ask for access to pull **Coog** images. Once you have
 access
 
 ``` bash
-docker pull coopengo/coog-<customer>:<version_number>
-docker pull coopengo/web:<version_number>
-docker pull coopengo/unoconv:<version_number>
+docker pull coopengohub/coog-<customer>:<version_number>
+docker pull coopengohub/web:<version_number>
+docker pull coopengohub/unoconv:<version_number>
 ```
 
 ### Load images from archive files
@@ -170,8 +170,8 @@ POSTGRES_USER=<postgres_user>
 POSTGRES_PASSWORD=<postgres_password>
 NGINX_PUB_PORT=<host mapped port> by default 80
 
-COOG_IMAGE=coopengo/coog-<customer>:<version_number>
-WEB_IMAGE=coopengo/web:<version_number>
+COOG_IMAGE=coopengohub/coog-<customer>:<version_number>
+WEB_IMAGE=coopengohub/web:<version_number>
 
 # Default value: COOG_DATA_DIR/coog
 COOG_VOLUME=<path to coog data>
