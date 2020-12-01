@@ -50,7 +50,7 @@ To build a **Web** image, follow the same logic, this time *coog-api* and
 
 ``` bash
 ./web build \
-    coopengo/web:<version_number> \        # Web image name
+    coopengo/web:<version_number> \       # Web image name
     coog-api:coog-<version_number> \      # API repository 
     coog-app:coog-<version_number> \      # APP repository
 ```
