@@ -1,6 +1,11 @@
 FROM python:2-slim
 MAINTAINER Coopengo <support@coopengo.com>
 
+# ajout user appuser et mot de passe de root maintenant : root
+RUN groupadd -g 999 coog_user && \
+        useradd -r -u 999 -g coog_user coog_user && \
+        echo "root:root" | chpasswd
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
         vim \
@@ -11,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         graphviz \
         libmagic1 \
         git \
+        openssh-client \ 
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
@@ -54,7 +60,10 @@ RUN ln -s /workspace/trytond/bin/trytond /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-admin /usr/local/bin
 RUN ln -s /workspace/trytond/bin/trytond-cron /usr/local/bin
 RUN ln -s /workspace/ep /usr/local/bin/ep
-RUN ep link
+RUN ep link 
+RUN chown -R coog_user:coog_user /workspace/ 
+
+USER coog_user
 
 VOLUME ["/workspace/sao", "/workspace/coog-bench", "/workspace/coog-doc"]
 ENTRYPOINT ["ep"]
