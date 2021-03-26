@@ -1,4 +1,4 @@
-FROM node:10.15-alpine
+FROM node:10-alpine
 
 WORKDIR workspace/gateway
 
