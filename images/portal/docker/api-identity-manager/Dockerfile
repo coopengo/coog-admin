@@ -1,4 +1,4 @@
-FROM node:10.15-alpine
+FROM node:10.23.1-alpine
 
 WORKDIR workspace/api-identity-manager
 
