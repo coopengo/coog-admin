@@ -1,4 +1,4 @@
-FROM node:10.15-alpine
+FROM node:10.23.1-alpine
 
 RUN mkdir -p workspace/api-b2b-config
 WORKDIR workspace/api-b2b-config
