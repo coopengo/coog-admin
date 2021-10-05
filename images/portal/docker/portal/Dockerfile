@@ -1,4 +1,4 @@
-FROM node:10.15-alpine
+FROM node:10.24.1-alpine
 
 RUN yarn global add serve
 
